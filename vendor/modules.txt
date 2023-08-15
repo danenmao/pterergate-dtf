@@ -1,0 +1,5 @@
+# github.com/golang/glog v1.1.2
+## explicit; go 1.19
+github.com/golang/glog
+github.com/golang/glog/internal/logsink
+github.com/golang/glog/internal/stackdump
