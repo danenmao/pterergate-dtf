@@ -19,6 +19,7 @@ const (
 	ServiceRole_Generator ServiceRole = 2
 	ServiceRole_Scheduler ServiceRole = 3
 	ServiceRole_Executor  ServiceRole = 4
+	ServiceRole_Iterator  ServiceRole = 5
 )
 
 // 启动指定的服务
