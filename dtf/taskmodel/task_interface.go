@@ -65,7 +65,3 @@ type ITaskIterator interface {
 	// 整个任务完成时执行
 	AfterTaskCompleted(taskId TaskIdType) (int, error)
 }
-
-// IDataTranlator
-type IDataTranlator interface {
-}

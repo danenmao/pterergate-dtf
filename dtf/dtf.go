@@ -12,18 +12,8 @@ import (
 //
 ////////////////////////////////////////////////////////////////////////
 
-type ServiceRole uint32
-
-const (
-	ServiceRole_Manager   ServiceRole = 1
-	ServiceRole_Generator ServiceRole = 2
-	ServiceRole_Scheduler ServiceRole = 3
-	ServiceRole_Executor  ServiceRole = 4
-	ServiceRole_Iterator  ServiceRole = 5
-)
-
 // 启动指定的服务
-func StartService(role ServiceRole) error {
+func StartService(role ServiceRole, opt ...ServiceOptions) error {
 	return nil
 }
 
