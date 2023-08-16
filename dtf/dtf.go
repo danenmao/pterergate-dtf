@@ -4,7 +4,7 @@ import (
 	"pterergate-dtf/dtf/dtfdef"
 	"pterergate-dtf/dtf/taskmodel"
 	"pterergate-dtf/dtf/taskplugin"
-	"pterergate-dtf/internal/servicectl"
+	"pterergate-dtf/internal/servicectrl"
 	"pterergate-dtf/internal/taskframework/taskloader"
 )
 
@@ -22,17 +22,17 @@ func StartService(role dtfdef.ServiceRole, opts ...ServiceOption) error {
 		opt(&cfg)
 	}
 
-	return servicectl.StartService(role, &cfg)
+	return servicectrl.StartService(role, &cfg)
 }
 
 // 通知停止服务
 func NotifyStop() error {
-	return servicectl.NotifyStop()
+	return servicectrl.NotifyStop()
 }
 
 // 等待服务停止
 func Join() error {
-	return servicectl.Join()
+	return servicectrl.Join()
 }
 
 ////////////////////////////////////////////////////////////////////////

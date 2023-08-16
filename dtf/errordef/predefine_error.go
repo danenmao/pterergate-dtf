@@ -12,3 +12,6 @@ var ErrNotFound = &NotFoundError{}
 
 // Uninitialized
 var ErrUninitialized = errors.New("uninitialized")
+
+// InvalidParameter
+var ErrInvalidParameter = errors.New("invalid parameter")

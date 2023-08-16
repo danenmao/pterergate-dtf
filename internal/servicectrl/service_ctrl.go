@@ -1,20 +1,22 @@
-package servicectl
+package servicectrl
 
 import (
+	"github.com/golang/glog"
+
 	"pterergate-dtf/dtf/dtfdef"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/mysqltool"
-	"pterergate-dtf/internal/redistool"
+	"pterergate-dtf/dtf/errordef"
 )
 
 // 启动指定的服务
 func StartService(role dtfdef.ServiceRole, cfg *dtfdef.ServiceConfig) error {
 
-	config.DefaultMySQL = cfg.MySQLServer
-	mysqltool.ConnectToDefaultMySQL()
+	startFn, found := gs_ServiceRoleAction[role]
+	if !found {
+		glog.Warning("unknown service role: ", role)
+		return errordef.ErrInvalidParameter
+	}
 
-	config.DefaultRedisServer = cfg.RedisServer
-	redistool.ConnectToDefaultRedis()
+	startFn(cfg)
 
 	return nil
 }
