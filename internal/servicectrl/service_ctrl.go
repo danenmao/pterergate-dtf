@@ -5,6 +5,7 @@ import (
 
 	"pterergate-dtf/dtf/dtfdef"
 	"pterergate-dtf/dtf/errordef"
+	"pterergate-dtf/internal/signalctrl"
 )
 
 // 启动指定的服务
@@ -16,7 +17,9 @@ func StartService(role dtfdef.ServiceRole, cfg *dtfdef.ServiceConfig) error {
 		return errordef.ErrInvalidParameter
 	}
 
+	signalctrl.RegisterSignal()
 	startFn(cfg)
+	signalctrl.WaitPreStop()
 
 	return nil
 }
