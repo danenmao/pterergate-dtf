@@ -9,23 +9,34 @@ import (
 	goredis "github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
+	"pterergate-dtf/dtf/extconfig"
 	"pterergate-dtf/internal/config"
 )
 
 // go-redis连接池
-var RedisClient *goredis.Client
+var gs_RedisClient *goredis.Client
+
+// 获取go-redis实例
+func DefaultRedis() *goredis.Client {
+	return gs_RedisClient
+}
+
+// 连接默认的MySQL数据库
+func ConnectToDefaultRedis() {
+	gs_RedisClient = InitRedisClient(&config.DefaultRedisServer)
+}
 
 // 初始化go-redis连接池
-func InitClient() {
-	dbNo, err := strconv.Atoi(config.RedisConf["db"])
+func InitRedisClient(cfg *extconfig.RedisAddress) *goredis.Client {
+	dbNo, err := strconv.Atoi(cfg.DB)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	RedisClient = goredis.NewClient(&goredis.Options{
+	client := goredis.NewClient(&goredis.Options{
 		// 连接信息
-		Addr:     config.RedisConf["address"],
-		Password: config.RedisConf["auth"],
+		Addr:     cfg.Address,
+		Password: cfg.Password,
 		DB:       dbNo,
 
 		// 连接池的容量
@@ -55,7 +66,7 @@ func InitClient() {
 				KeepAlive: 5 * time.Minute,
 			}
 
-			return netDialer.DialContext(ctx, config.RedisConf["type"], addr)
+			return netDialer.DialContext(ctx, cfg.Type, addr)
 		},
 
 		// 钩子函数
@@ -66,9 +77,11 @@ func InitClient() {
 	})
 
 	// 激活连接
-	_, err = RedisClient.Ping(context.Background()).Result()
+	_, err = client.Ping(context.Background()).Result()
 	if err != nil {
-		glog.Warning("failed to connect to redis", err)
-		return
+		glog.Fatal("failed to connect to redis", err)
+		return nil
 	}
+
+	return client
 }

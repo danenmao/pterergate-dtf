@@ -1,15 +1,11 @@
 package config
 
+import (
+	"pterergate-dtf/dtf/extconfig"
+)
+
 // MySQL数据库的连接配置
-var MySQLConf = map[string]string{
-	"name":     "",
-	"type":     "",
-	"protocol": "",
-	"address":  "",
-	"db":       "",
-	"username": "",
-	"auth":     "",
-}
+var DefaultMySQL = extconfig.MySQLAddress{}
 
 // MySQL连接配置
 const (

@@ -10,35 +10,41 @@ import (
 	"github.com/golang/glog"
 	"github.com/jmoiron/sqlx"
 
+	"pterergate-dtf/dtf/extconfig"
 	"pterergate-dtf/internal/config"
 )
 
 // 默认的MySQL数据库对象
-var MySQLDB *sqlx.DB
+var gs_MySQLDB *sqlx.DB
+
+// 获取默认的MySQL实例
+func DefaultMySQL() *sqlx.DB {
+	return gs_MySQLDB
+}
 
 // 连接默认的MySQL数据库
 func ConnectToDefaultMySQL() {
-	InitMySQLClient(config.MySQLConf, "", &MySQLDB)
+	InitMySQLClient(&config.DefaultMySQL, "", &gs_MySQLDB)
 }
 
 // 初始化MySQL连接
-func InitMySQLClient(sqlConf map[string]string, setting string, targetDB **sqlx.DB) {
+func InitMySQLClient(sqlConf *extconfig.MySQLAddress, setting string, targetDB **sqlx.DB) {
 
 	if len(setting) > 0 {
 		setting = fmt.Sprintf("&%s", setting)
 	}
 
 	addr := fmt.Sprintf("%s:%s@%s(%s)/%s?charset=utf8mb4%s",
-		sqlConf["username"],
-		sqlConf["auth"],
-		sqlConf["protocol"],
-		sqlConf["address"],
-		sqlConf["db"],
+		sqlConf.Username,
+		sqlConf.Password,
+		sqlConf.Protocol,
+		sqlConf.Address,
+		sqlConf.DB,
 		setting,
 	)
 
 	// 连接数据库，并发送ping进行验证，保证连接成功
-	db, err := sqlx.Connect(sqlConf["type"], addr)
+	db, err := sqlx.Connect(sqlConf.Type, addr)
 	if err != nil {
 		glog.Warning("failed to connect to MySQL: ", err, sqlConf)
 		panic(err)
