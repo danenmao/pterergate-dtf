@@ -1,4 +1,4 @@
-package config
+package extconfig
 
 // Redis地址
 type RedisAddress struct {

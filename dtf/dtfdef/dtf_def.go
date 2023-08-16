@@ -1,7 +1,7 @@
 package dtfdef
 
 import (
-	"pterergate-dtf/dtf/config"
+	"pterergate-dtf/dtf/extconfig"
 )
 
 // 服务角色，指定不同的服务类型
@@ -17,8 +17,8 @@ const (
 
 // 服务配置
 type ServiceConfig struct {
-	MySQLServer     config.MySQLAddress
-	RedisServer     config.RedisAddress
-	ExecutorService config.RPCServiceAddress
-	IteratorService config.RPCServiceAddress
+	MySQLServer     extconfig.MySQLAddress
+	RedisServer     extconfig.RedisAddress
+	ExecutorService extconfig.RPCServiceAddress
+	IteratorService extconfig.RPCServiceAddress
 }
