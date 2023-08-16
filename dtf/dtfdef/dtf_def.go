@@ -1,4 +1,4 @@
-package dtf
+package dtfdef
 
 import (
 	"pterergate-dtf/dtf/config"
@@ -22,6 +22,3 @@ type ServiceConfig struct {
 	ExecutorService config.RPCServiceAddress
 	IteratorService config.RPCServiceAddress
 }
-
-// 用于设置服务配置
-type ServiceOptions func(config *ServiceConfig)
