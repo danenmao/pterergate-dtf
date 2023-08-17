@@ -19,17 +19,18 @@ func StartService(role dtfdef.ServiceRole, cfg *dtfdef.ServiceConfig) error {
 
 	signalctrl.RegisterSignal()
 	startFn(cfg)
-	signalctrl.WaitPreStop()
 
 	return nil
 }
 
 // 通知停止服务
 func NotifyStop() error {
+	signalctrl.NotifyToExit()
 	return nil
 }
 
 // 等待服务停止
 func Join() error {
+	signalctrl.WaitPreStop()
 	return nil
 }

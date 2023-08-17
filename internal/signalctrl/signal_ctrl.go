@@ -14,7 +14,7 @@ import (
 var PreStopWaitInterval = 10
 
 var (
-	// 退出标记。收到退出信号时设置此标记
+	// 退出标记, 收到退出信号时设置此标记
 	s_NotifyToExitFlag = false
 
 	// 真实的退出标记
@@ -32,9 +32,30 @@ func RegisterSignal() error {
 	return nil
 }
 
+// 通知退出
+func NotifyToExit() {
+	if s_SignalCancelFn == nil {
+		panic("no valid cancel fn")
+	}
+
+	s_NotifyToExitFlag = true
+	s_SignalCancelFn()
+}
+
 // 判断是否需要退出
 func CheckIfNeedToExit() bool {
 	return s_NotifyToExitFlag
+}
+
+// 等待退出通知
+func WaitForNotify(interval time.Duration) bool {
+	select {
+	case <-SignalContext.Done():
+		return true
+	default:
+		time.Sleep(interval)
+		return false
+	}
 }
 
 // 等待退出
@@ -44,12 +65,7 @@ func WaitPreStop() {
 			return
 		}
 
-		select {
-		case <-SignalContext.Done():
-			return
-		default:
-			time.Sleep(time.Second)
-		}
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
