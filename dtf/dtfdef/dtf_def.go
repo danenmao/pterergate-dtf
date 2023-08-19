@@ -19,6 +19,7 @@ const (
 type ServiceConfig struct {
 	MySQLServer     extconfig.MySQLAddress
 	RedisServer     extconfig.RedisAddress
+	MongoServer     extconfig.MongoAddress
 	ExecutorService extconfig.RPCServiceAddress
 	IteratorService extconfig.RPCServiceAddress
 }

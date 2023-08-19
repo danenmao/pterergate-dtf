@@ -6,6 +6,7 @@ import (
 	"pterergate-dtf/dtf/taskplugin"
 	"pterergate-dtf/internal/servicectrl"
 	"pterergate-dtf/internal/taskframework/taskloader"
+	"pterergate-dtf/internal/taskmgmt"
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ func Join() error {
 
 ////////////////////////////////////////////////////////////////////////
 //
-// 任务控制
+// 任务类型相关
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -46,27 +47,33 @@ func RegisterTaskType(register *taskplugin.TaskPluginRegister) error {
 	return taskloader.RegisterTaskType(register)
 }
 
+////////////////////////////////////////////////////////////////////////
+//
+// 任务控制
+//
+////////////////////////////////////////////////////////////////////////
+
 // 创建任务
-func CreateTask(taskType *uint32, param *taskmodel.TaskParam) (taskmodel.TaskIdType, error) {
-	return 0, nil
+func CreateTask(taskType uint32, param *taskmodel.TaskParam) (taskmodel.TaskIdType, error) {
+	return taskmgmt.CreateTask(taskType, param)
 }
 
 // 暂停任务
 func PauseTask(taskId taskmodel.TaskIdType) error {
-	return nil
+	return taskmgmt.PauseTask(taskId)
 }
 
 // 恢复暂停中的任务
 func ResumeTask(taskId taskmodel.TaskIdType) error {
-	return nil
+	return taskmgmt.ResumeTask(taskId)
 }
 
 // 停止正在运行中的任务
 func CancelTask(taskId taskmodel.TaskIdType) error {
-	return nil
+	return taskmgmt.CancelTask(taskId)
 }
 
 // 查询任务的运行状态
 func GetTaskStatus(taskId taskmodel.TaskIdType, status *taskmodel.TaskStatusData) error {
-	return nil
+	return taskmgmt.GetTaskStatus(taskId, status)
 }

@@ -14,9 +14,9 @@ type RoutineFn func()
 
 // 工作例程结构
 type WorkingRoutine struct {
-	routineFn    RoutineFn     // 工作例程函数
-	routineCount uint          // 例程数量
-	interval     time.Duration // 工作例程的执行间隔
+	RoutineFn    RoutineFn     // 工作例程函数
+	RoutineCount uint          // 例程数量
+	Interval     time.Duration // 工作例程的执行间隔
 }
 
 // 启动所有的工作例程
@@ -24,9 +24,9 @@ func StartWorkingRoutine(workers []WorkingRoutine) error {
 
 	// 按数量创建工作例程
 	for _, worker := range workers {
-		name := misc.GetFunctionName(worker.routineFn)
-		for i := 0; i < int(worker.routineCount); i++ {
-			go WorkingRoutineWrapper(name, worker.routineFn, worker.interval)
+		name := misc.GetFunctionName(worker.RoutineFn)
+		for i := 0; i < int(worker.RoutineCount); i++ {
+			go WorkingRoutineWrapper(name, worker.RoutineFn, worker.Interval)()
 		}
 	}
 

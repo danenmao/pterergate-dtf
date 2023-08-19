@@ -20,6 +20,12 @@ func WithRedis(redis *extconfig.RedisAddress) ServiceOption {
 	}
 }
 
+func WithMongoDB(mongo *extconfig.MongoAddress) ServiceOption {
+	return func(config *dtfdef.ServiceConfig) {
+		config.MongoServer = *mongo
+	}
+}
+
 func WithExecutor(executor *extconfig.RPCServiceAddress) ServiceOption {
 	return func(config *dtfdef.ServiceConfig) {
 		config.ExecutorService = *executor
