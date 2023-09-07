@@ -109,7 +109,7 @@ func cleanTaskKeys(taskId taskmodel.TaskIdType) error {
 	// 从redis_task_schedule_zset 中删除taskid
 	pipeline.ZRem(context.Background(), config.GeneratingTaskZset, taskId)
 	pipeline.ZRem(context.Background(), config.RunningTaskZset, taskId)
-	pipeline.ZRem(context.Background(), config.ToScheduleTaskZset, taskId)
+	pipeline.ZRem(context.Background(), config.ToGenerateTaskZset, taskId)
 
 	// 执行pipeline
 	_, err := pipeline.Exec(context.Background())

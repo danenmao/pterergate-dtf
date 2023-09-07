@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/golang/glog"
@@ -166,5 +167,31 @@ func GetInitTaskRecord(
 	}
 
 	glog.Info("succeeded to get init task record of task: ", taskId)
+	return nil
+}
+
+// 获取任务的类型
+func GetTaskType(
+	taskId taskmodel.TaskIdType,
+	retTaskType *uint32,
+) error {
+
+	cmd := redistool.DefaultRedis().HGet(context.Background(), GetTaskInfoKey(taskId),
+		config.TaskInfo_TaskTypeField)
+	err := cmd.Err()
+	if err != nil {
+		glog.Warning("failed to get type of task: ", taskId, ",", err)
+		return err
+	}
+
+	val := cmd.Val()
+
+	taskType, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		glog.Warning("failed to parse task type field: ", taskId, ",", val, ",", err)
+		return err
+	}
+
+	*retTaskType = uint32(taskType)
 	return nil
 }

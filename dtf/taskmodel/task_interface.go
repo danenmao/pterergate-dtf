@@ -13,12 +13,6 @@ type ITaskGenerator interface {
 	// 通知接口取消生成操作
 	Cancel(taskId TaskIdType) error
 
-	// 通知接口暂停生成操作
-	Pause(taskId TaskIdType) error
-
-	// 通知接口恢复生成操作
-	Resume(taskId TaskIdType) error
-
 	// 查询任务的进度
 	QueryProgress(taskId TaskIdType) (float32, error)
 
@@ -46,8 +40,8 @@ type ITaskScheduler interface {
 // 实现任务的主要操作
 type ITaskExecutor interface {
 
-	// 实现子任务的计算操作
-	DoCalculation(subtaskData *SubtaskData, result *SubtaskResult) error
+	// 实现子任务的操作
+	Execute(subtaskData *SubtaskData, result *SubtaskResult) error
 
 	// 通知接口退出
 	Cancel() error
@@ -57,11 +51,13 @@ type ITaskExecutor interface {
 type ITaskIterator interface {
 
 	// 每次返回一次结果, 调用一次方法
-	OnResult(subtaskId SubtaskIdType, subtaskResult *SubtaskResult) error
-
 	// 一个子任务执行完成后执行
-	AfterCalculation(subtaskId SubtaskIdType, subtaskResult *SubtaskResult) (int, error)
+	AfterExecution(subtaskResult *SubtaskResult, finished bool, support ITaskIteratorSupport) error
 
 	// 整个任务完成时执行
 	AfterTaskCompleted(taskId TaskIdType) (int, error)
+}
+
+type ITaskIteratorSupport interface {
+	AddSubtask(*SubtaskData) error
 }

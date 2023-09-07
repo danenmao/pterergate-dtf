@@ -27,8 +27,8 @@ const (
 	// 生成中的任务的有序集合, task_generation_zset
 	GeneratingTaskZset = "dtf.generating.task.list"
 
-	// 待调度的任务集合, task_to_scheduler_zset
-	ToScheduleTaskZset = "dtf.to.schedule.task.list"
+	// 待生成的任务集合, task_to_generate_zset
+	ToGenerateTaskZset = "dtf.to.generate.task.list"
 
 	// 执行中的任务集合, task_schedule_zset
 	RunningTaskZset = "dtf.running.task.list"

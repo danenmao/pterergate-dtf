@@ -5,8 +5,8 @@ import (
 	"pterergate-dtf/dtf/taskmodel"
 	"pterergate-dtf/dtf/taskplugin"
 	"pterergate-dtf/internal/servicectrl"
+	"pterergate-dtf/internal/services/taskmgmt"
 	"pterergate-dtf/internal/taskframework/taskloader"
-	"pterergate-dtf/internal/taskmgmt"
 )
 
 ////////////////////////////////////////////////////////////////////////

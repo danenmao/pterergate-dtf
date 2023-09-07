@@ -21,23 +21,27 @@ func ReadFromDBByPage(queryFn QueryFn, readFn ReadRowFn) error {
 
 // 分页读取MySQL表，可设置记录数上限
 func ReadFromDBByPageCustom(queryFn QueryFn, readFn ReadRowFn, totalCountLimit int) error {
-	const CountLimitPerQuery = 100
+
 	const MaxRetryCount = 3
+	var countLimitPerQuery = 100
+	if totalCountLimit > 0 && totalCountLimit < countLimitPerQuery {
+		countLimitPerQuery = totalCountLimit
+	}
+
 	var TotalCountLimit = totalCountLimit
-	var QueryTimesLimit = TotalCountLimit / CountLimitPerQuery
+	var QueryTimesLimit = (TotalCountLimit + countLimitPerQuery - 1) / countLimitPerQuery
 
 	// 分页查询策略项记录
 	totalCount := 0
 	for i := 0; i < QueryTimesLimit; i++ {
-		startIndex := i * CountLimitPerQuery
+		startIndex := i * countLimitPerQuery
 
 		// 查询一页记录，带有失败重试
 		var j int
 		var needToBreak bool = false
 		var querySuccessFlag bool = false
 		for j = 0; j < MaxRetryCount; j++ {
-			rows, err := queryFn(startIndex, CountLimitPerQuery)
-			//defer rows.Close()
+			rows, err := queryFn(startIndex, countLimitPerQuery)
 
 			// 查询失败会进行重试
 			if err != nil {
@@ -64,7 +68,7 @@ func ReadFromDBByPageCustom(queryFn QueryFn, readFn ReadRowFn, totalCountLimit i
 			querySuccessFlag = true
 
 			// 当前页面内的数量小于上限，查询完成，跳出
-			if itemCountInPage < CountLimitPerQuery {
+			if itemCountInPage < countLimitPerQuery {
 				needToBreak = true
 				break
 			}
@@ -93,24 +97,12 @@ func AssembleListSQL(
 	sqlRet *string, fieldArgs *[]interface{},
 ) {
 
-	*fieldArgs = append(*fieldArgs, *part1Args...)
-
-	var sqlPart []string
+	anyList := []interface{}{}
 	for _, id := range *listArgs {
-		*fieldArgs = append(*fieldArgs, id)
-		sqlPart = append(sqlPart, "?")
+		anyList = append(anyList, id)
 	}
 
-	*fieldArgs = append(*fieldArgs, *part2Args...)
-
-	fieldSql := strings.Join(sqlPart, ",")
-	sql := fmt.Sprintf("%s%s%s",
-		part1Sql,
-		fieldSql,
-		part2Sql,
-	)
-
-	*sqlRet = sql
+	AssembleListSQLTemplate(part1Sql, part2Sql, part1Args, &anyList, part2Args, sqlRet, fieldArgs)
 }
 
 // 组装 in () 类型的SQL语句及参数

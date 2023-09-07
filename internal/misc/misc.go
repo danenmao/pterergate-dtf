@@ -1,8 +1,10 @@
 package misc
 
 import (
+	"os"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -27,4 +29,20 @@ func GetFunctionName(i interface{}, seps ...rune) string {
 	}
 
 	return ""
+}
+
+// 从环境变量得到整数值
+func GetIntFromEnv(env string, defaultVal int) int {
+
+	val := os.Getenv(env)
+	if len(val) <= 0 {
+		return defaultVal
+	}
+
+	retVal, err := strconv.Atoi(val)
+	if err != nil {
+		return defaultVal
+	}
+
+	return retVal
 }

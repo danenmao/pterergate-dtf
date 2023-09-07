@@ -9,7 +9,7 @@ import (
 	"pterergate-dtf/internal/mysqltool"
 	"pterergate-dtf/internal/redistool"
 	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/taskmgmt"
+	"pterergate-dtf/internal/services/taskmgmt"
 )
 
 func StartManager(cfg *dtfdef.ServiceConfig) error {

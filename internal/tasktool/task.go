@@ -40,3 +40,7 @@ func GetTaskInfoKey(taskId taskmodel.TaskIdType) string {
 func GetTaskCreateParamKey(taskId taskmodel.TaskIdType) string {
 	return fmt.Sprintf("%s%d", flowdef.TaskCreateParamPrefix, taskId)
 }
+
+func GetTaskLockKey(taskId taskmodel.TaskIdType) string {
+	return fmt.Sprintf("%s%d", config.TaskInfoLockPrefix, taskId)
+}
