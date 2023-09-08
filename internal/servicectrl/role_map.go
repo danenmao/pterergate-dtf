@@ -2,6 +2,7 @@ package servicectrl
 
 import "pterergate-dtf/dtf/dtfdef"
 
+// Service Start Function
 type ServiceStartFn func(cfg *dtfdef.ServiceConfig) error
 
 // 各服务role的操作表
@@ -10,5 +11,5 @@ var gs_ServiceRoleAction = map[dtfdef.ServiceRole]ServiceStartFn{
 	dtfdef.ServiceRole_Generator: StartGenerator,
 	dtfdef.ServiceRole_Scheduler: StartScheduler,
 	dtfdef.ServiceRole_Executor:  StartExecutor,
-	dtfdef.ServiceRole_Iterator:  StartIterator,
+	dtfdef.ServiceRole_Collector: StartCollector,
 }

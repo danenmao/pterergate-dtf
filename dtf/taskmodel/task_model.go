@@ -14,6 +14,6 @@ type TaskConf struct {
 type TaskBody struct {
 	Generator ITaskGenerator
 	Scheduler ITaskScheduler
-	Iterator  ITaskIterator
+	Collector ITaskCollector
 	Executor  ITaskExecutor
 }

@@ -34,6 +34,6 @@ func WithExecutor(executor *extconfig.RPCServiceAddress) ServiceOption {
 
 func WithIterator(iterator *extconfig.RPCServiceAddress) ServiceOption {
 	return func(config *dtfdef.ServiceConfig) {
-		config.IteratorService = *iterator
+		config.CollectorService = *iterator
 	}
 }

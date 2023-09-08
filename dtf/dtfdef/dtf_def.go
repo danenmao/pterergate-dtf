@@ -12,14 +12,14 @@ const (
 	ServiceRole_Generator ServiceRole = 2
 	ServiceRole_Scheduler ServiceRole = 3
 	ServiceRole_Executor  ServiceRole = 4
-	ServiceRole_Iterator  ServiceRole = 5
+	ServiceRole_Collector ServiceRole = 5
 )
 
 // 服务配置
 type ServiceConfig struct {
-	MySQLServer     extconfig.MySQLAddress
-	RedisServer     extconfig.RedisAddress
-	MongoServer     extconfig.MongoAddress
-	ExecutorService extconfig.RPCServiceAddress
-	IteratorService extconfig.RPCServiceAddress
+	MySQLServer      extconfig.MySQLAddress
+	RedisServer      extconfig.RedisAddress
+	MongoServer      extconfig.MongoAddress
+	ExecutorService  extconfig.RPCServiceAddress
+	CollectorService extconfig.RPCServiceAddress
 }

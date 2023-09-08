@@ -47,8 +47,8 @@ type ITaskExecutor interface {
 	Cancel() error
 }
 
-// 任务的迭代接口
-type ITaskIterator interface {
+// 任务的结果采集接口
+type ITaskCollector interface {
 
 	// 每次返回一次结果, 调用一次方法
 	// 一个子任务执行完成后执行

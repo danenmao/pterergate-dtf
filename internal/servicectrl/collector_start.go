@@ -9,7 +9,7 @@ import (
 	"pterergate-dtf/internal/routine"
 )
 
-func StartIterator(cfg *dtfdef.ServiceConfig) error {
+func StartCollector(cfg *dtfdef.ServiceConfig) error {
 
 	config.DefaultMySQL = cfg.MySQLServer
 	mysqltool.ConnectToDefaultMySQL()
