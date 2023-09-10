@@ -7,39 +7,42 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var s_actualDB *sql.DB
-var s_mockDB *sql.DB
+var s_actualDB *sqlx.DB
+var s_mockDB *sqlx.DB
 var DBMock sqlmock.Sqlmock
 
 // 配置测试环境
 func Setup() {
 
-	if DefaultMySQL() != nil {
-		s_actualDB = DefaultMySQL().DB
+	// save actual sqlx.DB
+	if gs_MySQLDB != nil {
+		s_actualDB = gs_MySQLDB
 	}
 
+	// generate a mock DB
 	var err error
-	s_mockDB, DBMock, err = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	var mockSQL *sql.DB
+	mockSQL, DBMock, err = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
 		panic("failed to mock sql")
 	}
 
-	gs_MySQLDB = sqlx.NewDb(s_mockDB, "mysql")
+	s_mockDB = sqlx.NewDb(mockSQL, "mysql")
+
+	// overwrite default sqlx.DB
+	gs_MySQLDB = s_mockDB
 }
 
 // 清理测试环境
 func Teardown() {
 
+	// restore default sqlx.DB
 	if s_actualDB != nil {
-		DefaultMySQL().DB = s_actualDB
+		gs_MySQLDB = s_actualDB
 		s_actualDB = nil
 	}
 
-	if gs_MySQLDB != nil {
-		gs_MySQLDB.Close()
-		gs_MySQLDB = nil
-	}
-
+	// release mock sqlx.DB
 	if s_mockDB != nil {
 		s_mockDB.Close()
 		s_mockDB = nil

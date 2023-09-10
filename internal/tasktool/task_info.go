@@ -14,6 +14,7 @@ import (
 	"pterergate-dtf/internal/dbdef"
 	"pterergate-dtf/internal/redistool"
 	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
 )
 
 // 为任务创建info key
@@ -194,4 +195,108 @@ func GetTaskType(
 
 	*retTaskType = uint32(taskType)
 	return nil
+}
+
+// update next check time
+func RefreshTaskGenerationNextCheckTime(taskId taskmodel.TaskIdType) error {
+
+	cmd := redistool.DefaultRedis().HSet(
+		context.Background(),
+		GetTaskGenerationProgressKey(taskId),
+		config.TaskGenerationKey_NextCheckTimeField,
+		time.Now().Add(time.Minute).Unix(),
+	)
+
+	err := cmd.Err()
+	if err != nil {
+		glog.Warning("failed to refresh task generation next check time value: ", taskId, err)
+		return err
+	}
+
+	return nil
+}
+
+// 检查任务的生成是否完成
+func CheckIfTaskGenerationCompleted(taskId taskmodel.TaskIdType) bool {
+
+	// 检查redis_task_info.$taskid, 判断任务是否生成结束
+	taskInfoKey := GetTaskInfoKey(taskId)
+	strCmd := redistool.DefaultRedis().HGet(context.Background(),
+		taskInfoKey, config.TaskInfo_GenerationCompletedField)
+	err := strCmd.Err()
+	if err != nil {
+		glog.Warning("failed to get generation completed key of task: ", taskId, err)
+		return false
+	}
+
+	completedStr := strCmd.Val()
+	generationCompleted, err := strconv.Atoi(completedStr)
+	if err != nil {
+		glog.Warning("failed to convert generation completed key of task: ", taskId, completedStr, err)
+		return false
+	}
+
+	// 生成尚未完成, 返回任务还未完成
+	if generationCompleted == 0 {
+		return false
+	}
+
+	glog.Info("task generation completed: ", taskId)
+	return true
+}
+
+// 检查是否任务下的所有子任务都已经完成
+func CheckIfAllSubtaskCompleted(taskId taskmodel.TaskIdType) bool {
+
+	// redis_subtask_list.$taskid 为空
+	subtaskListKey := GetTaskSubtaskListKey(taskId)
+	cmd := redistool.DefaultRedis().ZCard(context.Background(), subtaskListKey)
+	err := cmd.Err()
+	if err != nil {
+		glog.Warning("failed to get subtask count of task: ", taskId, err)
+		return false
+	}
+
+	// 当key不存在时，值为0;
+	// 当key为空时，值为0;
+	count := cmd.Val()
+	glog.Info("get subtask count of task: ", taskId, count)
+
+	return count == 0
+}
+
+// 检查任务是否已经完成
+func CheckIfTaskCompleted(taskId taskmodel.TaskIdType) bool {
+	if taskId == 0 {
+		glog.Warning("invalid task id: ", taskId)
+		return false
+	}
+
+	// 检查redis_task_info.$taskid, 判断任务是否生成结束
+	generationCompleted := CheckIfTaskGenerationCompleted(taskId)
+	if !generationCompleted {
+		return false
+	}
+
+	// 是否所有子任务都完成
+	subtaskCompleted := CheckIfAllSubtaskCompleted(taskId)
+	if !subtaskCompleted {
+		return false
+	}
+
+	// 检查任务的本地子任务列表是否为空
+	localSubtaskListEmpty := CheckIfLocalSubtaskListEmpty(taskId)
+	return localSubtaskListEmpty
+}
+
+// 检查任务的本地子任务列表是否为空
+func CheckIfLocalSubtaskListEmpty(taskId taskmodel.TaskIdType) bool {
+
+	subtaskCount, err := subtaskqueue.GetSubtaskCount(taskmodel.TaskIdType(taskId))
+	if err != nil {
+		glog.Warning("failed to get local subtask count: ", taskId, ",", err)
+		return false
+	}
+
+	return subtaskCount == 0
 }

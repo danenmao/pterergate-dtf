@@ -44,3 +44,11 @@ func GetTaskCreateParamKey(taskId taskmodel.TaskIdType) string {
 func GetTaskLockKey(taskId taskmodel.TaskIdType) string {
 	return fmt.Sprintf("%s%d", config.TaskInfoLockPrefix, taskId)
 }
+
+func GetTaskGenerationProgressKey(taskId taskmodel.TaskIdType) string {
+	return fmt.Sprintf("%s%d", config.TaskGenerationKeyPrefix, taskId)
+}
+
+func GetTaskSubtaskListKey(taskId taskmodel.TaskIdType) string {
+	return fmt.Sprintf("%s%d", config.TaskToSubtaskSetPrefix, taskId)
+}

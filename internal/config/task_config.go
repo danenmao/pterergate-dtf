@@ -41,3 +41,32 @@ var (
 	EnvMonitorTaskCompletedCountLimit uint = 2
 	EnvMonitorTaskCompletedInterval   int  = 5
 )
+
+// generator settings
+var (
+
+	// go_start_generate_task
+	EnvGenerateTaskConcurrencyLimit uint = 5
+	EnvGenerateTaskCheckInterval    int  = 1
+
+	// go_monitor_task_generation
+	EnvMonitorTaskGenerationConcurrencyLimit uint = 2
+	EnvMonitorTaskGenerationInterval         int  = 30
+)
+
+// scheduler settings
+var (
+
+	// go_schedule_task
+	EnvScheduleSubtaskConcurrencyLimit uint = 10
+	EnvMonitorSubtaskScheduleInterval  int  = 500
+)
+
+// collector settings
+var (
+	//
+	// go_complete_subtask
+	//
+	EnvCompleteSubtaskConcurrencyLimit uint = 2
+	EnvCompleteSubtaskInterval         int  = 100
+)

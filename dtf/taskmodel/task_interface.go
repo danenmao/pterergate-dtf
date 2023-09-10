@@ -5,13 +5,16 @@ package taskmodel
 type ITaskGenerator interface {
 
 	// 任务开始时，通知接口开始执行生成操作
-	Begin(taskId TaskIdType, taskType uint32, taskData *TaskParam) error
+	Begin(taskId TaskIdType, taskType uint32, taskData *TaskParam, oldStatus string) error
 
 	// 任务结束时，通知接口进行清理
 	End(taskId TaskIdType) error
 
 	// 通知接口取消生成操作
 	Cancel(taskId TaskIdType) error
+
+	//
+	SaveStatus(taskId TaskIdType) (string, error)
 
 	// 查询任务的进度
 	QueryProgress(taskId TaskIdType) (float32, error)

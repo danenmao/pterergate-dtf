@@ -2,7 +2,9 @@ package generator
 
 import (
 	"context"
+	"errors"
 	"strconv"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
@@ -12,6 +14,7 @@ import (
 	"pterergate-dtf/internal/config"
 	"pterergate-dtf/internal/redistool"
 	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"pterergate-dtf/internal/taskframework/taskflow/generatorflow"
 	"pterergate-dtf/internal/tasktool"
 )
 
@@ -120,7 +123,7 @@ func getTaskIdToGenerate() (taskmodel.TaskIdType, error) {
 // 开始生成流程
 func startGeneration(taskId taskmodel.TaskIdType) {
 
-	err := TryToOwnTask(taskId)
+	err := tasktool.TryToOwnTask(taskId)
 	if err != nil {
 		glog.Warning("failed to own task: ", taskId, err)
 	}
@@ -139,7 +142,7 @@ func TaskGenerationRoutine(taskId taskmodel.TaskIdType, toRecover bool) {
 	defer DecrGeneratingRoutineCount()
 
 	// 释放对任务的所有权
-	defer ReleaseTask(taskId)
+	defer tasktool.ReleaseTask(taskId)
 
 	// 判断任务类型
 	taskType := uint32(0)
@@ -151,13 +154,13 @@ func TaskGenerationRoutine(taskId taskmodel.TaskIdType, toRecover bool) {
 
 	// 根据任务类型，执行不同的生成逻辑
 	glog.Info("task being generated type: ", taskId, ", ", taskType)
-	taskGenerationLogic(taskId, toRecover, taskType)
+	taskGenerationImpl(taskId, toRecover, taskType)
 
 	// 清理操作
 	glog.Info("finished to generate task: ", taskId)
 }
 
-func taskGenerationLogic(taskId taskmodel.TaskIdType, toRecover bool, taskType uint32) {
+func taskGenerationImpl(taskId taskmodel.TaskIdType, toRecover bool, taskType uint32) {
 
 	glog.Info("begin to generate a plugin task: ", taskId, ", ", taskType)
 
@@ -171,31 +174,232 @@ func taskGenerationLogic(taskId taskmodel.TaskIdType, toRecover bool, taskType u
 
 	if !toRecover {
 		// 将任务添加到调度队列中
+		err = AddTaskToScheduler(taskId, createParam.ResourceGroupName, createParam.TaskType,
+			createParam.Priority)
+		if err != nil {
+			glog.Warning("failed to add image task to scheduler: ", taskId, ", ", err)
+			return
+		}
 	}
 
 	// 执行生成逻辑
 	step := uint32(0)
 	err = InitGeneration(taskId, &step)
 	if err == nil {
-		GenerationLoop(taskId, &createParam)
+		GenerationMainLoop(taskId, &createParam)
 	}
 
 	FinishGeneration(taskId)
+}
 
+// 将文件添加到调度队列中
+func AddTaskToScheduler(
+	taskId taskmodel.TaskIdType,
+	groupName string,
+	taskType uint32,
+	priority uint32,
+) error {
+	return nil
 }
 
 // 任务插件的生成逻辑
-func GenerationLoop(
+func GenerationMainLoop(
 	taskId taskmodel.TaskIdType,
 	createParam *flowdef.TaskCreateParam,
 ) {
+
+	// 创建生成工作流
+	flow := generatorflow.NewGeneratorFlow()
+
+	// 初始化生成操作
+	taskData := taskmodel.TaskParam{
+		Creator:       taskmodel.TaskCreator{},
+		ResourceGroup: createParam.ResourceGroupName,
+		Priority:      createParam.Priority,
+		TaskType:      createParam.TaskType,
+		Timeout:       time.Duration(createParam.Timeout) * time.Second,
+		TypeParam:     createParam.TypeParam,
+	}
+
+	err := flow.InitGeneration(taskmodel.TaskIdType(taskId), createParam.TaskType, &taskData)
+	if err != nil {
+		glog.Warning("failed to init task generation: ", taskId, createParam.TaskType, ",", err)
+		return
+	}
+
+	// 执行生成循环
+	err = flow.GenerationLoop()
+	if err != nil {
+		glog.Warning("task generation loop failed: ", taskId, ", ", err)
+	}
+
+	// 结束生成操作
+	err = flow.FinishGeneration()
+	if err != nil {
+		glog.Warning("failed to finish task generation: ", taskId, ", ", err)
+	}
 }
 
 func InitGeneration(taskId taskmodel.TaskIdType, step *uint32) error {
+
+	if step == nil {
+		panic("invalid step pointer")
+	}
+
+	// 检查 next_check_time值是否存在
+	var currentStep uint32 = 0
+	var toGenerate bool = false
+	err := CheckGenerationStatus(taskId, &toGenerate, &currentStep)
+	if err != nil {
+		glog.Warning("failed to check generation status: ", taskId, err)
+		return err
+	}
+
+	// 有其他生成协程在处理, 退出
+	if !toGenerate {
+		glog.Info("task be generating by other")
+		return errors.New("task be generating by other")
+	}
+
+	// 返回任务之前生成逻辑的进展
+	*step = currentStep
+	glog.Info("former task generation step: ", taskId, currentStep)
+
+	pipeline := redistool.DefaultRedis().Pipeline()
+
+	// 创建 redis_task_generation.$taskid.progress, 更新next_check_time
+	progressMap := map[string]interface{}{
+		config.TaskGenerationKey_NextCheckTimeField: uint64(time.Now().Add(time.Minute).Unix()),
+		config.TaskGenerationKey_StepField:          currentStep,
+	}
+	pipeline.HMSet(context.Background(), tasktool.GetTaskGenerationProgressKey(taskId), progressMap)
+
+	// 将 $taskid 移入 redis_task_generation_zset，按照插入时间排序，表示任务进入了生成状态。
+	pipeline.ZAdd(context.Background(), config.GeneratingTaskZset, &redis.Z{
+		Score:  float64(time.Now().Unix()),
+		Member: taskId,
+	})
+
+	// 执行pipeline
+	_, err = pipeline.Exec(context.Background())
+	if err != nil {
+		glog.Warning("failed to exec pipeline: ", taskId, err)
+		return err
+	}
+
+	glog.Info("succeeded to init task generation: ", taskId, currentStep)
 	return nil
 }
 
 // 完成任务生成操作
 func FinishGeneration(taskId taskmodel.TaskIdType) error {
+
+	pipeline := redistool.DefaultRedis().Pipeline()
+
+	// 从 redis_task_generation_zset 中移除 $taskid
+	pipeline.ZRem(context.Background(), config.GeneratingTaskZset, taskId)
+
+	// 推入 redis_task_schedule_zset中
+	pipeline.ZAdd(context.Background(), config.RunningTaskZset, &redis.Z{
+		Score:  float64(time.Now().Unix()),
+		Member: taskId,
+	})
+
+	// 设置redis_task_generation.$taskid.progress 12小时后过期
+	pipeline.Expire(context.Background(), tasktool.GetTaskGenerationProgressKey(taskId), time.Hour*12)
+
+	// 设置任务生成完成的标记. redis_task_info.$taskinfo,
+	// task_generation_completed = 1.
+	pipeline.HSet(context.Background(), tasktool.GetTaskInfoKey(taskId), config.TaskInfo_GenerationCompletedField, 1)
+
+	// 执行
+	_, err := pipeline.Exec(context.Background())
+	if err != nil {
+		glog.Warning("failed to exec pipeline: ", err)
+		return err
+	}
+
+	glog.Info("succeeded to generate task: ", taskId)
+	return nil
+}
+
+// 检查任务生成的状态
+func CheckGenerationStatus(taskId taskmodel.TaskIdType, toGenerate *bool, currentStep *uint32) error {
+
+	// 读取redis_task_generation.$taskid.progress
+	cmd := redistool.DefaultRedis().HGetAll(context.Background(), tasktool.GetTaskGenerationProgressKey(taskId))
+	err := cmd.Err()
+	if err != nil {
+		glog.Warning("failed to get task generation progress key: ", taskId, err)
+		return err
+	}
+
+	// map为空，表示key不存在，可以执行生成流程
+	valMap := cmd.Val()
+	if len(valMap) == 0 {
+		glog.Info("empty task generation progress")
+		*toGenerate = true
+		*currentStep = 0
+		return nil
+	}
+
+	// 检查 next_check_time值是否存在,或已过期
+	nextCheckTimeStr, ok := valMap[config.TaskGenerationKey_NextCheckTimeField]
+	if !ok {
+		glog.Info("no next_check_time field")
+		*toGenerate = true
+		*currentStep = 0
+		return nil
+	}
+
+	nextCheckTime, err := strconv.ParseUint(nextCheckTimeStr, 10, 64)
+	if err != nil {
+		glog.Warning("failed to convert next_check_time: ", nextCheckTimeStr, err)
+		return err
+	}
+
+	// 若存在且未过期,表示有其他协程在处理, 退出
+	if nextCheckTime >= uint64(time.Now().Unix()) {
+		glog.Info("task generation not expired: ", taskId)
+		*toGenerate = false
+		return nil
+	}
+
+	// 已过期，需要进行处理，获取step
+	*toGenerate = true
+	stepStr, ok := valMap[config.TaskGenerationKey_StepField]
+	if !ok {
+		glog.Info("no step field")
+		*currentStep = 0
+		return nil
+	}
+
+	step, err := strconv.Atoi(stepStr)
+	if err != nil {
+		glog.Warning("failed to convert step: ", stepStr, err)
+		return err
+	}
+
+	*currentStep = uint32(step)
+	glog.Info("found task generation step: ", taskId, step)
+	return nil
+}
+
+// 更新生成的step值
+func RefreshTaskGenerationStep(taskId taskmodel.TaskIdType, step uint32) error {
+
+	cmd := redistool.DefaultRedis().HSet(
+		context.Background(),
+		tasktool.GetTaskGenerationProgressKey(taskId),
+		config.TaskGenerationKey_StepField,
+		step,
+	)
+
+	err := cmd.Err()
+	if err != nil {
+		glog.Warning("failed to refresh task generation step value: ", taskId, step, err)
+		return err
+	}
+
 	return nil
 }
