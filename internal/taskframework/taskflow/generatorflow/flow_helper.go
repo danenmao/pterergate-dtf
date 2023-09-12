@@ -43,7 +43,6 @@ func NewGeneratorFlowHelper() GeneratorFlowHelper {
 // global generator helper object
 var gs_GeneratorHelper = NewGeneratorFlowHelper()
 
-// 获取GeneratorHelper对象
 func GetGeneratorFlowHelper() *GeneratorFlowHelper {
 	return &gs_GeneratorHelper
 }

@@ -1,11 +1,16 @@
 package misc
 
 import (
+	"encoding/json"
 	"os"
 	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/golang/glog"
+
+	"pterergate-dtf/internal/config"
 )
 
 // 获取传入的函数的名称，格式为 package/package.name
@@ -45,4 +50,21 @@ func GetIntFromEnv(env string, defaultVal int) int {
 	}
 
 	return retVal
+}
+
+// 仅在测试模式下输出内容
+func DumpDataInTest(prompt string, in interface{}) {
+
+	// 仅在dev, test上执行
+	if config.WorkEnv != config.ENV_DEV && config.WorkEnv != config.ENV_TEST {
+		return
+	}
+
+	data, err := json.Marshal(in)
+	if err != nil {
+		glog.Warning("failed to marshal object: ", err)
+		return
+	}
+
+	glog.Info(prompt, ": ", string(data))
 }

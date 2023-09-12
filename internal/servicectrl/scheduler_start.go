@@ -1,12 +1,14 @@
 package servicectrl
 
 import (
+	"time"
+
 	"pterergate-dtf/dtf/dtfdef"
 	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/idtool"
 	"pterergate-dtf/internal/mysqltool"
 	"pterergate-dtf/internal/redistool"
 	"pterergate-dtf/internal/routine"
+	"pterergate-dtf/internal/services/scheduler"
 )
 
 func StartScheduler(cfg *dtfdef.ServiceConfig) error {
@@ -17,8 +19,28 @@ func StartScheduler(cfg *dtfdef.ServiceConfig) error {
 	config.DefaultRedisServer = cfg.RedisServer
 	redistool.ConnectToDefaultRedis()
 
-	idtool.Init(config.TaskIdKey)
-	routine.StartWorkingRoutine([]routine.WorkingRoutine{})
+	routine.StartWorkingRoutine([]routine.WorkingRoutine{
+		{
+			RoutineFn:    scheduler.ScheduleTaskRoutine,
+			RoutineCount: config.EnvScheduleTaskConcurrencyLimit,
+			Interval:     time.Duration(config.EnvScheduleTaskInterval) * time.Millisecond,
+		},
+		{
+			RoutineFn:    scheduler.MonitorSubtaskComplete,
+			RoutineCount: config.EnvMonitorSubtaskCompleteConcurrencyLimit,
+			Interval:     time.Millisecond * time.Duration(config.EnvMonitorSubtaskCompleteInterval),
+		},
+		{
+			RoutineFn:    scheduler.MonitorSubtaskTimeout,
+			RoutineCount: config.EnvMonitorSubtaskTimeoutConcurrencyLimit,
+			Interval:     time.Second * time.Duration(config.EnvMonitorSubtaskTimeoutInterval),
+		},
+		{
+			RoutineFn:    scheduler.MonitorRunningTaskToComplete,
+			RoutineCount: config.EnvMonitorTaskCompleteConcurrencyLimit,
+			Interval:     time.Second * time.Duration(config.EnvMonitorTaskCompleteInterval),
+		},
+	})
 
 	return nil
 }

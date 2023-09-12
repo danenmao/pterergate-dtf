@@ -21,7 +21,7 @@ func StartGenerator(cfg *dtfdef.ServiceConfig) error {
 	redistool.ConnectToDefaultRedis()
 
 	// init dependencies
-	idtool.Init(config.TaskIdKey)
+	idtool.Init(config.SubtaskIdKey)
 
 	// start service working routines
 	routine.StartWorkingRoutine([]routine.WorkingRoutine{

@@ -58,8 +58,24 @@ var (
 var (
 
 	// go_schedule_task
-	EnvScheduleSubtaskConcurrencyLimit uint = 10
-	EnvMonitorSubtaskScheduleInterval  int  = 500
+	EnvScheduleTaskConcurrencyLimit uint = 10
+	EnvScheduleTaskInterval         int  = 200
+
+	// go_retry_push_subtask
+	EnvRetryPushSubtaskConcurrencyLimit uint = 1
+	EnvRetryPushSubtaskInterval         int  = 2
+
+	// go_monitor_subtask_timeout
+	EnvMonitorSubtaskTimeoutConcurrencyLimit uint = 5
+	EnvMonitorSubtaskTimeoutInterval              = 2
+
+	// go_monitor_subtask_complete
+	EnvMonitorSubtaskCompleteConcurrencyLimit uint = 10
+	EnvMonitorSubtaskCompleteInterval         int  = 200
+
+	// go_monitor_task_complete
+	EnvMonitorTaskCompleteConcurrencyLimit uint = 2
+	EnvMonitorTaskCompleteInterval         int  = 1
 )
 
 // collector settings

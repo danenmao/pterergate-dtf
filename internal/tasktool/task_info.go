@@ -7,8 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
+	"pterergate-dtf/dtf/errordef"
 	"pterergate-dtf/dtf/taskmodel"
 	"pterergate-dtf/internal/config"
 	"pterergate-dtf/internal/dbdef"
@@ -299,4 +301,170 @@ func CheckIfLocalSubtaskListEmpty(taskId taskmodel.TaskIdType) bool {
 	}
 
 	return subtaskCount == 0
+}
+
+// 获取任务的优先级
+func GetTaskPriority(
+	taskId taskmodel.TaskIdType,
+	retPriority *uint32,
+) error {
+
+	return nil
+}
+
+// 获取任务的调度数据
+func GetTaskScheduleData(
+	taskId taskmodel.TaskIdType,
+	retScheduleData *flowdef.TaskScheduleData,
+) error {
+
+	keyName := GetTaskScheduleDataKey(taskId)
+	cmd := redistool.DefaultRedis().Get(context.Background(), keyName)
+	err := cmd.Err()
+	if err == redis.Nil {
+		return &errordef.NotFoundError{}
+	}
+
+	if err != nil {
+		glog.Warning("failed to get task schedule key data: ", taskId, ", ", err.Error())
+		return err
+	}
+
+	data := cmd.Val()
+	err = json.Unmarshal([]byte(data), retScheduleData)
+	if err != nil {
+		glog.Warning("failed to unmarshal schedule data: ", taskId, ", ", data)
+		return err
+	}
+
+	return nil
+}
+
+// 保存任务的调度数据
+func SaveTaskScheduleData(
+	taskId taskmodel.TaskIdType,
+	scheduleData *flowdef.TaskScheduleData,
+) error {
+
+	data, err := json.Marshal(scheduleData)
+	if err != nil {
+		glog.Warning("failed to marshal schedule data: ", taskId, ", ", err.Error())
+		return err
+	}
+
+	cmd := redistool.DefaultRedis().Set(
+		context.Background(),
+		GetTaskScheduleDataKey(taskId),
+		data,
+		time.Hour*48,
+	)
+	err = cmd.Err()
+	if err != nil {
+		glog.Warning("failed to set task schedule data key: ", taskId, ", ", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func ReadSubtaskStartTime(
+	subtaskId uint64,
+	startTime *uint64, taskId *taskmodel.TaskIdType, appId *uint32,
+	taskType *uint32,
+) error {
+
+	cmd := redistool.DefaultRedis().HGetAll(context.Background(), GetSubtaskKey(subtaskId))
+	err := cmd.Err()
+	if err != nil {
+		glog.Warning("failed to get info of subtask: ", subtaskId, err)
+		return err
+	}
+
+	valMap := cmd.Val()
+
+	// start_time
+	timeStr, ok := valMap[config.SubtaskInfo_StartTimeField]
+	if !ok {
+		glog.Warning("no start_time field: ", subtaskId)
+		return errors.New("no start_time field")
+	}
+
+	*startTime, err = strconv.ParseUint(timeStr, 10, 64)
+	if err != nil {
+		glog.Warning("failed to parse start_time field: ", subtaskId, timeStr, err)
+		return err
+	}
+
+	// task id
+	taskIdStr, ok := valMap[config.SubtaskInfo_TaskIdField]
+	if !ok {
+		glog.Warning("no task_id field: ", subtaskId)
+		return errors.New("no task_id field")
+	}
+
+	var intId uint64 = 0
+	intId, err = strconv.ParseUint(taskIdStr, 10, 64)
+	if err != nil {
+		glog.Warning("failed to convert task id: ", taskIdStr, err)
+		return errors.New("failed to convert task id")
+	}
+	*taskId = taskmodel.TaskIdType(intId)
+
+	// appid
+	appIdStr, ok := valMap[config.SubtaskInfo_UID]
+	if !ok {
+		glog.Warning("no owner field: ", subtaskId)
+		return errors.New("no owner field")
+	}
+
+	appIdValue, err := strconv.ParseUint(appIdStr, 10, 32)
+	if err != nil {
+		glog.Warning("failed to convert appid: ", appIdStr, err)
+		return errors.New("failed to convert appid")
+	}
+
+	*appId = uint32(appIdValue)
+
+	// task type
+	taskTypeStr, ok := valMap[config.SubtaskInfo_TaskTypeField]
+	if !ok {
+		glog.Warning("no task type field found: ", subtaskId)
+		taskTypeStr = "1"
+	}
+
+	taskTypeValue, err := strconv.ParseUint(taskTypeStr, 10, 32)
+	if err != nil {
+		glog.Warning("failed to convert task type: ", taskTypeStr, err)
+		return errors.New("failed to convert task type")
+	}
+
+	*taskType = uint32(taskTypeValue)
+
+	return nil
+}
+
+func GetTaskCreateTime(taskId taskmodel.TaskIdType, retCreateTime *uint64) error {
+
+	cmd := redistool.DefaultRedis().HGet(context.Background(), GetTaskInfoKey(taskId),
+		config.TaskInfo_CreateTimeField)
+	err := cmd.Err()
+
+	// 如果给定的字段或 key 不存在时，返回 nil
+	if err == redis.Nil {
+		return errordef.ErrNotFound
+	}
+
+	if err != nil {
+		glog.Warning("failed to get create time of task: ", taskId, ", ", err)
+		return err
+	}
+
+	timeStr := cmd.Val()
+	*retCreateTime, err = strconv.ParseUint(timeStr, 10, 64)
+	if err != nil {
+		glog.Warning("failed to parse create_time field: ", taskId, ",", timeStr, ",", err)
+		return err
+	}
+
+	return nil
 }

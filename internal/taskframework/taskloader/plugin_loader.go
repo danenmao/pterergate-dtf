@@ -9,21 +9,17 @@ import (
 	"pterergate-dtf/dtf/taskplugin"
 )
 
-
-//
 // 插件对象表, 及锁
-//
 var gs_TaskPluginTable = map[uint32]taskplugin.ITaskPlugin{}
 var gs_TaskPluginLock sync.Mutex
 
-//
 // 查找指定类型任务的插件对象
-//
 func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 
 	gs_TaskPluginLock.Lock()
 	defer gs_TaskPluginLock.Unlock()
 
+	// check if task plugin exists
 	elem, ok := gs_TaskPluginTable[taskType]
 	if ok {
 		glog.Info("found task type plugin: ", taskType)
@@ -31,7 +27,7 @@ func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 		return nil
 	}
 
-	// 新建一个任务插件对象
+	// create a task plugin
 	err := NewTaskPlugin(taskType, plugin)
 	if err != nil {
 		glog.Error("failed to load task plugin: ", taskType, ",", err)
@@ -43,9 +39,7 @@ func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 	return nil
 }
 
-//
 // 加载任务插件, 返回任务插件指针
-//
 func NewTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 
 	// 查找传入任务类型对应的加载器
@@ -70,5 +64,3 @@ func NewTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 	glog.Info("succeeded to new a plugin: ", taskType, ", ", register.Description)
 	return nil
 }
-
-

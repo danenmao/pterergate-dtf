@@ -52,3 +52,12 @@ func GetTaskGenerationProgressKey(taskId taskmodel.TaskIdType) string {
 func GetTaskSubtaskListKey(taskId taskmodel.TaskIdType) string {
 	return fmt.Sprintf("%s%d", config.TaskToSubtaskSetPrefix, taskId)
 }
+
+func GetSubtaskKey(subtaskId uint64) string {
+	return fmt.Sprintf("%s%d", config.SubtaskInfoPrefix, subtaskId)
+}
+
+// 获取保存任务调度数据的Key
+func GetTaskScheduleDataKey(taskId taskmodel.TaskIdType) string {
+	return fmt.Sprintf("%s%d", flowdef.RedisTaskScheduleDataPrefix, taskId)
+}

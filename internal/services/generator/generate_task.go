@@ -15,6 +15,7 @@ import (
 	"pterergate-dtf/internal/redistool"
 	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
 	"pterergate-dtf/internal/taskframework/taskflow/generatorflow"
+	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow"
 	"pterergate-dtf/internal/tasktool"
 )
 
@@ -23,7 +24,7 @@ func StartGenerateTaskRoutine() {
 
 	// 检查当前实例生成的任务数是否超过上限
 	if CheckIfExceedLimit() {
-		glog.Info("exceed task generation limit")
+		glog.Warning("exceed task generation limit")
 		return
 	}
 
@@ -43,7 +44,7 @@ func StartGenerateTaskRoutine() {
 		return
 	}
 
-	// 对于取到的 $taskid, 创建协程执行生成操作.
+	// 对于取到的taskid, 创建协程执行生成操作.
 	startGeneration(taskId)
 }
 
@@ -199,7 +200,7 @@ func AddTaskToScheduler(
 	taskType uint32,
 	priority uint32,
 ) error {
-	return nil
+	return schedulerflow.AddTaskToScheduler(taskId, groupName, taskType, priority)
 }
 
 // 任务插件的生成逻辑

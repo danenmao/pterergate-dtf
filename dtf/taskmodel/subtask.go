@@ -9,8 +9,8 @@ type SubtaskResultType uint32
 
 const (
 	SubtaskResult_Success SubtaskResultType = 1 // 子任务执行成功
-	SubtaskResult_Failure SubtaskResultType = 2 // 子任务执行超时
-	SubtaskResult_Timeout SubtaskResultType = 3 // 子任务被取消
+	SubtaskResult_Failure SubtaskResultType = 2 // 子任务执行失败
+	SubtaskResult_Timeout SubtaskResultType = 3 // 子任务超时
 )
 
 // 子任务状态
@@ -18,6 +18,7 @@ const (
 	SubtaskStatus_Running   = 1
 	SubtaskStatus_Finished  = 2
 	SubtaskStatus_Cancelled = 3
+	SubtaskStatus_Timeout   = 4
 )
 
 // 子任务的数据

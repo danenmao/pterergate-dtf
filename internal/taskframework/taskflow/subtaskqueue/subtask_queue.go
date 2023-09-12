@@ -108,3 +108,41 @@ func GetSubtaskCount(taskId taskmodel.TaskIdType) (uint, error) {
 	glog.Info("get subtask count from queue: ", taskId, ", ", subtaskCount)
 	return subtaskCount, nil
 }
+
+// 将子任务推回任务的子任务生成列表中
+func PushSubtaskBack(
+	taskId taskmodel.TaskIdType,
+	subtasks *[]taskmodel.SubtaskData,
+) error {
+
+	// 组装命令
+	pipeline := redistool.DefaultRedis().Pipeline()
+	for _, subtask := range *subtasks {
+		data, err := json.Marshal(subtask)
+		if err != nil {
+			glog.Warning("failed to marshal subtask data: ", subtask.SubtaskId, ",", err)
+			continue
+		}
+
+		// 将子任务放到任务的子任务队列中
+		subtaskKey := GetSubtaskQueueOfTask(taskmodel.TaskIdType(subtask.TaskId))
+		cmd := pipeline.RPush(context.Background(), subtaskKey, string(data))
+		pipeline.Expire(context.Background(), subtaskKey, time.Hour*8)
+
+		err = cmd.Err()
+		if err != nil {
+			glog.Warning("failed to rpush subtask to task queue: ", subtask.SubtaskId, ",", err)
+			continue
+		}
+	} // for
+
+	// 执行命令
+	_, err := pipeline.Exec(context.Background())
+	if err != nil {
+		glog.Warning("failed to exec pipeline to rpush subtask to task queue: ", len(*subtasks), ",", err)
+		return err
+	}
+
+	glog.Info("succeeded to rpush subtask to task queue: ", len(*subtasks))
+	return nil
+}
