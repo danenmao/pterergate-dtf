@@ -2,6 +2,7 @@ package dtfdef
 
 import (
 	"pterergate-dtf/dtf/extconfig"
+	"pterergate-dtf/dtf/taskmodel"
 )
 
 // 服务角色，指定不同的服务类型
@@ -17,9 +18,11 @@ const (
 
 // 服务配置
 type ServiceConfig struct {
-	MySQLServer      extconfig.MySQLAddress
-	RedisServer      extconfig.RedisAddress
-	MongoServer      extconfig.MongoAddress
-	ExecutorService  extconfig.RPCServiceAddress
-	CollectorService extconfig.RPCServiceAddress
+	MySQLServer              extconfig.MySQLAddress
+	RedisServer              extconfig.RedisAddress
+	MongoServer              extconfig.MongoAddress
+	ExecutorService          taskmodel.ExecutorInvoker
+	CollectorService         taskmodel.CollectorInvoker
+	ExecutorHandlerRegister  taskmodel.RegisterExecutorRequestHandler
+	CollectorHandlerRegister taskmodel.RegisterCollectorRequestHandler
 }

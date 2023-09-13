@@ -3,6 +3,7 @@ package dtf
 import (
 	"pterergate-dtf/dtf/dtfdef"
 	"pterergate-dtf/dtf/extconfig"
+	"pterergate-dtf/dtf/taskmodel"
 )
 
 // 用于设置服务配置
@@ -26,14 +27,26 @@ func WithMongoDB(mongo *extconfig.MongoAddress) ServiceOption {
 	}
 }
 
-func WithExecutor(executor *extconfig.RPCServiceAddress) ServiceOption {
+func WithExecutor(executor taskmodel.ExecutorInvoker) ServiceOption {
 	return func(config *dtfdef.ServiceConfig) {
-		config.ExecutorService = *executor
+		config.ExecutorService = executor
 	}
 }
 
-func WithIterator(iterator *extconfig.RPCServiceAddress) ServiceOption {
+func WithCollector(collector taskmodel.CollectorInvoker) ServiceOption {
 	return func(config *dtfdef.ServiceConfig) {
-		config.CollectorService = *iterator
+		config.CollectorService = collector
+	}
+}
+
+func WithRegisterExecutorHandler(register taskmodel.RegisterExecutorRequestHandler) ServiceOption {
+	return func(config *dtfdef.ServiceConfig) {
+		config.ExecutorHandlerRegister = register
+	}
+}
+
+func WithRegisterCollectorHandler(register taskmodel.RegisterCollectorRequestHandler) ServiceOption {
+	return func(config *dtfdef.ServiceConfig) {
+		config.CollectorHandlerRegister = register
 	}
 }

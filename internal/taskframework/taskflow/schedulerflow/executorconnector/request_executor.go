@@ -11,6 +11,8 @@ import (
 // 批量推送子任务的上限
 const ExecutorMaxPushSubtaskCount uint32 = 10
 
+var ExecutorService taskmodel.ExecutorInvoker
+
 // 执行子任务列表
 // 传入的子任务都属于同一个任务
 func ExecSubtasks(
@@ -97,5 +99,5 @@ func sendRequestToExecutor(
 		return nil
 	}
 
-	return nil
+	return ExecutorService(req)
 }

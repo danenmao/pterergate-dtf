@@ -9,6 +9,8 @@ import (
 	"pterergate-dtf/internal/redistool"
 	"pterergate-dtf/internal/routine"
 	"pterergate-dtf/internal/services/scheduler"
+	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow/executorconnector"
+	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow/resourcegroup"
 )
 
 func StartScheduler(cfg *dtfdef.ServiceConfig) error {
@@ -18,6 +20,9 @@ func StartScheduler(cfg *dtfdef.ServiceConfig) error {
 
 	config.DefaultRedisServer = cfg.RedisServer
 	redistool.ConnectToDefaultRedis()
+
+	executorconnector.ExecutorService = cfg.ExecutorService
+	resourcegroup.GetResourceGroupMgr().Init()
 
 	routine.StartWorkingRoutine([]routine.WorkingRoutine{
 		{

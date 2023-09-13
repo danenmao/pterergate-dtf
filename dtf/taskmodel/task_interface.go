@@ -55,12 +55,26 @@ type ITaskCollector interface {
 
 	// 每次返回一次结果, 调用一次方法
 	// 一个子任务执行完成后执行
-	AfterExecution(subtaskResult *SubtaskResult, finished bool, support ITaskIteratorSupport) error
+	AfterExecution(subtaskResult *SubtaskResult, finished bool, support ITaskCollectorSupport) error
 
 	// 整个任务完成时执行
 	AfterTaskCompleted(taskId TaskIdType) (int, error)
 }
 
-type ITaskIteratorSupport interface {
+type ITaskCollectorSupport interface {
 	AddSubtask(*SubtaskData) error
 }
+
+// executor service invoker for scheduler
+type ExecutorInvoker func([]SubtaskData) error
+
+// collector service invoker for executor
+type CollectorInvoker func([]SubtaskResult) error
+
+// executor request handler for executor service
+type ExecutorRequestHandler func([]SubtaskData) error
+type RegisterExecutorRequestHandler func(ExecutorRequestHandler) error
+
+// collector request handler for collector service
+type CollectorRequestHandler func([]SubtaskResult) error
+type RegisterCollectorRequestHandler func(CollectorRequestHandler) error
