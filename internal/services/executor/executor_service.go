@@ -34,6 +34,7 @@ func ExecutorRequestHandler(subtasks []taskmodel.SubtaskData) error {
 	for _, subtask := range subtasks {
 		go GetExecutorService().execSubtask(&subtask)
 	}
+
 	return nil
 }
 
@@ -74,10 +75,12 @@ func (service *ExecutorService) execSubtask(subtask *taskmodel.SubtaskData) erro
 		resultChan <- result
 	}()
 
+	// wait
 	result := taskmodel.SubtaskResult{
 		TaskId:    subtask.TaskId,
 		SubtaskId: subtask.SubtaskId,
 	}
+
 	select {
 	case result = <-resultChan:
 		glog.Info("subtask completed: ", subtask.SubtaskId, " of ", subtask.TaskId)
@@ -111,7 +114,10 @@ func (service *ExecutorService) getTaskExecutor(taskType uint32, retExecutor *ta
 	}
 
 	service.Lock.Lock()
-	service.ExecutorMap[taskType] = *retExecutor
+	_, ok = service.ExecutorMap[taskType]
+	if !ok {
+		service.ExecutorMap[taskType] = *retExecutor
+	}
 	service.Lock.Unlock()
 	return nil
 }

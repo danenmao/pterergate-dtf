@@ -3,10 +3,10 @@ package servicectrl
 import (
 	"pterergate-dtf/dtf/dtfdef"
 	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/idtool"
 	"pterergate-dtf/internal/mysqltool"
 	"pterergate-dtf/internal/redistool"
 	"pterergate-dtf/internal/routine"
+	"pterergate-dtf/internal/services/collector"
 )
 
 func StartCollector(cfg *dtfdef.ServiceConfig) error {
@@ -17,8 +17,10 @@ func StartCollector(cfg *dtfdef.ServiceConfig) error {
 	config.DefaultRedisServer = cfg.RedisServer
 	redistool.ConnectToDefaultRedis()
 
-	idtool.Init(config.TaskIdKey)
 	routine.StartWorkingRoutine([]routine.WorkingRoutine{})
+
+	// register collector handler
+	cfg.CollectorHandlerRegister(collector.CollectorRequestHandler)
 
 	return nil
 }
