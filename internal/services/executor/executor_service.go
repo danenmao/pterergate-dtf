@@ -72,6 +72,7 @@ func (service *ExecutorService) execSubtask(subtask *taskmodel.SubtaskData) erro
 			result.Reason = "success"
 		}
 
+		// send subtask result
 		resultChan <- result
 	}()
 
@@ -114,9 +115,11 @@ func (service *ExecutorService) getTaskExecutor(taskType uint32, retExecutor *ta
 	}
 
 	service.Lock.Lock()
-	_, ok = service.ExecutorMap[taskType]
+	executor, ok = service.ExecutorMap[taskType]
 	if !ok {
 		service.ExecutorMap[taskType] = *retExecutor
+	} else {
+		*retExecutor = executor
 	}
 	service.Lock.Unlock()
 	return nil

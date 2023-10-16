@@ -468,3 +468,37 @@ func GetTaskCreateTime(taskId taskmodel.TaskIdType, retCreateTime *uint64) error
 
 	return nil
 }
+
+func IsTaskRunning(taskId taskmodel.TaskIdType) bool {
+
+	var status taskmodel.TaskStatusType = 0
+	err := ReadTaskStatus(taskId, &status)
+	if err != nil {
+		glog.Warning("failed to read task status: ", taskId, err)
+		return false
+	}
+
+	return status == taskmodel.TaskStatus_Running
+}
+
+func ReadTaskStatus(taskId taskmodel.TaskIdType, statusRet *taskmodel.TaskStatusType) error {
+
+	cmd := redistool.DefaultRedis().HGet(context.Background(), GetTaskInfoKey(taskId),
+		config.TaskInfo_StatusField)
+	err := cmd.Err()
+	if err != nil {
+		glog.Warning("failed to get status of task: ", taskId, err)
+		return err
+	}
+
+	val := cmd.Val()
+
+	status, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		glog.Warning("failed to parse status field: ", taskId, val, err)
+		return err
+	}
+
+	*statusRet = taskmodel.TaskStatusType(status)
+	return nil
+}

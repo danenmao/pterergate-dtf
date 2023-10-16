@@ -23,7 +23,7 @@ func SetSubtaskResult(
 
 	pipeline := *ppipeline
 
-	// 取子任务的开始时间
+	// get the task start time, calc the time cost of this subtask
 	var startTime uint64 = 0
 	var endTime uint64 = uint64(time.Now().Unix())
 	var timeCost uint32 = 0
@@ -39,13 +39,19 @@ func SetSubtaskResult(
 		timeCost = uint32(endTime - startTime)
 	}
 
-	// 将子任务执行结果保存到subtask_info.$subtaskid中
+	// determine the subtask status value
+	subtaskStatus := taskmodel.SubtaskStatus_Finished
+	if completeCode == taskmodel.SubtaskResult_Timeout {
+		subtaskStatus = taskmodel.SubtaskStatus_Timeout
+	}
+
+	// save subtask result to subtask_info key
 	values := map[string]interface{}{
 		config.SubtaskInfo_SubtaskResult: scanResult,
 		config.SubtaskInfo_EndTimeField:  endTime,
 		config.SubtaskInfo_TimeCostField: timeCost,
 		config.SubtaskInfo_Complete_code: completeCode,
-		config.SubtaskInfo_StatusField:   taskmodel.SubtaskStatus_Finished,
+		config.SubtaskInfo_StatusField:   subtaskStatus,
 	}
 
 	pipeline.HMSet(
@@ -57,9 +63,9 @@ func SetSubtaskResult(
 	// inc subtask completion reason counter
 	if taskId != 0 {
 		subtaskFieldMap := map[taskmodel.SubtaskResultType]string{
-			taskmodel.SubtaskStatus_Finished:  config.TaskInfo_CompletedSubtaskCountField,
-			taskmodel.SubtaskStatus_Timeout:   config.TaskInfo_TimeoutSubtaskCountField,
-			taskmodel.SubtaskStatus_Cancelled: config.TaskInfo_CancelledSubtaskCountField,
+			taskmodel.SubtaskResult_Success: config.TaskInfo_CompletedSubtaskCountField,
+			taskmodel.SubtaskResult_Failure: config.TaskInfo_CompletedSubtaskCountField,
+			taskmodel.SubtaskResult_Timeout: config.TaskInfo_TimeoutSubtaskCountField,
 		}
 
 		fieldName, ok := subtaskFieldMap[completeCode]
@@ -73,9 +79,9 @@ func SetSubtaskResult(
 	return nil
 }
 
-func ReadSubtaskStatus(subtaskId uint64, statusRet *uint32) error {
+func ReadSubtaskStatus(subtaskId taskmodel.SubtaskIdType, statusRet *uint32) error {
 
-	cmd := redistool.DefaultRedis().HGet(context.Background(), tasktool.GetSubtaskKey(subtaskId),
+	cmd := redistool.DefaultRedis().HGet(context.Background(), tasktool.GetSubtaskKey(uint64(subtaskId)),
 		config.SubtaskInfo_StatusField)
 	err := cmd.Err()
 	if err != nil {
@@ -119,7 +125,7 @@ func GetSubtaskUint(subtaskId uint64, field string, retVal *uint32) error {
 	return nil
 }
 
-func IsSubtaskRunning(subtaskId uint64) bool {
+func IsSubtaskRunning(subtaskId taskmodel.SubtaskIdType) bool {
 
 	var status uint32 = 0
 	err := ReadSubtaskStatus(subtaskId, &status)

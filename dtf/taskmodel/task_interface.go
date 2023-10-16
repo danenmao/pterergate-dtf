@@ -55,7 +55,7 @@ type ITaskCollector interface {
 
 	// 每次返回一次结果, 调用一次方法
 	// 一个子任务执行完成后执行
-	AfterExecution(subtaskResult *SubtaskResult, finished bool, support ITaskCollectorSupport) error
+	AfterExecution(subtaskResult *SubtaskResult, support ITaskCollectorSupport) (bool, error)
 
 	// 整个任务完成时执行
 	AfterTaskCompleted(taskId TaskIdType) (int, error)
