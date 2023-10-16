@@ -5,11 +5,11 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/dbdef"
-	"pterergate-dtf/internal/mysqltool"
-	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/dbdef"
+	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
 )
 
 // 添加任务记录

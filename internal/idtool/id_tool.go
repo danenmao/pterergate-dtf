@@ -9,8 +9,8 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
 )
 
 // ID的步长设置

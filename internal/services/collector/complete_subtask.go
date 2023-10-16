@@ -8,14 +8,14 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/subtasktool"
-	"pterergate-dtf/internal/taskframework/taskflow/collectorflow"
-	"pterergate-dtf/internal/tasktool"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/subtasktool"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/collectorflow"
+	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
 const (

@@ -3,9 +3,9 @@ package generatorflow
 import (
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/dtf/taskplugin"
-	"pterergate-dtf/internal/taskframework/taskloader"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/dtf/taskplugin"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskloader"
 )
 
 // generator flow

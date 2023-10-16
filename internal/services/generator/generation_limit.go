@@ -1,8 +1,8 @@
 package generator
 
 import (
-	"pterergate-dtf/internal/misc"
-	"pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/misc"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
 )
 
 const (

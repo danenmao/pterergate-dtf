@@ -3,12 +3,12 @@ package servicectrl
 import (
 	"time"
 
-	"pterergate-dtf/dtf/dtfdef"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/mysqltool"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/services/executor"
+	"github.com/danenmao/pterergate-dtf/dtf/dtfdef"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/services/executor"
 )
 
 func StartExecutor(cfg *dtfdef.ServiceConfig) error {

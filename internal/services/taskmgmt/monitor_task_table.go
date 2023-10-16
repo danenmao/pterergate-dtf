@@ -9,14 +9,14 @@ import (
 	"github.com/golang/glog"
 	"github.com/jmoiron/sqlx"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/basedef"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/dbdef"
-	"pterergate-dtf/internal/mysqltool"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"pterergate-dtf/internal/tasktool"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/basedef"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/dbdef"
+	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
 // 监视任务表中的任务是否正常

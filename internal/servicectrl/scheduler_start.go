@@ -3,14 +3,14 @@ package servicectrl
 import (
 	"time"
 
-	"pterergate-dtf/dtf/dtfdef"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/mysqltool"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/services/scheduler"
-	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow/executorconnector"
-	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow/resourcegroup"
+	"github.com/danenmao/pterergate-dtf/dtf/dtfdef"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/services/scheduler"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/executorconnector"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/resourcegroup"
 )
 
 func StartScheduler(cfg *dtfdef.ServiceConfig) error {

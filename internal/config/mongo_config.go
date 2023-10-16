@@ -1,5 +1,5 @@
 package config
 
-import "pterergate-dtf/dtf/extconfig"
+import "github.com/danenmao/pterergate-dtf/dtf/extconfig"
 
 var DefaultMongoDB = extconfig.MongoAddress{}

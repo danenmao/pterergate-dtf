@@ -10,13 +10,13 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/dbdef"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/dbdef"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
 )
 
 // 为任务创建info key

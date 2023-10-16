@@ -3,9 +3,9 @@ package taskmgmt
 import (
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/dbdef"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 )
 
 // 创建任务

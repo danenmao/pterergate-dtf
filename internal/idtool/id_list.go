@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/internal/dbdef"
+	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 )
 
 // 将id列表变成分号分隔的数字列表字符串

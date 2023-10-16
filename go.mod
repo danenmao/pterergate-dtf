@@ -1,4 +1,4 @@
-module pterergate-dtf
+module github.com/danenmao/pterergate-dtf
 
 go 1.21
 

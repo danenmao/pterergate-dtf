@@ -8,14 +8,14 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/basedef"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/dbdef"
-	"pterergate-dtf/internal/idtool"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"pterergate-dtf/internal/tasktool"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/basedef"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/dbdef"
+	"github.com/danenmao/pterergate-dtf/internal/idtool"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
 // 任务创建协程

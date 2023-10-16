@@ -3,7 +3,7 @@ package collectorflow
 import (
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
 
 func OnSubtaskResult(

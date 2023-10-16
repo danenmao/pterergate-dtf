@@ -8,9 +8,9 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
 )
 
 // 重试推送到执行器服务的队列的名称

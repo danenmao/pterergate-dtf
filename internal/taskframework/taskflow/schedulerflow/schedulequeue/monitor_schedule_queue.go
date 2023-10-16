@@ -8,11 +8,11 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"pterergate-dtf/internal/tasktool"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
 // 调度中任务队列

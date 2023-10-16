@@ -3,8 +3,8 @@ package tasktool
 import (
 	"time"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
 )
 
 // 尝试获取对任务生成的所有权

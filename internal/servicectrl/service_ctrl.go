@@ -3,9 +3,9 @@ package servicectrl
 import (
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/dtfdef"
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/internal/signalctrl"
+	"github.com/danenmao/pterergate-dtf/dtf/dtfdef"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/internal/signalctrl"
 )
 
 // 启动指定的服务

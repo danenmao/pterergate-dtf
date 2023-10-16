@@ -6,11 +6,11 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/misc"
-	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"pterergate-dtf/internal/tasktool"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/misc"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
 // 调度队列组

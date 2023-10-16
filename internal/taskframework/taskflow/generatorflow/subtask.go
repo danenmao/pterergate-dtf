@@ -5,10 +5,10 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/idtool"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/idtool"
 )
 
 const (

@@ -3,13 +3,13 @@ package servicectrl
 import (
 	"time"
 
-	"pterergate-dtf/dtf/dtfdef"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/idtool"
-	"pterergate-dtf/internal/mysqltool"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/services/taskmgmt"
+	"github.com/danenmao/pterergate-dtf/dtf/dtfdef"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/idtool"
+	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/services/taskmgmt"
 )
 
 func StartManager(cfg *dtfdef.ServiceConfig) error {

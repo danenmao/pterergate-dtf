@@ -8,12 +8,12 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/basedef"
-	"pterergate-dtf/internal/config"
-	"pterergate-dtf/internal/dbdef"
-	"pterergate-dtf/internal/mysqltool"
-	"pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/basedef"
+	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/dbdef"
+	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
 )
 
 // 完成任务

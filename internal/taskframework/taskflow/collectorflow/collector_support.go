@@ -1,6 +1,6 @@
 package collectorflow
 
-import "pterergate-dtf/dtf/taskmodel"
+import "github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 
 type TaskCollectorSupport struct {
 }

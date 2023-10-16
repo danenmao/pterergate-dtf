@@ -1,6 +1,6 @@
 package scheduler
 
-import "pterergate-dtf/dtf/taskmodel"
+import "github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 
 // RR调度算法
 type RR struct {

@@ -1,8 +1,8 @@
 package dtfdef
 
 import (
-	"pterergate-dtf/dtf/extconfig"
-	"pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/dtf/extconfig"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
 
 // 服务角色，指定不同的服务类型

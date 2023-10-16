@@ -1,7 +1,7 @@
 package config
 
 import (
-	"pterergate-dtf/dtf/extconfig"
+	"github.com/danenmao/pterergate-dtf/dtf/extconfig"
 )
 
 // MySQL数据库的连接配置

@@ -1,9 +1,9 @@
 package dtf
 
 import (
-	"pterergate-dtf/dtf/dtfdef"
-	"pterergate-dtf/dtf/extconfig"
-	"pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/dtf/dtfdef"
+	"github.com/danenmao/pterergate-dtf/dtf/extconfig"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
 
 // 用于设置服务配置

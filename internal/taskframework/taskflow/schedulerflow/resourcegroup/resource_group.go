@@ -8,9 +8,9 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/routine"
-	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow/schedulequeue"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/routine"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/schedulequeue"
 )
 
 // 资源组结构

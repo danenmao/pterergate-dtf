@@ -5,8 +5,8 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
 
 // 管理当前生成器实例下的所有任务的子任务队列

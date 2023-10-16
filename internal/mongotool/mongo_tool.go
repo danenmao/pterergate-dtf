@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/config"
 )
 
 // 镜像安全 MongoDB 客户端

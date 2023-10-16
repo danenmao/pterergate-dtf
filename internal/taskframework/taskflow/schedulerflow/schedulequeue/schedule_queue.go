@@ -7,14 +7,14 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/dtf/taskdef"
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/redistool"
-	"pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow/scheduler"
-	"pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
-	"pterergate-dtf/internal/tasktool"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskdef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/scheduler"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
 const RRQueueIdx uint32 = 1000000

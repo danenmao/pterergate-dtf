@@ -7,10 +7,10 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/errordef"
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
-	"pterergate-dtf/internal/tasktool"
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
 const (

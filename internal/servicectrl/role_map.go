@@ -1,6 +1,6 @@
 package servicectrl
 
-import "pterergate-dtf/dtf/dtfdef"
+import "github.com/danenmao/pterergate-dtf/dtf/dtfdef"
 
 // Service Start Function
 type ServiceStartFn func(cfg *dtfdef.ServiceConfig) error

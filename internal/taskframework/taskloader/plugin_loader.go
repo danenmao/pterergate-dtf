@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskplugin"
+	"github.com/danenmao/pterergate-dtf/dtf/taskplugin"
 )
 
 // 插件对象表, 及锁

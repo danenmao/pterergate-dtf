@@ -9,8 +9,8 @@ import (
 	goredis "github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/extconfig"
-	"pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/dtf/extconfig"
+	"github.com/danenmao/pterergate-dtf/internal/config"
 )
 
 // go-redis连接池

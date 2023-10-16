@@ -10,8 +10,8 @@ import (
 	"github.com/golang/glog"
 	"github.com/jmoiron/sqlx"
 
-	"pterergate-dtf/dtf/extconfig"
-	"pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/dtf/extconfig"
+	"github.com/danenmao/pterergate-dtf/internal/config"
 )
 
 // 默认的MySQL数据库对象

@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	"pterergate-dtf/internal/basedef"
+	"github.com/danenmao/pterergate-dtf/internal/basedef"
 )
 
 // manager 使用的设置

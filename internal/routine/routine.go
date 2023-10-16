@@ -5,8 +5,8 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/internal/misc"
-	"pterergate-dtf/internal/signalctrl"
+	"github.com/danenmao/pterergate-dtf/internal/misc"
+	"github.com/danenmao/pterergate-dtf/internal/signalctrl"
 )
 
 // 例程类型

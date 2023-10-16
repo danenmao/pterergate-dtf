@@ -3,9 +3,9 @@ package scheduler
 import (
 	"github.com/golang/glog"
 
-	"pterergate-dtf/dtf/taskmodel"
-	"pterergate-dtf/internal/taskframework/taskflow/schedulerflow"
-	"pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
 )
 
 const (

@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang/glog"
 
-	"pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/config"
 )
 
 // 获取传入的函数的名称，格式为 package/package.name
