@@ -25,7 +25,7 @@ func AddTaskToScheduler(
 // if no task, retTaskId is 0, subtasks is empty
 func GetSubtaskToSchedule(
 	retTaskId *taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	err := resourcegroup.GetResourceGroupMgr().Select(retTaskId, subtasks)
@@ -40,8 +40,8 @@ func GetSubtaskToSchedule(
 // execute subtasks belonging to the same task
 func ExecSubtasks(
 	taskId taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
-	toPushbackSubtask *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
+	toPushbackSubtask *[]taskmodel.SubtaskBody,
 ) error {
 
 	if len(*subtasks) <= 0 {
@@ -67,7 +67,7 @@ func ExecSubtasks(
 	glog.Info("get task type plugin scheduler: ", taskType, ", ", scheduler)
 
 	// to dispatch subtasks
-	doneSubtaskList := []taskmodel.SubtaskData{}
+	doneSubtaskList := []taskmodel.SubtaskBody{}
 	for _, subtask := range *subtasks {
 		err = DispatchSubtask(taskType, scheduler, &subtask)
 		if err != nil {
@@ -114,7 +114,7 @@ func GetTaskScheduler(taskType uint32, scheduler *taskmodel.ITaskScheduler) erro
 func DispatchSubtask(
 	taskType uint32,
 	scheduler taskmodel.ITaskScheduler,
-	subtask *taskmodel.SubtaskData,
+	subtask *taskmodel.SubtaskBody,
 ) error {
 
 	glog.Info("dipatch subtask: ", subtask)
@@ -128,7 +128,7 @@ func DispatchSubtask(
 
 	// don't dispatch it now, push it back
 	if !toDipatch {
-		subtaskqueue.PushSubtaskBack(subtask.TaskId, &[]taskmodel.SubtaskData{*subtask})
+		subtaskqueue.PushSubtaskBack(subtask.TaskId, &[]taskmodel.SubtaskBody{*subtask})
 		glog.Info("subtask should be pushed back: ", subtask)
 		return &errordef.DummyError{}
 	}

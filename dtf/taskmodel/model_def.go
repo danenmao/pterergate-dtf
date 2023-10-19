@@ -8,8 +8,8 @@ import (
 type TaskInterationMode int
 
 const (
-	IterationMode_NoIteration TaskInterationMode = 1 // 不支持迭代
-	IterationMode_Iteration   TaskInterationMode = 2 // 支持子任务迭代
+	IterationMode_No           TaskInterationMode = 1 // 不支持迭代
+	IterationMode_UseCollector TaskInterationMode = 2 // 支持子任务迭代
 )
 
 // 任务状态的类型

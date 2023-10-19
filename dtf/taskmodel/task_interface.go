@@ -13,19 +13,16 @@ type ITaskGenerator interface {
 	// 通知接口取消生成操作
 	Cancel(taskId TaskIdType) error
 
-	//
+	// 保存任务的生成状态
 	SaveStatus(taskId TaskIdType) (string, error)
 
-	// 查询任务的进度
+	// 查询任务的生成进度
 	QueryProgress(taskId TaskIdType) (float32, error)
 
 	// 获取下一个子任务
 	// 若无子任务,返回errordef.ErrNotFound; 否则返回nil;
 	// 若生成完成，设置finished
-	GetSubtask(taskId TaskIdType, subtaskData *SubtaskData, finished *bool) error
-
-	// 当每个子任务生成完成后，通知接口
-	AfterGeneration(subtaskId SubtaskIdType, subtask *SubtaskData) error
+	GetSubtask(taskId TaskIdType, subtaskData *SubtaskBody, finished *bool) error
 }
 
 // 任务的调度接口
@@ -33,7 +30,7 @@ type ITaskGenerator interface {
 type ITaskScheduler interface {
 
 	// 在子任务被调度之前调用，可通过返回的bool来控制当前子任务是否被调度
-	BeforeDispatch(subtaskId SubtaskIdType, subtaskData *SubtaskData) (bool, error)
+	BeforeDispatch(subtaskId SubtaskIdType, subtaskData *SubtaskBody) (bool, error)
 
 	// 子任务被调度进入执行后执行
 	AfterDispatch(subtaskId SubtaskIdType) error
@@ -44,7 +41,7 @@ type ITaskScheduler interface {
 type ITaskExecutor interface {
 
 	// 实现子任务的操作
-	Execute(subtaskData *SubtaskData, result *SubtaskResult) error
+	Execute(subtaskData *SubtaskBody, result *SubtaskResult) error
 
 	// 通知接口退出
 	Cancel() error
@@ -62,17 +59,17 @@ type ITaskCollector interface {
 }
 
 type ITaskCollectorSupport interface {
-	AddSubtask(*SubtaskData) error
+	AddSubtask(*SubtaskBody) error
 }
 
 // executor service invoker for scheduler
-type ExecutorInvoker func([]SubtaskData) error
+type ExecutorInvoker func([]SubtaskBody) error
 
 // collector service invoker for executor
 type CollectorInvoker func([]SubtaskResult) error
 
 // executor request handler for executor service
-type ExecutorRequestHandler func([]SubtaskData) error
+type ExecutorRequestHandler func([]SubtaskBody) error
 type RegisterExecutorRequestHandler func(ExecutorRequestHandler) error
 
 // collector request handler for collector service

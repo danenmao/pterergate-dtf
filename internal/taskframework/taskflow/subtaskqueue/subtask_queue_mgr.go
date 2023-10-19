@@ -51,7 +51,7 @@ func (mgr *SubtaskQueueMgr) RemoveTask(taskId taskmodel.TaskIdType) error {
 // 将子任务放入子任务队列中
 func (mgr *SubtaskQueueMgr) PushSubtask(
 	taskId taskmodel.TaskIdType,
-	subtask *taskmodel.SubtaskData,
+	subtask *taskmodel.SubtaskBody,
 ) error {
 
 	queue, ok := mgr.SubtaskQueueMap[taskId]
@@ -69,7 +69,7 @@ func (mgr *SubtaskQueueMgr) PushSubtask(
 // 从子任务队列中取子任务
 func (mgr *SubtaskQueueMgr) PopSubtask(
 	taskId taskmodel.TaskIdType,
-	subtask *taskmodel.SubtaskData,
+	subtask *taskmodel.SubtaskBody,
 ) error {
 
 	queue, ok := mgr.SubtaskQueueMap[taskId]

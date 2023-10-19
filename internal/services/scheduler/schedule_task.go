@@ -18,7 +18,7 @@ func ScheduleTaskRoutine() {
 
 	// get the task and subtasks to schedule
 	var taskId taskmodel.TaskIdType
-	var subtasks = []taskmodel.SubtaskData{}
+	var subtasks = []taskmodel.SubtaskBody{}
 	err := schedulerflow.GetSubtaskToSchedule(&taskId, &subtasks)
 	if err != nil {
 		glog.Warning("failed to get task to schedule: ", err)
@@ -33,7 +33,7 @@ func ScheduleTaskRoutine() {
 	glog.Info("to exec subtasks of task: ", taskId, ", ", len(subtasks))
 
 	// to execute subtasks
-	toPushbackSubtask := []taskmodel.SubtaskData{}
+	toPushbackSubtask := []taskmodel.SubtaskBody{}
 	err = schedulerflow.ExecSubtasks(taskId, &subtasks, &toPushbackSubtask)
 	if err != nil {
 		glog.Warning("failed to exec subtask: ", taskId, ",", err)

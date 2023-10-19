@@ -68,7 +68,7 @@ func TaskCreationRoutine(
 // 生成任务ID
 func generateTaskId() (taskmodel.TaskIdType, error) {
 
-	id, err := idtool.GetAvailableId(config.TaskIdKey)
+	id, err := idtool.GetId(config.TaskIdKey)
 	if err != nil {
 		glog.Warning("failed to get task id: ", err)
 		return 0, errors.New("failed to get task id")
@@ -78,7 +78,7 @@ func generateTaskId() (taskmodel.TaskIdType, error) {
 }
 
 // 初始化任务结构
-func initTaskRecord(taskRecord *dbdef.TaskRecord) {
+func initTaskRecord(taskRecord *dbdef.DBTaskRecord) {
 
 	taskRecord.Id = 0
 	taskRecord.TaskStatus = uint8(taskmodel.TaskStatus_Running)
@@ -101,7 +101,7 @@ func initTaskRecord(taskRecord *dbdef.TaskRecord) {
 func addTaskRecord(
 	taskId taskmodel.TaskIdType,
 	param *taskmodel.TaskParam,
-	taskRecord *dbdef.TaskRecord,
+	taskRecord *dbdef.DBTaskRecord,
 ) error {
 
 	taskRecord.UID = param.Creator.UID
@@ -121,7 +121,7 @@ func addTaskRecord(
 }
 
 // 保存任务的初始化结构
-func saveInitTaskRecord(taskRecord *dbdef.TaskRecord) {
+func saveInitTaskRecord(taskRecord *dbdef.DBTaskRecord) {
 
 	if taskRecord == nil {
 		panic("invalid task record pointer")

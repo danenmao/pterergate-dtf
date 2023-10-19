@@ -6,7 +6,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func Test_Intersection_e(t *testing.T) {
+func Test_Intersection_empty(t *testing.T) {
 
 	Convey("test two empty id slice", t, func() {
 

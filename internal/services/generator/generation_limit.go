@@ -34,10 +34,10 @@ func IncrIfNotExceedLimit() bool {
 
 // 增加正在生成的例程数
 func IncrGeneratingRoutineCount() {
-	gs_GenerationRoutineCountLimit.IncrRoutineCount()
+	gs_GenerationRoutineCountLimit.Incr()
 }
 
 // 减少正在生成的例程数
 func DecrGeneratingRoutineCount() {
-	gs_GenerationRoutineCountLimit.DecrRoutineCount()
+	gs_GenerationRoutineCountLimit.Decr()
 }

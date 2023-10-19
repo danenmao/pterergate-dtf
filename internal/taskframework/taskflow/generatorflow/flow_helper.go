@@ -122,7 +122,7 @@ func (generator *GeneratorFlowHelper) pickSubtaskLoop(
 
 		// try to create a subtask from the plugin generator
 		finished := false
-		subtaskData := taskmodel.SubtaskData{}
+		subtaskData := taskmodel.SubtaskBody{}
 		err := CreateSubtask(taskId, impl.TaskType, impl.Impl, &subtaskData, &finished)
 		if err != nil && err != errordef.ErrNotFound {
 			glog.Warning("failed to create a subtask: ", taskId, ",", err.Error())

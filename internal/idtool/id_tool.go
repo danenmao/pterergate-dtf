@@ -15,22 +15,15 @@ import (
 
 // ID的步长设置
 const (
-	RenewIDStep        = 100
-	RenewThreshold     = 20
-	RenewCheckInterval = 5
-)
-
-// ID锁
-var s_IDLock sync.RWMutex
-
-// ID数据
-var (
-	s_KeyName string
+	ReallocStep          = 100
+	ReallocThreshold     = 20
+	ReallocCheckInterval = 5
 )
 
 // ID可用范围：[Start, FormerEnd),[NewStart, End)
 type IDKeeper struct {
 	KeyName   string
+	Lock      sync.RWMutex
 	Step      uint32
 	Count     uint32
 	Start     uint64
@@ -39,124 +32,132 @@ type IDKeeper struct {
 	End       uint64
 }
 
-var s_AvailableID = IDKeeper{}
+var gs_IDKeeper = IDKeeper{}
 
-// 初始化
-func init() {
-
+func GetIDKeeper() *IDKeeper {
+	return &gs_IDKeeper
 }
 
 // 初始化
 func Init(keyName string) error {
+	return GetIDKeeper().Init(keyName)
+}
 
+// 获取可用的ID
+func GetId(keyName string) (uint64, error) {
+	return GetIDKeeper().GetId(keyName)
+}
+
+func (keeper *IDKeeper) Init(keyName string) error {
 	if len(keyName) <= 0 {
 		return errors.New("empty key name")
 	}
 
-	s_KeyName = keyName
-	s_AvailableID.KeyName = keyName
-	s_AvailableID.Step = RenewIDStep
+	keeper.KeyName = keyName
+	keeper.Step = ReallocStep
 
 	// TODO: 定期同步至MySQL, 处理迁移的场景
+
 	// 启动后台维护协程
-	go getIDRoutine()
+	go func() {
+		keeper.refreshID()
+	}()
 
 	return nil
 }
 
-// 获取可用的ID
-func GetAvailableId(keyName string) (uint64, error) {
-
-	if keyName != s_KeyName {
+func (keeper *IDKeeper) GetId(keyName string) (uint64, error) {
+	if keyName != keeper.KeyName {
 		return 0, errors.New("mismatched key name")
 	}
 
-	s_IDLock.Lock()
-	defer s_IDLock.Unlock()
+	keeper.Lock.Lock()
+	defer keeper.Lock.Unlock()
 
 	// 检查是否有可用ID
 	for i := 0; i < 2; i++ {
-
-		if s_AvailableID.Count <= 0 {
-			s_IDLock.Unlock()
+		if keeper.Count <= 0 {
+			keeper.Lock.Unlock()
 
 			glog.Info("renew id range immediately")
-			renewAvailableIDIfNeed()
+			keeper.reallocIDIfNeed()
 
-			s_IDLock.Lock()
+			keeper.Lock.Lock()
 			continue
 		} else {
 			break
 		}
 	}
 
-	if s_AvailableID.Count <= 0 {
+	if keeper.Count <= 0 {
 		return 0, errors.New("no available id")
 	}
 
 	var retId uint64 = 0
-	s_AvailableID.Count--
+	keeper.Count--
 
-	if s_AvailableID.FormerEnd == 0 {
+	if keeper.FormerEnd == 0 {
 
 		// 位于单一分区, [Start, End)
 		// 正常取值，后移
-		retId = s_AvailableID.Start
-		s_AvailableID.Start++
+		retId = keeper.Start
+		keeper.Start++
 
-	} else if s_AvailableID.FormerEnd != 0 && s_AvailableID.Start < s_AvailableID.FormerEnd {
+	} else if keeper.FormerEnd != 0 && keeper.Start < keeper.FormerEnd {
 
 		// 位于双分区中的[Start, FormerEnd)
 		// 正常取值，后移
-		retId = s_AvailableID.Start
-		s_AvailableID.Start++
+		retId = keeper.Start
+		keeper.Start++
 
-	} else if s_AvailableID.FormerEnd != 0 && s_AvailableID.Start >= s_AvailableID.FormerEnd {
+	} else if keeper.FormerEnd != 0 && keeper.Start >= keeper.FormerEnd {
 
 		// 切换到[NewStart, End), Start指针移动到双分区中的[NewStart, End)
-		s_AvailableID.Start = s_AvailableID.NewStart
-		glog.Info("switched to id range: ", s_AvailableID.NewStart, s_AvailableID.End)
+		keeper.Start = keeper.NewStart
+		glog.Info("switched to id range: ", keeper.NewStart, keeper.End)
 
 		// 正常取值, 后移
-		retId = s_AvailableID.Start
-		s_AvailableID.Start++
+		retId = keeper.Start
+		keeper.Start++
 
 		// 删除已用尽的[Start, FormerEnd)
-		s_AvailableID.FormerEnd = 0
-		s_AvailableID.NewStart = 0
+		keeper.FormerEnd = 0
+		keeper.NewStart = 0
 	}
 
-	glog.Info(fmt.Sprintf("id status: -> %d, [%d,%d), %d", retId,
-		s_AvailableID.Start, s_AvailableID.End, s_AvailableID.Count))
+	glog.Info(fmt.Sprintf("id status: %d, [%d,%d), %d", retId,
+		keeper.Start, keeper.End, keeper.Count))
 
 	return retId, nil
 }
 
 // 后台协程，根据当前可用ID的情况，来获取ID
-func getIDRoutine() {
+func (keeper *IDKeeper) refreshID() {
 	// 定期执行检查
-	routine.ExecRoutineByDuration("getIDRoutine", renewAvailableIDIfNeed,
-		time.Second*time.Duration(RenewCheckInterval))
+	routine.ExecRoutineByDuration("refreshID",
+		func() {
+			keeper.reallocIDIfNeed()
+		},
+		time.Second*time.Duration(ReallocCheckInterval))
 }
 
 // 扩大可用ID范围
-func renewAvailableIDIfNeed() {
-
-	if len(s_KeyName) <= 0 {
+func (keeper *IDKeeper) reallocIDIfNeed() {
+	if len(keeper.KeyName) <= 0 {
 		glog.Warning("empty key name")
 		return
 	}
 
-	s_IDLock.Lock()
-	defer s_IDLock.Unlock()
+	keeper.Lock.Lock()
+	defer keeper.Lock.Unlock()
 
 	// 当可用范围小于阈值时，扩展可用范围
-	if s_AvailableID.Count > RenewThreshold {
+	if keeper.Count > ReallocThreshold {
 		return
 	}
 
 	// 扩展可用范围
-	cmd := redistool.DefaultRedis().IncrBy(context.Background(), s_KeyName, RenewIDStep)
+	cmd := redistool.DefaultRedis().IncrBy(context.Background(), keeper.KeyName, ReallocStep)
 	val, err := cmd.Result()
 	if err != nil {
 		glog.Warning("failed to incby ID step: ", err.Error())
@@ -166,23 +167,22 @@ func renewAvailableIDIfNeed() {
 	glog.Info("redis incrby id return: ", val)
 
 	// 更新可用范围
-	s_AvailableID.Count += uint32(s_AvailableID.Step)
+	keeper.Count += uint32(keeper.Step)
 
 	// [Start, FormerEnd), [NewStart, End)
-	s_AvailableID.FormerEnd = s_AvailableID.End
-	s_AvailableID.End = uint64(val) + 1
+	keeper.FormerEnd = keeper.End
+	keeper.End = uint64(val) + 1
 
-	if s_AvailableID.Start == 0 {
-		s_AvailableID.Start = s_AvailableID.End - uint64(s_AvailableID.Step)
+	if keeper.Start == 0 {
+		keeper.Start = keeper.End - uint64(keeper.Step)
 	}
 
-	s_AvailableID.NewStart = s_AvailableID.End - uint64(s_AvailableID.Step)
-
-	if s_AvailableID.FormerEnd > 0 && s_AvailableID.FormerEnd-s_AvailableID.Start > uint64(s_AvailableID.Step) {
-		glog.Error("error id range: [", s_AvailableID.Start, s_AvailableID.FormerEnd, ")")
+	keeper.NewStart = keeper.End - uint64(keeper.Step)
+	if keeper.FormerEnd > 0 && keeper.FormerEnd-keeper.Start > uint64(keeper.Step) {
+		glog.Error("error in id range: [", keeper.Start, keeper.FormerEnd, ")")
 	}
 
-	glog.Info(fmt.Sprintf("renew id range: [%d,%d), [%d,%d), %d",
-		s_AvailableID.Start, s_AvailableID.FormerEnd,
-		s_AvailableID.NewStart, s_AvailableID.End, s_AvailableID.Count))
+	glog.Info(fmt.Sprintf("realloc id range: [%d,%d), [%d,%d), %d",
+		keeper.Start, keeper.FormerEnd,
+		keeper.NewStart, keeper.End, keeper.Count))
 }

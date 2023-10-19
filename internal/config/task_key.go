@@ -78,18 +78,6 @@ const (
 )
 
 const (
-	// 每个客户的锁, user_concurrency_lock.$uid
-	UserNodeLockPrefix = "dtf.user.node.lock."
-
-	// 任务下的节点的有序集合, node_list_$taskId
-	TaskNodeListPrefix = "dtf.task.node.list."
-
-	// 任务下当前要处理的节点的索引，node_list_pointer_$taskid
-	TaskNextNodePointerPrefix = "dtf.task.next.node.pointer."
-
-	// 任务已下发的子任务的列表，pushed_subtask_list_$taskid
-	TaskPushedSubtaskList = "dtf.pushed.subtask.list."
-
 	// 任务下的子任务集合, subtask_list.$taskid, set
 	TaskToSubtaskSetPrefix = "dtf.task.subtask.list."
 )
@@ -128,12 +116,4 @@ const (
 	SubtaskInfo_Param             = "param"            // 子任务的执行参数
 	SubtaskInfo_StatusField       = "status"           // 子任务的运行状态
 
-)
-
-const (
-	// 任务与其包含的对象对应关系
-	TaskObjectSetPrefix = "dtf.task.object.set."
-
-	// 任务中的对象与多个子任务的对应关系
-	TaskObjectSubtaskSetPrefix = "dtf.object.subtask.set."
 )

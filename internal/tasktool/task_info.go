@@ -148,7 +148,7 @@ func SaveTaskCreateParam(
 
 func GetInitTaskRecord(
 	taskId taskmodel.TaskIdType,
-	taskRecord *dbdef.TaskRecord,
+	taskRecord *dbdef.DBTaskRecord,
 ) error {
 
 	if taskId == 0 {

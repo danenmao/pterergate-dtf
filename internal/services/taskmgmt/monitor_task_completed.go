@@ -85,7 +85,7 @@ func completeTask(taskId taskmodel.TaskIdType) {
 	glog.Info("owned completed task: ", taskId)
 
 	// 将取到的任务设置为已完成
-	var taskRecord = dbdef.TaskRecord{}
+	var taskRecord = dbdef.DBTaskRecord{}
 	err = tasktool.CompleteTask(taskId, &taskRecord)
 	if err != nil {
 		glog.Warning("failed to complete task: ", taskId, err.Error())
@@ -122,6 +122,6 @@ func cleanTaskKeys(taskId taskmodel.TaskIdType) error {
 }
 
 // 任务完成时，执行任务类型的完成回调
-func AfterTaskCompleted(taskRecord *dbdef.TaskRecord) error {
+func AfterTaskCompleted(taskRecord *dbdef.DBTaskRecord) error {
 	return nil
 }

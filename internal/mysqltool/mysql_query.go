@@ -14,14 +14,13 @@ type QueryFn func(offset int, limit int) (*sqlx.Rows, error)
 type ReadRowFn func(*sqlx.Rows) error
 
 // 分页读取MySQL表, 有总记录数限制
-func ReadFromDBByPage(queryFn QueryFn, readFn ReadRowFn) error {
+func ReadDBByPage(queryFn QueryFn, readFn ReadRowFn) error {
 	const TotalCountLimit = 1000
-	return ReadFromDBByPageCustom(queryFn, readFn, TotalCountLimit)
+	return ReadDBByPageCustom(queryFn, readFn, TotalCountLimit)
 }
 
 // 分页读取MySQL表，可设置记录数上限
-func ReadFromDBByPageCustom(queryFn QueryFn, readFn ReadRowFn, totalCountLimit int) error {
-
+func ReadDBByPageCustom(queryFn QueryFn, readFn ReadRowFn, totalCountLimit int) error {
 	const MaxRetryCount = 3
 	var countLimitPerQuery = 100
 	if totalCountLimit > 0 && totalCountLimit < countLimitPerQuery {
@@ -91,7 +90,7 @@ func ReadFromDBByPageCustom(queryFn QueryFn, readFn ReadRowFn, totalCountLimit i
 }
 
 // 组装 in () 类型的SQL语句及参数
-func AssembleListSQL(
+func AssembleInRangeSQL(
 	part1Sql string, part2Sql string,
 	part1Args *[]interface{}, listArgs *[]uint64, part2Args *[]interface{},
 	sqlRet *string, fieldArgs *[]interface{},
@@ -102,11 +101,11 @@ func AssembleListSQL(
 		anyList = append(anyList, id)
 	}
 
-	AssembleListSQLTemplate(part1Sql, part2Sql, part1Args, &anyList, part2Args, sqlRet, fieldArgs)
+	AssembleInRangeSQLTemplate(part1Sql, part2Sql, part1Args, &anyList, part2Args, sqlRet, fieldArgs)
 }
 
 // 组装 in () 类型的SQL语句及参数
-func AssembleListSQLTemplate(
+func AssembleInRangeSQLTemplate(
 	part1Sql string, part2Sql string,
 	part1Args *[]interface{}, listArgs *[]interface{}, part2Args *[]interface{},
 	sqlRet *string, fieldArgs *[]interface{},

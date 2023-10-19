@@ -19,7 +19,7 @@ func CreateTask(taskType uint32, param *taskmodel.TaskParam) (taskmodel.TaskIdTy
 	}
 
 	// 创建任务记录
-	var taskRecord = dbdef.TaskRecord{}
+	var taskRecord = dbdef.DBTaskRecord{}
 	initTaskRecord(&taskRecord)
 	taskRecord.Id = uint64(taskId)
 

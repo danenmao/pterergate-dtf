@@ -17,11 +17,11 @@ var ExecutorService taskmodel.ExecutorInvoker
 // 传入的子任务都属于同一个任务
 func ExecSubtasks(
 	taskId taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	// 将子任务分批发送给执行器服务, image_subtask_executor
-	failedSubtasks := []taskmodel.SubtaskData{}
+	failedSubtasks := []taskmodel.SubtaskBody{}
 	err := PushToExecutor(subtasks, &failedSubtasks)
 	if err != nil {
 		glog.Error("failed to push subtasks to executor: ", err.Error())
@@ -37,8 +37,8 @@ func ExecSubtasks(
 
 // 将子任务分批发送给执行器服务
 func PushToExecutor(
-	subtasks *[]taskmodel.SubtaskData,
-	failedSubtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
+	failedSubtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	// 将子任务发送给执行器服务
@@ -69,13 +69,13 @@ func PushToExecutor(
 
 // 将一批子任务发送给执行器服务
 func PushBatchSubtaskToExecutor(
-	subtasks []taskmodel.SubtaskData,
-	retFailedSubtasks *[]taskmodel.SubtaskData,
+	subtasks []taskmodel.SubtaskBody,
+	retFailedSubtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	glog.Infof("ready to push batch subtask, subtask num: %d", len(subtasks))
 
-	failedSubtasks := []taskmodel.SubtaskData{}
+	failedSubtasks := []taskmodel.SubtaskBody{}
 	err := sendRequestToExecutor(subtasks)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func PushBatchSubtaskToExecutor(
 
 // 向执行器发送请求
 func sendRequestToExecutor(
-	req []taskmodel.SubtaskData,
+	req []taskmodel.SubtaskBody,
 ) error {
 
 	if len(req) <= 0 {

@@ -82,7 +82,7 @@ func (queues *ScheduleQueueArray) AddTask(
 // 处理调度队列为空的情况, retTaskId为0, subtasks返回的元素为空
 func (queues *ScheduleQueueArray) Schedule(
 	retTaskId *taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	var taskId taskmodel.TaskIdType = 0

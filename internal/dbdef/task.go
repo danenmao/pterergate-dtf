@@ -3,7 +3,7 @@ package dbdef
 import "fmt"
 
 // 任务结构
-type TaskRecord struct {
+type DBTaskRecord struct {
 	Id            uint64 `db:"id" json:"id"`
 	Name          string `db:"name" json:"name"`
 	Description   string `db:"description" json:"description"`

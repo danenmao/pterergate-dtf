@@ -103,7 +103,7 @@ func (rg *ResourceGroupMgr) AddTask(
 // 无法选出子任务时, retTaskId为0, subtasks返回的元素为空
 func (rg *ResourceGroupMgr) Select(
 	retTaskId *taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	rg.Mutex.Lock()

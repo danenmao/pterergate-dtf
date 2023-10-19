@@ -17,7 +17,7 @@ import (
 )
 
 // 完成任务
-func CompleteTask(taskId taskmodel.TaskIdType, taskRecord *dbdef.TaskRecord) error {
+func CompleteTask(taskId taskmodel.TaskIdType, taskRecord *dbdef.DBTaskRecord) error {
 
 	// 从task info key中读取信息
 	taskKey := GetTaskInfoKey(taskId)
@@ -103,7 +103,7 @@ func SetTaskStatus(taskId taskmodel.TaskIdType, status taskmodel.TaskStatusType)
 }
 
 // 更新任务表记录，标记任务已完成
-func WriteCompleteInfoToTaskDB(taskRecord *dbdef.TaskRecord) error {
+func WriteCompleteInfoToTaskDB(taskRecord *dbdef.DBTaskRecord) error {
 	result, err := mysqltool.DefaultMySQL().NamedExec(
 		dbdef.SQL_TaskTable_CompleteTask,
 		taskRecord,

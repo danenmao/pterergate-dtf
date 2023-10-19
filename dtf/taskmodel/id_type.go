@@ -4,9 +4,7 @@ import (
 	"strconv"
 )
 
-//
 // 定义任务ID的类型
-//
 type TaskIdType uint64
 
 // Marshal
@@ -21,10 +19,7 @@ func (taskId *TaskIdType) UnmarshalBinary(data []byte) error {
 	return err
 }
 
-
-//
 // 定义子任务ID的类型
-//
 type SubtaskIdType uint64
 
 // Marshal

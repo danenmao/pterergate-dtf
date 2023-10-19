@@ -26,7 +26,7 @@ func GetExecutorService() *ExecutorService {
 }
 
 // handler executor service request
-func ExecutorRequestHandler(subtasks []taskmodel.SubtaskData) error {
+func ExecutorRequestHandler(subtasks []taskmodel.SubtaskBody) error {
 
 	// check if exceed the subtask count
 
@@ -44,7 +44,7 @@ func (service *ExecutorService) Init() error {
 }
 
 // to execute subtask
-func (service *ExecutorService) execSubtask(subtask *taskmodel.SubtaskData) error {
+func (service *ExecutorService) execSubtask(subtask *taskmodel.SubtaskBody) error {
 
 	// get the task executor object
 	var executor taskmodel.ITaskExecutor
@@ -66,10 +66,10 @@ func (service *ExecutorService) execSubtask(subtask *taskmodel.SubtaskData) erro
 		if err != nil {
 			glog.Warning("TaskExecutor returned err: ", err)
 			result.Result = taskmodel.SubtaskResult_Failure
-			result.Reason = err.Error()
+			result.ResultMsg = err.Error()
 		} else {
 			result.Result = taskmodel.SubtaskResult_Success
-			result.Reason = "success"
+			result.ResultMsg = "success"
 		}
 
 		// send subtask result
@@ -89,7 +89,7 @@ func (service *ExecutorService) execSubtask(subtask *taskmodel.SubtaskData) erro
 	case <-time.After(time.Second * time.Duration(subtask.Timeout)):
 		glog.Info("subtask timeout: ", subtask.SubtaskId, " of ", subtask.TaskId)
 		result.Result = taskmodel.SubtaskResult_Timeout
-		result.Reason = "timeout"
+		result.ResultMsg = "timeout"
 	}
 
 	subtask.TerminatedAt = time.Now()

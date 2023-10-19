@@ -56,7 +56,7 @@ func checkCompletedSubtask() {
 	toDecr := true
 	defer func() {
 		if toDecr {
-			gs_RoutineLimit.DecrRoutineCount()
+			gs_RoutineLimit.Decr()
 		}
 	}()
 
@@ -74,7 +74,7 @@ func checkCompletedSubtask() {
 func completeSubtask(list []*SubtaskElem) {
 
 	// decr the ref
-	defer gs_RoutineLimit.DecrRoutineCount()
+	defer gs_RoutineLimit.Decr()
 
 	// stat the time cost
 	startTime := time.Now()

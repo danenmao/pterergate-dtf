@@ -17,7 +17,7 @@ import (
 // 创建子任务信息key
 func CreateSubtaskInfoKey(
 	subtaskId uint64,
-	subtaskData *taskmodel.SubtaskData,
+	subtaskData *taskmodel.SubtaskBody,
 ) error {
 
 	var valueMap = map[string]interface{}{
@@ -25,7 +25,7 @@ func CreateSubtaskInfoKey(
 		config.SubtaskInfo_TaskIdField:    uint64(subtaskData.TaskId),
 		config.SubtaskInfo_PriorityField:  0,
 		config.SubtaskInfo_StartTimeField: time.Now().Unix(),
-		config.SubtaskInfo_Param:          subtaskData.TypeData,
+		config.SubtaskInfo_Param:          subtaskData.TypeParam,
 		config.SubtaskInfo_StatusField:    taskmodel.SubtaskStatus_Running,
 		config.SubtaskInfo_TaskTypeField:  subtaskData.TaskType,
 	}
@@ -82,7 +82,7 @@ func AddSubtaskToTask(taskId taskmodel.TaskIdType, subtaskId uint64) error {
 
 // 将子任务添加到redis_subtask_scanning_zset, 执行中的子任务列表
 func AddSubtaskToRunningList(
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	// 拼装添加命令

@@ -21,7 +21,7 @@ func CreateSubtask(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
 	impl taskmodel.ITaskGenerator,
-	subtaskData *taskmodel.SubtaskData,
+	subtaskData *taskmodel.SubtaskBody,
 	finished *bool,
 ) error {
 
@@ -44,7 +44,7 @@ func CreateSubtask(
 	}
 
 	// get a subtask id
-	id, err := idtool.GetAvailableId(config.SubtaskIdKey)
+	id, err := idtool.GetId(config.SubtaskIdKey)
 	if err != nil {
 		glog.Warning("failed to get a subtask id: ", err)
 		return err

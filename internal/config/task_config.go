@@ -6,7 +6,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/basedef"
 )
 
-// manager 使用的设置
+// manager settings
 var (
 	//
 	// go_task_creation的设置

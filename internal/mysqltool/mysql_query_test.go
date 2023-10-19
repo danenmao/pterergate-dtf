@@ -19,7 +19,7 @@ func Test_ReadFromDBByPageCustom_QueryRetryCount(t *testing.T) {
 
 		readFn := func(*sqlx.Rows) error { return nil }
 
-		err := ReadFromDBByPageCustom(queryFn, readFn, 100)
+		err := ReadDBByPageCustom(queryFn, readFn, 100)
 
 		Convey("return err", func() {
 			So(err, ShouldNotBeNil)
@@ -40,7 +40,7 @@ func Test_ReadFromDBByPageCustom_0Limit(t *testing.T) {
 
 		readFn := func(*sqlx.Rows) error { return nil }
 
-		err := ReadFromDBByPageCustom(queryFn, readFn, 0)
+		err := ReadDBByPageCustom(queryFn, readFn, 0)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -68,7 +68,7 @@ func Test_ReadFromDBByPageCustom_NoData(t *testing.T) {
 			return nil
 		}
 
-		err := ReadFromDBByPageCustom(queryFn, readFn, 10)
+		err := ReadDBByPageCustom(queryFn, readFn, 10)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -92,7 +92,7 @@ func Test_ReadFromDBByPageCustom_LessThanDefaultPage(t *testing.T) {
 			return nil
 		}
 
-		err := ReadFromDBByPageCustom(queryFn, readFn, 9)
+		err := ReadDBByPageCustom(queryFn, readFn, 9)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -124,7 +124,7 @@ func Test_ReadFromDBByPageCustom_ReadFailed(t *testing.T) {
 			return errors.New("internal error")
 		}
 
-		err := ReadFromDBByPageCustom(queryFn, readFn, dataCount)
+		err := ReadDBByPageCustom(queryFn, readFn, dataCount)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -182,7 +182,7 @@ func Test_ReadFromDBByPageCustom_MoreThanOnePage(t *testing.T) {
 			return nil
 		}
 
-		err := ReadFromDBByPageCustom(queryFn, readFn, totalCount)
+		err := ReadDBByPageCustom(queryFn, readFn, totalCount)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -215,7 +215,7 @@ func Test_ReadFromDBByPageCustom_TwoPage(t *testing.T) {
 			return nil
 		}
 
-		err := ReadFromDBByPageCustom(queryFn, readFn, totalCount)
+		err := ReadDBByPageCustom(queryFn, readFn, totalCount)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -248,7 +248,7 @@ func Test_ReadFromDBByPage_OnePage(t *testing.T) {
 			return nil
 		}
 
-		err := ReadFromDBByPage(queryFn, readFn)
+		err := ReadDBByPage(queryFn, readFn)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -275,7 +275,7 @@ func Test_AssembleListSQL_IntList(t *testing.T) {
 
 		sql := ""
 		resultArgs := []interface{}{}
-		AssembleListSQL(part1Sql, part2Sql, &part1Args, &listArgs, &part2Args, &sql, &resultArgs)
+		AssembleInRangeSQL(part1Sql, part2Sql, &part1Args, &listArgs, &part2Args, &sql, &resultArgs)
 
 		Convey("sql shoud be equal", func() {
 			So(sql, ShouldEqual, "select a from t where b in (?,?,?) limit 100")
@@ -298,7 +298,7 @@ func Test_AssembleListSQLTemplate_StrList(t *testing.T) {
 
 		sql := ""
 		resultArgs := []interface{}{}
-		AssembleListSQLTemplate(part1Sql, part2Sql, &part1Args, &listArgs, &part2Args, &sql, &resultArgs)
+		AssembleInRangeSQLTemplate(part1Sql, part2Sql, &part1Args, &listArgs, &part2Args, &sql, &resultArgs)
 
 		Convey("sql shoud be equal", func() {
 			So(sql, ShouldEqual, "select a from t where b in (?,?,?) limit 100")

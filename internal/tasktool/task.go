@@ -13,7 +13,7 @@ import (
 )
 
 // 添加任务记录
-func AddTaskRecord(task *dbdef.TaskRecord) error {
+func AddTaskRecord(task *dbdef.DBTaskRecord) error {
 
 	result, err := mysqltool.DefaultMySQL().NamedExec(
 		dbdef.SQL_TaskTable_InsertTask,

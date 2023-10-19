@@ -15,5 +15,5 @@ type ITaskPlugin interface {
 }
 
 // 函数类型，用于返回指定任务类型对应的任务插件对象
-// 一个任务类型一个插件对象
+// 每个任务类型对应一个插件对象
 type NewTaskPluginFn func(plugin *ITaskPlugin) error

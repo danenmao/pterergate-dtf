@@ -22,14 +22,14 @@ const PriorityBoostMaxTaskCount = uint32(10)
 
 // 调度队列
 type ScheduleQueue struct {
-	ResourceGroupName string                       // 队列所属的资源组的名称
-	QueueIndex        uint32                       // 队列在资源组内的索引
-	QueueKeyName      string                       // 队列的Key名
-	TimeSlice         uint32                       // 任务队列的轮转时间片，单位为ms
-	BaseQueueSlice    uint32                       // 任务队列授予任务的基础时间片的数量, 单位为个
-	Scheduler         scheduler.IScheduleQueueImpl // 调度队列的调度接口
-	NextQueue         *ScheduleQueue               // 下一个调度队列
-	TaskCount         uint                         // 队列中的任务数
+	ResourceGroupName string                   // 队列所属的资源组的名称
+	QueueIndex        uint32                   // 队列在资源组内的索引
+	QueueKeyName      string                   // 队列的Key名
+	TimeSlice         uint32                   // 任务队列的轮转时间片，单位为ms
+	BaseQueueSlice    uint32                   // 任务队列授予任务的基础时间片的数量, 单位为个
+	Scheduler         scheduler.IScheduleQueue // 调度队列的调度接口
+	NextQueue         *ScheduleQueue           // 下一个调度队列
+	TaskCount         uint                     // 队列中的任务数
 }
 
 // 创建一个优先级队列
@@ -63,7 +63,7 @@ func NewRRQueue(groupName string, queueName string) *ScheduleQueue {
 // 处理调度队列为空的情况, retTaskId为0, subtasks返回的元素为空
 func (queue *ScheduleQueue) Schedule(
 	retTaskId *taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) (bool, error) {
 
 	// 从队列中选择要调度的任务
@@ -78,7 +78,7 @@ func (queue *ScheduleQueue) Schedule(
 	// 调度队列中没有任务, 返回空列表
 	if noTask {
 		*retTaskId = 0
-		*subtasks = []taskmodel.SubtaskData{}
+		*subtasks = []taskmodel.SubtaskBody{}
 		return false, nil
 	}
 
@@ -189,9 +189,9 @@ func (queue *ScheduleQueue) setTaskScheduleData(
 func (queue *ScheduleQueue) calcTaskSliceCount(priority uint32) uint32 {
 
 	priorityBonus := uint32(0)
-	if priority <= taskdef.Priority_Low {
+	if priority <= taskdef.TaskPriority_Low {
 		priorityBonus = PriorityBonus_Low
-	} else if priority <= taskdef.Priority_Medium {
+	} else if priority <= taskdef.TaskPriority_Medium {
 		priorityBonus = PriorityBonus_Medium
 	} else {
 		priorityBonus = PriorityBonus_High
@@ -213,7 +213,7 @@ func (queue *ScheduleQueue) AppendBoostTaskList(taskIdList *[]taskmodel.TaskIdTy
 
 	// 设置这些任务在本队列的调度数据
 	for _, task := range *taskIdList {
-		queue.setTaskScheduleData(task, taskdef.Priority_Low)
+		queue.setTaskScheduleData(task, taskdef.TaskPriority_Low)
 	}
 
 	// 批量添加到队列尾部
@@ -360,7 +360,7 @@ func (queue *ScheduleQueue) getTaskRemainSliceCount(
 // 获取任务的子任务列表
 func (queue *ScheduleQueue) getSubtasks(
 	taskId taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 	retFinished *bool,
 	retQuietTask *bool,
 ) error {
@@ -378,7 +378,7 @@ func (queue *ScheduleQueue) getSubtasks(
 // 取子任务循环
 func (queue *ScheduleQueue) pickSubtaskLoop(
 	taskId taskmodel.TaskIdType,
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 	retFinished *bool,
 	retQuietTask *bool,
 ) error {
@@ -405,7 +405,7 @@ func (queue *ScheduleQueue) pickSubtaskLoop(
 
 		// 取子任务
 		finished := false
-		var subtaskData = taskmodel.SubtaskData{}
+		var subtaskData = taskmodel.SubtaskBody{}
 		err := GetSubtask(taskId, &subtaskData, &finished)
 		if err != nil && err != errordef.ErrNotFound {
 			glog.Warning("failed to get subtask: ", taskId, ", ", err.Error())
@@ -457,7 +457,7 @@ func (queue *ScheduleQueue) pickSubtaskLoop(
 // get a subtask from the subtask queue
 func GetSubtask(
 	taskId taskmodel.TaskIdType,
-	subtaskData *taskmodel.SubtaskData,
+	subtaskData *taskmodel.SubtaskBody,
 	finished *bool,
 ) error {
 

@@ -41,14 +41,14 @@ func (limit *RoutineCountLimit) IncrIfNotExceedLimit() bool {
 }
 
 // 增加正在执行的例程数
-func (limit *RoutineCountLimit) IncrRoutineCount() {
+func (limit *RoutineCountLimit) Incr() {
 	limit.routineCountLock.Lock()
 	defer limit.routineCountLock.Unlock()
 	limit.currentRoutineCount += 1
 }
 
 // 减少正在执行的例程数
-func (limit *RoutineCountLimit) DecrRoutineCount() {
+func (limit *RoutineCountLimit) Decr() {
 	limit.routineCountLock.Lock()
 	defer limit.routineCountLock.Unlock()
 	limit.currentRoutineCount -= 1

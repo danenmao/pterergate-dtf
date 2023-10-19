@@ -13,7 +13,7 @@ const (
 	SubtaskResult_Timeout SubtaskResultType = 3 // 子任务超时
 )
 
-// 子任务状态
+// 子任务的运行状态
 const (
 	SubtaskStatus_Running   = 1
 	SubtaskStatus_Finished  = 2
@@ -21,14 +21,14 @@ const (
 	SubtaskStatus_Timeout   = 4
 )
 
-// 子任务的数据
-type SubtaskData struct {
+// 子任务的参数体
+type SubtaskBody struct {
 	SubtaskId    SubtaskIdType `json:"subtask_id"`    // 子任务ID
 	TaskId       TaskIdType    `json:"task_id"`       // 所属的任务ID
 	TaskType     uint32        `json:"task_type"`     // 任务类型
 	Timeout      uint32        `json:"timeout"`       // 子任务的超时值, 秒
-	TypeData     string        `json:"type_data"`     // 子任务与类型相关的JSON数据
-	CreatedAt    time.Time     `json:"create_at"`     // 子任务创建的时间
+	TypeParam    string        `json:"type_param"`    // 子任务与类型相关的参数数, json
+	CreatedAt    time.Time     `json:"created_at"`    // 子任务创建的时间
 	TerminatedAt time.Time     `json:"terminated_at"` // 子任务结束的时间
 }
 
@@ -38,6 +38,6 @@ type SubtaskResult struct {
 	TaskId     TaskIdType        `json:"task_id"`     // 所属的任务ID
 	Result     SubtaskResultType `json:"result"`      // 子任务的结果
 	ResultCode uint32            `json:"result_code"` // 子任务的结果码
-	Reason     string            `json:"reason"`      // 原因
-	ResultData string            `json:"result_data"` // 子任务与类型相关的结果数据
+	ResultMsg  string            `json:"result_msg"`  // 原因
+	ResultBody string            `json:"result_body"` // 子任务与类型相关的结果数据
 }

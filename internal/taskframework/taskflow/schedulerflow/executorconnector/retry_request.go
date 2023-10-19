@@ -18,12 +18,12 @@ const RedisRetryToPushExecutorQueue = "retry.push.to.executor.queue"
 const RetryToPushInterval = 2
 
 type RetrySubtaskData struct {
-	taskmodel.SubtaskData
+	taskmodel.SubtaskBody
 	ExpiredAt time.Time `json:"expired_at"` // 子任务重试的截止时间
 }
 
 func AddSubtasksToRetryQueue(
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	// 将子任务数据批量序列化
@@ -32,7 +32,7 @@ func AddSubtasksToRetryQueue(
 	for _, subtask := range *subtasks {
 
 		retryData := RetrySubtaskData{
-			SubtaskData: subtask,
+			SubtaskBody: subtask,
 			ExpiredAt:   subtask.CreatedAt.Add(time.Second * time.Duration(subtask.Timeout)),
 		}
 
@@ -79,7 +79,7 @@ func retryPushToExecutor() {
 	glog.Info("retry to push subtasks to executor")
 
 	// 取子任务列表
-	subtasks := []taskmodel.SubtaskData{}
+	subtasks := []taskmodel.SubtaskBody{}
 	err := getRetryPushSubtasks(&subtasks)
 	if err != nil {
 		glog.Warning("failed to get subtasks to retry to push: ", err)
@@ -93,7 +93,7 @@ func retryPushToExecutor() {
 
 	// 推送给执行器
 	// 将子任务分批发送给执行器服务
-	failedSubtasks := []taskmodel.SubtaskData{}
+	failedSubtasks := []taskmodel.SubtaskBody{}
 	err = PushToExecutor(&subtasks, &failedSubtasks)
 	if err != nil {
 		glog.Error("failed to push subtasks to executor: ", err.Error())
@@ -107,7 +107,7 @@ func retryPushToExecutor() {
 
 // 取要重试的子任务列表
 func getRetryPushSubtasks(
-	subtasks *[]taskmodel.SubtaskData,
+	subtasks *[]taskmodel.SubtaskBody,
 ) error {
 
 	// 构造命令pipeline
@@ -164,7 +164,7 @@ func getRetryPushSubtasks(
 			continue
 		}
 
-		*subtasks = append(*subtasks, retryData.SubtaskData)
+		*subtasks = append(*subtasks, retryData.SubtaskBody)
 	} // for
 
 	glog.Info("succeeded to get retry push subtasks: ", len(*subtasks))
