@@ -369,7 +369,7 @@ func SaveTaskScheduleData(
 
 func ReadSubtaskStartTime(
 	subtaskId uint64,
-	startTime *uint64, taskId *taskmodel.TaskIdType, appId *uint32,
+	startTime *uint64, taskId *taskmodel.TaskIdType, uid *uint32,
 	taskType *uint32,
 ) error {
 
@@ -410,20 +410,20 @@ func ReadSubtaskStartTime(
 	}
 	*taskId = taskmodel.TaskIdType(intId)
 
-	// appid
-	appIdStr, ok := valMap[config.SubtaskInfo_UID]
+	// uid
+	uidStr, ok := valMap[config.SubtaskInfo_UID]
 	if !ok {
 		glog.Warning("no owner field: ", subtaskId)
 		return errors.New("no owner field")
 	}
 
-	appIdValue, err := strconv.ParseUint(appIdStr, 10, 32)
+	uidValue, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
-		glog.Warning("failed to convert appid: ", appIdStr, err)
-		return errors.New("failed to convert appid")
+		glog.Warning("failed to convert uid: ", uidStr, err)
+		return errors.New("failed to convert uid")
 	}
 
-	*appId = uint32(appIdValue)
+	*uid = uint32(uidValue)
 
 	// task type
 	taskTypeStr, ok := valMap[config.SubtaskInfo_TaskTypeField]
@@ -439,7 +439,6 @@ func ReadSubtaskStartTime(
 	}
 
 	*taskType = uint32(taskTypeValue)
-
 	return nil
 }
 

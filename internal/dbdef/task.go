@@ -19,7 +19,7 @@ type DBTaskRecord struct {
 
 // 任务表的定义
 const (
-	TaskTableName           = "tbl_tcss_compliance_task"
+	TaskTableName           = "tbl_task"
 	TaskTable_Id            = "id"
 	TaskTable_Name          = "name"
 	TaskTable_Description   = "description"

@@ -28,10 +28,10 @@ func SetSubtaskResult(
 	var endTime uint64 = uint64(time.Now().Unix())
 	var timeCost uint32 = 0
 	var taskId taskmodel.TaskIdType = 0
-	var appId uint32 = 0
+	var uid uint32 = 0
 	var taskType uint32 = 0
 
-	err := tasktool.ReadSubtaskStartTime(subtaskId, &startTime, &taskId, &appId, &taskType)
+	err := tasktool.ReadSubtaskStartTime(subtaskId, &startTime, &taskId, &uid, &taskType)
 	if err != nil {
 		startTime = 0
 		timeCost = 1

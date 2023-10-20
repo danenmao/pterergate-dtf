@@ -64,7 +64,7 @@ func CompleteTask(taskId taskmodel.TaskIdType, taskRecord *dbdef.DBTaskRecord) e
 
 	uid, err := strconv.ParseUint(udStr, 10, 32)
 	if err != nil {
-		glog.Warning("failed to parse appid: ", udStr, err)
+		glog.Warning("failed to parse uid: ", udStr, err)
 		uid = 0
 	}
 
