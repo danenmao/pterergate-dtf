@@ -11,7 +11,7 @@ type ITaskPlugin interface {
 	GetTaskConf(taskConf *taskmodel.TaskConf) error
 
 	// 获取任务的执行体
-	GetTaskBody(taskContext *taskmodel.TaskBody) error
+	GetTaskBody(taskBody *taskmodel.TaskBody) error
 }
 
 // 函数类型，用于返回指定任务类型所对应的任务插件对象
