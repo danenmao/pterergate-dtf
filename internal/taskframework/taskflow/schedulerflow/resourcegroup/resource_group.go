@@ -24,29 +24,28 @@ type ResourceGroup struct {
 }
 
 // 资源组的fit值结构
-type Fitness struct {
+type Quota struct {
 	Name  string  // 资源组名
 	Quota float32 // 资源组的配额值
 }
 
 // 资源组管理器
 type ResourceGroupMgr struct {
-	GroupMap   map[string]*ResourceGroup // name:group的map
-	FitList    []Fitness                 // 所有资源组的fit值的列表
-	MaxFitness float32                   // 资源组中最大的fit值
-	MaxIdx     int                       // 最大fit值元素的索引
-	Mutex      sync.Mutex                // 访问锁
+	GroupMap      map[string]*ResourceGroup // 资源组表
+	QuotaList     []Quota                   // 所有资源组的quota值的列表
+	MaxQuota      float32                   // 资源组中最大的quota值
+	MaxQuotaIndex int                       // 最大quota值元素的索引
+	Mutex         sync.Mutex                // 访问锁
 }
 
 // 全局的资源组管理器对象
 var gs_resourceGroupMgr = ResourceGroupMgr{
-	GroupMap: map[string]*ResourceGroup{},
-	FitList:  []Fitness{},
+	GroupMap:  map[string]*ResourceGroup{},
+	QuotaList: []Quota{},
 }
 
 // 获取模块的资源组管理器对象
 func GetResourceGroupMgr() *ResourceGroupMgr {
-
 	return &gs_resourceGroupMgr
 }
 
@@ -117,9 +116,9 @@ func (rg *ResourceGroupMgr) Select(
 	}
 
 	// 根据索引取资源组
-	group, ok := rg.GroupMap[rg.FitList[i].Name]
+	group, ok := rg.GroupMap[rg.QuotaList[i].Name]
 	if !ok {
-		glog.Error("unknown resource group name: ", rg.FitList[i].Name)
+		glog.Error("unknown resource group name: ", rg.QuotaList[i].Name)
 		return err
 	}
 
@@ -176,16 +175,15 @@ func (rg *ResourceGroupMgr) stochasticAccept() (int, error) {
 
 	i := 0
 	const MaxTryCount = 20
-	n := len(rg.FitList)
+	n := len(rg.QuotaList)
 	rand.Seed(time.Now().Unix())
 
 	for {
-
 		// 选择一个随机的元素
 		idx := rand.Intn(n)
 
 		// 按概率 Wi/Wmax 来接受选择
-		if rand.Float32() <= rg.FitList[idx].Quota/rg.MaxFitness {
+		if rand.Float32() <= rg.QuotaList[idx].Quota/rg.MaxQuota {
 			return idx, nil
 		}
 
@@ -237,15 +235,15 @@ func (rg *ResourceGroupMgr) syncRecord() error {
 		}
 
 		// 添加到fit数组尾部
-		rg.FitList = append(rg.FitList, Fitness{
+		rg.QuotaList = append(rg.QuotaList, Quota{
 			Name:  group.Name,
 			Quota: group.Quota,
 		})
 
 		// 记录最大的fit值及索引
-		if group.Quota > rg.MaxFitness {
-			rg.MaxIdx = i
-			rg.MaxFitness = group.Quota
+		if group.Quota > rg.MaxQuota {
+			rg.MaxQuotaIndex = i
+			rg.MaxQuota = group.Quota
 		}
 	}
 

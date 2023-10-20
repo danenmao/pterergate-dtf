@@ -3,12 +3,12 @@ package scheduler
 import "github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 
 // RR调度算法
-type RR struct {
+type RRScheduler struct {
 	QueueKeyName string
 }
 
 // RR调度算法
-func (scheduler *RR) Schedule(
+func (scheduler *RRScheduler) Schedule(
 	retTaskId *taskmodel.TaskIdType,
 	noTask *bool,
 ) error {

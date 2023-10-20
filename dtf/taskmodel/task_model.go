@@ -12,8 +12,8 @@ type TaskConf struct {
 // TaskBody
 // 表示任务的执行体
 type TaskBody struct {
-	Generator ITaskGenerator
-	Scheduler ITaskScheduler
-	Collector ITaskCollector
-	Executor  ITaskExecutor
+	Generator         ITaskGenerator
+	Executor          ITaskExecutor
+	SchedulerCallback ITaskSchedulerCallback
+	CollectorCallback ITaskCollectorCallback
 }

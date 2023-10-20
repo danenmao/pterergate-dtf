@@ -9,18 +9,24 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskplugin"
 )
 
-// 插件对象表, 及锁
-var gs_TaskPluginTable = map[uint32]taskplugin.ITaskPlugin{}
-var gs_TaskPluginLock sync.Mutex
+// 插件对象表
+type TaskPluginTable struct {
+	Table map[uint32]taskplugin.ITaskPlugin
+	Lock  sync.Mutex
+}
+
+var gs_TaskPluginTable = TaskPluginTable{
+	Table: map[uint32]taskplugin.ITaskPlugin{},
+}
 
 // 查找指定类型任务的插件对象
 func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 
-	gs_TaskPluginLock.Lock()
-	defer gs_TaskPluginLock.Unlock()
+	gs_TaskPluginTable.Lock.Lock()
+	defer gs_TaskPluginTable.Lock.Unlock()
 
 	// check if task plugin exists
-	elem, ok := gs_TaskPluginTable[taskType]
+	elem, ok := gs_TaskPluginTable.Table[taskType]
 	if ok {
 		glog.Info("found task type plugin: ", taskType)
 		*plugin = elem
@@ -34,7 +40,7 @@ func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 		return err
 	}
 
-	gs_TaskPluginTable[taskType] = *plugin
+	gs_TaskPluginTable.Table[taskType] = *plugin
 	glog.Info("succeeded to save a task plugin: ", taskType)
 	return nil
 }
@@ -43,7 +49,7 @@ func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 func NewTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 
 	// 查找传入任务类型对应的加载器
-	register, ok := gs_PluginRegisterTable[taskType]
+	register, ok := gs_PluginRegister.RegistrationTable[taskType]
 	if !ok {
 		glog.Error("unknown task type: ", taskType)
 		return errors.New("unknown task type")
@@ -55,7 +61,7 @@ func NewTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 	}
 
 	// 调用函数来创建任务插件
-	err := register.NewPluginFn(plugin)
+	err := register.PluginFactoryFn(plugin)
 	if err != nil {
 		glog.Error("failed to new a plugin: ", taskType, err)
 		return err

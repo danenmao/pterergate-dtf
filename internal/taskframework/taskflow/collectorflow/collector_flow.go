@@ -11,8 +11,8 @@ func OnSubtaskResult(
 	retFinished *bool,
 ) error {
 
-	var collector taskmodel.ITaskCollector
-	err := GetSubtaskCollector(subtaskResult.SubtaskId, &collector)
+	var collector taskmodel.ITaskCollectorCallback
+	err := GetSubtaskCollectorCallback(subtaskResult.SubtaskId, &collector)
 	if err != nil {
 		glog.Warning("failed to get subtask collector: ", subtaskResult.SubtaskId, ",", err)
 		return err
@@ -32,8 +32,8 @@ func OnSubtaskCompleted(
 	subtaskResult *taskmodel.SubtaskResult,
 ) error {
 
-	var collector taskmodel.ITaskCollector
-	err := GetSubtaskCollector(subtaskResult.SubtaskId, &collector)
+	var collector taskmodel.ITaskCollectorCallback
+	err := GetSubtaskCollectorCallback(subtaskResult.SubtaskId, &collector)
 	if err != nil {
 		glog.Warning("failed to get subtask collector: ", subtaskResult.SubtaskId, ",", err)
 		return err
@@ -51,8 +51,8 @@ func OnSubtaskCompleted(
 
 func AfterTaskCompleted(taskId taskmodel.TaskIdType) error {
 
-	var collector taskmodel.ITaskCollector
-	err := GetCollectorFromTaskId(taskId, &collector)
+	var collector taskmodel.ITaskCollectorCallback
+	err := GetCollectorCallbackByTaskId(taskId, &collector)
 	if err != nil {
 		glog.Warning("failed to get subtask collector ", taskId, ",", err)
 		return err

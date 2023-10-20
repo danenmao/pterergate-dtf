@@ -27,7 +27,7 @@ const (
 var (
 	// control the complete subtask routine limit
 	gs_RoutineLimit = routine.RoutineCountLimit{
-		RoutineCountLimit: SubtaskRoutineCountDefaultLimit,
+		CountLimit: SubtaskRoutineCountDefaultLimit,
 	}
 )
 
@@ -49,7 +49,7 @@ func CompleteSubtaskRoutine() {
 func checkCompletedSubtask() {
 
 	// check if create a new complete subtask routine
-	if !gs_RoutineLimit.IncrIfNotExceedLimit() {
+	if !gs_RoutineLimit.IncrIfNotFull() {
 		return
 	}
 

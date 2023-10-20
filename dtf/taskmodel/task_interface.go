@@ -27,7 +27,7 @@ type ITaskGenerator interface {
 
 // 任务的调度接口
 // 响应一些调度操作
-type ITaskScheduler interface {
+type ITaskSchedulerCallback interface {
 
 	// 在子任务被调度之前调用，可通过返回的bool来控制当前子任务是否被调度
 	BeforeDispatch(subtaskId SubtaskIdType, subtaskData *SubtaskBody) (bool, error)
@@ -48,7 +48,7 @@ type ITaskExecutor interface {
 }
 
 // 任务的结果采集接口
-type ITaskCollector interface {
+type ITaskCollectorCallback interface {
 
 	// 每次返回一次结果, 调用一次方法
 	// 一个子任务执行完成后执行

@@ -10,7 +10,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
-func GetTaskCollector(taskType uint32, collector *taskmodel.ITaskCollector) error {
+func GetTaskCollectorCallback(taskType uint32, collector *taskmodel.ITaskCollectorCallback) error {
 
 	var plugin taskplugin.ITaskPlugin = nil
 	err := taskloader.LookupTaskPlugin(taskType, &plugin)
@@ -26,15 +26,15 @@ func GetTaskCollector(taskType uint32, collector *taskmodel.ITaskCollector) erro
 		return err
 	}
 
-	*collector = context.Collector
+	*collector = context.CollectorCallback
 	glog.Info("succeeded to get task collector: ", taskType)
 	return nil
 }
 
 // 从子任务ID得到collector
-func GetSubtaskCollector(
+func GetSubtaskCollectorCallback(
 	subtaskId taskmodel.SubtaskIdType,
-	collector *taskmodel.ITaskCollector,
+	collector *taskmodel.ITaskCollectorCallback,
 ) error {
 
 	// 取子任务的任务类型
@@ -46,7 +46,7 @@ func GetSubtaskCollector(
 	}
 
 	// 获取collector
-	err = GetTaskCollector(taskType, collector)
+	err = GetTaskCollectorCallback(taskType, collector)
 	if err != nil {
 		glog.Warning("failed to get task type collector: ", taskType, ",", err)
 		return err
@@ -57,9 +57,9 @@ func GetSubtaskCollector(
 }
 
 // 从子任务ID得到collector
-func GetCollectorFromTaskId(
+func GetCollectorCallbackByTaskId(
 	taskId taskmodel.TaskIdType,
-	collector *taskmodel.ITaskCollector,
+	collector *taskmodel.ITaskCollectorCallback,
 ) error {
 
 	// 取任务的任务类型
@@ -70,7 +70,7 @@ func GetCollectorFromTaskId(
 		return err
 	}
 
-	err = GetTaskCollector(taskType, collector)
+	err = GetTaskCollectorCallback(taskType, collector)
 	if err != nil {
 		glog.Warning("failed to get task type collector: ", taskType, ",", err)
 		return err

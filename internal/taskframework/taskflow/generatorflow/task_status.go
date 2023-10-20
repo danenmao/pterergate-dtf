@@ -13,11 +13,11 @@ import (
 )
 
 // 保存任务创建
-const RedisTaskStatusKeyPrefix = "task.status."
+const TaskStatusKeyPrefix = "task.status."
 
 // 获取保存任务调度数据的Key
 func GetTaskStatusKey(taskId taskmodel.TaskIdType) string {
-	return fmt.Sprintf("%s%d", RedisTaskStatusKeyPrefix, taskId)
+	return fmt.Sprintf("%s%d", TaskStatusKeyPrefix, taskId)
 }
 
 // 根据任务ID从Redis中加载任务的生成状态

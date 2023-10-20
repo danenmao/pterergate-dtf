@@ -23,7 +23,7 @@ type TaskScheduleData struct {
 }
 
 // 保存任务调度数据
-const RedisTaskScheduleDataPrefix = "task.schedule.data."
+const TaskScheduleDataPrefix = "task.schedule.data."
 
 // 执行器服务名
 const SubtaskExecutorName = ""

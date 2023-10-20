@@ -156,7 +156,7 @@ func repairLostTaskList(taskList *[]uint64) error {
 
 	pipeline := redistool.DefaultRedis().Pipeline()
 	for _, taskId := range *taskList {
-		repairTask(taskId, pipeline)
+		repairLostTask(taskId, pipeline)
 	}
 
 	// 执行pipeline
@@ -170,7 +170,7 @@ func repairLostTaskList(taskList *[]uint64) error {
 }
 
 // 修改丢失的任务
-func repairTask(taskId uint64, pipeline redis.Pipeliner) error {
+func repairLostTask(taskId uint64, pipeline redis.Pipeliner) error {
 
 	// 读取任务的调度数据
 	data := flowdef.TaskScheduleData{}

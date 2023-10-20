@@ -83,8 +83,8 @@ func PopSubtaskList(retList *[]*SubtaskElem) {
 
 	// get the element count
 	count := 1
-	if totalCount > uint(gs_RoutineLimit.RoutineCountLimit) {
-		count = int(totalCount/uint(gs_RoutineLimit.RoutineCountLimit)) + 1
+	if totalCount > uint(gs_RoutineLimit.CountLimit) {
+		count = int(totalCount/uint(gs_RoutineLimit.CountLimit)) + 1
 	}
 
 	// MaxCountPerTime

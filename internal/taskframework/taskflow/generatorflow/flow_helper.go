@@ -101,10 +101,10 @@ func (generator *GeneratorFlowHelper) GenerationLoop(
 	}
 
 	// 执行子任务生成操作
-	return generator.pickSubtaskLoop(taskId, &impl)
+	return generator.pickupSubtaskLoop(taskId, &impl)
 }
 
-func (generator *GeneratorFlowHelper) pickSubtaskLoop(
+func (generator *GeneratorFlowHelper) pickupSubtaskLoop(
 	taskId taskmodel.TaskIdType,
 	impl *TaskGenerationImpl,
 ) error {
@@ -115,7 +115,7 @@ func (generator *GeneratorFlowHelper) pickSubtaskLoop(
 
 	// create a routine to refresh the status
 	exitChan := make(chan bool, 1)
-	go asyncRefreshGeneratorStatus(taskId, exitChan)
+	go asyncRefreshGenerationStatus(taskId, exitChan)
 
 	// generation loop
 	for {
@@ -173,7 +173,7 @@ func (generator *GeneratorFlowHelper) pickSubtaskLoop(
 		if endTime-renewTime >= 5 {
 			tasktool.RenewTask(taskId)
 			renewTime = endTime
-			tasktool.RefreshTaskGenerationNextCheckTime(taskId)
+			tasktool.UpdateTaskGenerationNextCheckTime(taskId)
 		}
 	}
 
@@ -185,7 +185,7 @@ func (generator *GeneratorFlowHelper) pickSubtaskLoop(
 }
 
 // refresh the generation status
-func asyncRefreshGeneratorStatus(
+func asyncRefreshGenerationStatus(
 	taskId taskmodel.TaskIdType,
 	exitChan chan bool,
 ) {
@@ -202,7 +202,7 @@ func asyncRefreshGeneratorStatus(
 		}
 
 		tasktool.RenewTask(taskId)
-		tasktool.RefreshTaskGenerationNextCheckTime(taskId)
+		tasktool.UpdateTaskGenerationNextCheckTime(taskId)
 
 		time.Sleep(time.Second * 30)
 	}

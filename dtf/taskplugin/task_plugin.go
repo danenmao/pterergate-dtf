@@ -14,6 +14,6 @@ type ITaskPlugin interface {
 	GetTaskBody(taskContext *taskmodel.TaskBody) error
 }
 
-// 函数类型，用于返回指定任务类型对应的任务插件对象
+// 函数类型，用于返回指定任务类型所对应的任务插件对象
 // 每个任务类型对应一个插件对象
-type NewTaskPluginFn func(plugin *ITaskPlugin) error
+type TaskPluginFactoryFn func(plugin *ITaskPlugin) error

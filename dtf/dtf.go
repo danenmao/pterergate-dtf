@@ -43,7 +43,7 @@ func Join() error {
 ////////////////////////////////////////////////////////////////////////
 
 // 注册任务类型插件
-func RegisterTaskType(register *taskplugin.TaskPluginRegister) error {
+func RegisterTaskType(register *taskplugin.TaskPluginRegistration) error {
 	return taskloader.RegisterTaskType(register)
 }
 

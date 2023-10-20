@@ -33,7 +33,10 @@ func (s *CollectorServer) StartServer() error {
 	server := serverhelper.Server{
 		URI:        s.URI,
 		ServerPort: s.ServerPort,
-		Handler: func(requestHeader serverhelper.RequestHeader, requestBody string) (response string, err error) {
+		Handler: func(
+			requestHeader serverhelper.RequestHeader,
+			requestBody string,
+		) (response string, err error) {
 			return s.handleRequest(requestHeader, requestBody)
 		},
 	}
@@ -42,6 +45,9 @@ func (s *CollectorServer) StartServer() error {
 	return nil
 }
 
-func (s *CollectorServer) handleRequest(requestHeader serverhelper.RequestHeader, requestBody string) (response string, err error) {
+func (s *CollectorServer) handleRequest(
+	requestHeader serverhelper.RequestHeader,
+	requestBody string,
+) (response string, err error) {
 	return "", nil
 }

@@ -9,23 +9,29 @@ import (
 )
 
 // 任务类型注册表
-var gs_PluginRegisterTable = map[uint32]*taskplugin.TaskPluginRegister{}
-var gs_PluginRegisterLock sync.Mutex
+type PluginRegister struct {
+	RegistrationTable map[uint32]*taskplugin.TaskPluginRegistration
+	Lock              sync.Mutex
+}
+
+var gs_PluginRegister = PluginRegister{
+	RegistrationTable: map[uint32]*taskplugin.TaskPluginRegistration{},
+}
 
 // 注册任务类型插件
-func RegisterTaskType(register *taskplugin.TaskPluginRegister) error {
+func RegisterTaskType(register *taskplugin.TaskPluginRegistration) error {
 
-	gs_PluginRegisterLock.Lock()
-	defer gs_PluginRegisterLock.Unlock()
+	gs_PluginRegister.Lock.Lock()
+	defer gs_PluginRegister.Lock.Unlock()
 
-	_, ok := gs_PluginRegisterTable[register.TaskType]
+	_, ok := gs_PluginRegister.RegistrationTable[register.TaskType]
 	if ok {
 		glog.Info("found an existing task type plugin: ", register.TaskType)
 		return nil
 	}
 
 	elem := *register
-	gs_PluginRegisterTable[register.TaskType] = &elem
+	gs_PluginRegister.RegistrationTable[register.TaskType] = &elem
 	glog.Info("succeeded to register a task type: ", elem.TaskType)
 	return nil
 }

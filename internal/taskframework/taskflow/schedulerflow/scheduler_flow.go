@@ -57,7 +57,7 @@ func ExecSubtasks(
 	}
 
 	// get the task scheduler
-	var scheduler taskmodel.ITaskScheduler = nil
+	var scheduler taskmodel.ITaskSchedulerCallback = nil
 	err = GetTaskScheduler(taskType, &scheduler)
 	if err != nil {
 		glog.Warning("failed to get task scheduler: ", taskType, ", ", err.Error())
@@ -89,7 +89,7 @@ func ExecSubtasks(
 	return nil
 }
 
-func GetTaskScheduler(taskType uint32, scheduler *taskmodel.ITaskScheduler) error {
+func GetTaskScheduler(taskType uint32, scheduler *taskmodel.ITaskSchedulerCallback) error {
 
 	var plugin taskplugin.ITaskPlugin = nil
 	err := taskloader.LookupTaskPlugin(taskType, &plugin)
@@ -105,7 +105,7 @@ func GetTaskScheduler(taskType uint32, scheduler *taskmodel.ITaskScheduler) erro
 		return err
 	}
 
-	*scheduler = taskBody.Scheduler
+	*scheduler = taskBody.SchedulerCallback
 	glog.Info("succeeded to get task scheduler: ", taskType)
 	return nil
 }
@@ -113,7 +113,7 @@ func GetTaskScheduler(taskType uint32, scheduler *taskmodel.ITaskScheduler) erro
 // 对子任务执行调度操作
 func DispatchSubtask(
 	taskType uint32,
-	scheduler taskmodel.ITaskScheduler,
+	scheduler taskmodel.ITaskSchedulerCallback,
 	subtask *taskmodel.SubtaskBody,
 ) error {
 

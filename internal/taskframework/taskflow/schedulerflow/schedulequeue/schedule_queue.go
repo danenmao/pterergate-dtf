@@ -34,27 +34,25 @@ type ScheduleQueue struct {
 
 // 创建一个优先级队列
 func NewPriorityQueue(groupName string, queueName string, idx uint32) *ScheduleQueue {
-
 	return &ScheduleQueue{
 		ResourceGroupName: groupName,
 		QueueIndex:        idx,
 		QueueKeyName:      queueName,
 		TimeSlice:         QueueBaseTimeSlice + idx*QueueTimeSliceStep,
 		BaseQueueSlice:    PriorityBaseQueueSliceCount,
-		Scheduler:         &scheduler.FCFS{QueueKeyName: queueName},
+		Scheduler:         &scheduler.FCFSScheduler{QueueKeyName: queueName},
 	}
 }
 
 // 创建一个低优先级队列
 func NewRRQueue(groupName string, queueName string) *ScheduleQueue {
-
 	return &ScheduleQueue{
 		ResourceGroupName: groupName,
 		QueueIndex:        RRQueueIdx,
 		QueueKeyName:      queueName,
 		TimeSlice:         RRQueueTimeSlice,
 		BaseQueueSlice:    1000000,
-		Scheduler:         &scheduler.RR{QueueKeyName: queueName},
+		Scheduler:         &scheduler.RRScheduler{QueueKeyName: queueName},
 	}
 }
 

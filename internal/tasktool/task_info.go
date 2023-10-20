@@ -200,7 +200,7 @@ func GetTaskType(
 }
 
 // update next check time
-func RefreshTaskGenerationNextCheckTime(taskId taskmodel.TaskIdType) error {
+func UpdateTaskGenerationNextCheckTime(taskId taskmodel.TaskIdType) error {
 
 	cmd := redistool.DefaultRedis().HSet(
 		context.Background(),
