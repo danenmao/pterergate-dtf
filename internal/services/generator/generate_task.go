@@ -23,7 +23,7 @@ import (
 func StartGenerateTaskRoutine() {
 
 	// 检查当前实例生成的任务数是否超过上限
-	if CheckIfExceedLimit() {
+	if IsFull() {
 		glog.Warning("exceed task generation limit")
 		return
 	}
@@ -76,7 +76,7 @@ func getTaskIdToGenerate() (taskmodel.TaskIdType, error) {
 	glog.Info("got a task to generate: ", taskList[0])
 
 	// 尝试获取生成的计数
-	if !IncrIfNotExceedLimit() {
+	if !IncrIfNotFull() {
 		glog.Info("exceed the limit, cannot get a generation routine: ", taskList[0])
 		return 0, errordef.ErrNotFound
 	}
@@ -84,7 +84,7 @@ func getTaskIdToGenerate() (taskmodel.TaskIdType, error) {
 	toDecrGeneratingCount := true
 	defer func() {
 		if toDecrGeneratingCount {
-			DecrGeneratingRoutineCount()
+			Decr()
 		}
 	}()
 
@@ -140,7 +140,7 @@ func TaskGenerationRoutine(taskId taskmodel.TaskIdType, toRecover bool) {
 	glog.Info("begin to generate task: ", taskId, ", ", toRecover)
 
 	// 减少正在生成的例程数
-	defer DecrGeneratingRoutineCount()
+	defer Decr()
 
 	// 释放对任务的所有权
 	defer tasktool.ReleaseTask(taskId)

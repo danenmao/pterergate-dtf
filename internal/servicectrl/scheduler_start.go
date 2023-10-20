@@ -36,7 +36,7 @@ func StartScheduler(cfg *dtfdef.ServiceConfig) error {
 			Interval:     time.Millisecond * time.Duration(config.EnvMonitorSubtaskCompleteInterval),
 		},
 		{
-			RoutineFn:    scheduler.MonitorSubtaskTimeout,
+			RoutineFn:    scheduler.MonitorTimeoutSubtask,
 			RoutineCount: config.EnvMonitorSubtaskTimeoutConcurrencyLimit,
 			Interval:     time.Second * time.Duration(config.EnvMonitorSubtaskTimeoutInterval),
 		},

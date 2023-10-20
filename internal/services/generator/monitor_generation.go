@@ -20,14 +20,14 @@ import (
 func MonitorTaskGenerationRoutine() {
 
 	// 检查当前实例生成的任务数是否超过上限
-	if CheckIfExceedLimit() {
+	if IsFull() {
 		glog.Info("exceed generating limit")
 		return
 	}
 
 	// 检查生成过程中异常的任务id
 	var taskId taskmodel.TaskIdType = 0
-	err := getExceptionalGeneratingTask(&taskId)
+	err := getExceptionalGenerationTask(&taskId)
 	if err == errordef.ErrNotFound {
 		return
 	}
@@ -45,7 +45,7 @@ func MonitorTaskGenerationRoutine() {
 }
 
 // 获取生成异常的任务
-func getExceptionalGeneratingTask(taskId *taskmodel.TaskIdType) error {
+func getExceptionalGenerationTask(taskId *taskmodel.TaskIdType) error {
 
 	// 取正在生成的任务id列表
 	var taskList = []taskmodel.TaskIdType{}
@@ -56,7 +56,7 @@ func getExceptionalGeneratingTask(taskId *taskmodel.TaskIdType) error {
 
 	// 检查列表中的id, 取异常的任务
 	for _, id := range taskList {
-		exceptional, err := checkIfTaskGenerationExceptional(id)
+		exceptional, err := isTaskGenerationExceptional(id)
 		if err != nil {
 			continue
 		}
@@ -66,7 +66,7 @@ func getExceptionalGeneratingTask(taskId *taskmodel.TaskIdType) error {
 		}
 
 		// 尝试增加当前实例生成的任务数
-		if !IncrIfNotExceedLimit() {
+		if !IncrIfNotFull() {
 			glog.Info("exceed generating limit")
 			continue
 		}
@@ -74,7 +74,7 @@ func getExceptionalGeneratingTask(taskId *taskmodel.TaskIdType) error {
 		glog.Info("found an exceptional task: ", id)
 		err = tasktool.TryToOwnTask(id)
 		if err != nil {
-			DecrGeneratingRoutineCount()
+			Decr()
 			glog.Info("failed to own task: ", id, err)
 			continue
 		}
@@ -143,7 +143,7 @@ func getGeneratingTaskList(taskList *[]taskmodel.TaskIdType) error {
 }
 
 // 检查任务生成过程是否异常
-func checkIfTaskGenerationExceptional(taskId taskmodel.TaskIdType) (bool, error) {
+func isTaskGenerationExceptional(taskId taskmodel.TaskIdType) (bool, error) {
 
 	// 检查redis_task_generation.$taskid.progress
 	cmd := redistool.DefaultRedis().HGetAll(context.Background(), tasktool.GetTaskGenerationProgressKey(taskId))

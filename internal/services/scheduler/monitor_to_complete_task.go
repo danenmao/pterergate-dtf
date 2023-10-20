@@ -18,7 +18,7 @@ import (
 func MonitorRunningTaskToComplete() {
 	// 检查是否有已完成的任务
 	var taskList = []uint64{}
-	err := tryToGetToBeCompletedTask(&taskList)
+	err := getToBeCompletedTask(&taskList)
 	if err != nil {
 		glog.Warning("failed to get completed tasks: ", err)
 		return
@@ -36,7 +36,7 @@ func MonitorRunningTaskToComplete() {
 	}
 }
 
-func tryToGetToBeCompletedTask(taskList *[]uint64) error {
+func getToBeCompletedTask(taskList *[]uint64) error {
 
 	if taskList == nil {
 		panic("invalid taskList pointer")

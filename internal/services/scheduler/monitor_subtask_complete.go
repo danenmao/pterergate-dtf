@@ -13,7 +13,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
-// go_monitor_subtask_complete
+// 监视已完成的子任务
 func MonitorSubtaskComplete() {
 	// 取已完成的子任务
 	var subtaskList = []uint64{}
@@ -42,7 +42,7 @@ func getCompletedSubtask(subtaskList *[]uint64) error {
 		panic("invalid subtaskList pointer")
 	}
 
-	// 从redis_subtask_complete_list中取超时的子任务
+	// 从subtask_complete_list中取完成的子任务
 	opt := redis.ZRangeBy{
 		Min: "-inf", Max: "+inf",
 		Offset: 0, Count: 100,
@@ -98,7 +98,7 @@ func processCompletedSubtask(subtaskList *[]uint64) error {
 	}
 
 	ownedSubtaskList := []uint64{}
-	err := tryToOwnCompletedSubtask(subtaskList, &ownedSubtaskList)
+	err := ownCompletedSubtasks(subtaskList, &ownedSubtaskList)
 	if err != nil {
 		return err
 	}
@@ -121,9 +121,6 @@ func processCompletedSubtask(subtaskList *[]uint64) error {
 		// 从redis_subtask_list.$taskid 中删除子任务.
 		pipeline.ZRem(context.Background(), tasktool.GetTaskSubtaskListKey(taskId), subtaskId)
 
-		// 修改redis_task_info.$taskid, completed_subtask_count
-		// 修改由timeout, subtask_manager进行
-
 		// 执行子任务后处理
 		OnSubtaskCompleted(taskId, subtaskId)
 	}
@@ -139,7 +136,7 @@ func processCompletedSubtask(subtaskList *[]uint64) error {
 }
 
 // 试图获取完成子任务的所有权
-func tryToOwnCompletedSubtask(subtaskList *[]uint64, ownedSubtaskList *[]uint64) error {
+func ownCompletedSubtasks(subtaskList *[]uint64, ownedSubtaskList *[]uint64) error {
 	return redistool.OwnElementsInList(config.CompletedSubtaskList, subtaskList, ownedSubtaskList)
 }
 

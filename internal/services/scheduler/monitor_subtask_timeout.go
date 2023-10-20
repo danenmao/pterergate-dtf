@@ -14,10 +14,10 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/subtasktool"
 )
 
-func MonitorSubtaskTimeout() {
+func MonitorTimeoutSubtask() {
 	// 取超时的子任务
 	var subtaskList = []uint64{}
-	err := getTimeoutSubtask(&subtaskList)
+	err := getTimeoutSubtasks(&subtaskList)
 	if err != nil {
 		glog.Warning("failed to get timeout subtasks: ", err)
 		return
@@ -28,14 +28,14 @@ func MonitorSubtaskTimeout() {
 	}
 
 	// 处理超时的子任务
-	err = repairTimeoutSubtask(&subtaskList)
+	err = repairTimeoutSubtasks(&subtaskList)
 	if err != nil {
 		glog.Warning("failed to repair timeout subtask: ", err)
 		return
 	}
 }
 
-func getTimeoutSubtask(subtaskList *[]uint64) error {
+func getTimeoutSubtasks(subtaskList *[]uint64) error {
 
 	if subtaskList == nil {
 		panic("invalid subtaskList pointer")
@@ -86,7 +86,7 @@ func getTimeoutSubtask(subtaskList *[]uint64) error {
 }
 
 // 修复子任务的超时状态
-func repairTimeoutSubtask(subtaskList *[]uint64) error {
+func repairTimeoutSubtasks(subtaskList *[]uint64) error {
 
 	if subtaskList == nil {
 		panic("invalid subtaskList pointer")
