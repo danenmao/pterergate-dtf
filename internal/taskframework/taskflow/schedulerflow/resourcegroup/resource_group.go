@@ -20,7 +20,7 @@ type ResourceGroup struct {
 	Quota       float32                           // 资源组的调度资源配额
 	Description string                            // 资源组的描述
 	InsertTime  uint64                            // 资源组的插入时间
-	QueueArray  *schedulequeue.ScheduleQueueArray // 资源组的调度队列组
+	QueueArray  *schedulequeue.ScheduleQueueGroup // 资源组的调度队列组
 }
 
 // 资源组的fit值结构
@@ -293,7 +293,7 @@ func (rg *ResourceGroupMgr) initOrUpdateResourceGroup(
 		Quota:       groupQuota,
 		Description: record.Description,
 		InsertTime:  uint64(time.Now().Unix()),
-		QueueArray:  &schedulequeue.ScheduleQueueArray{},
+		QueueArray:  &schedulequeue.ScheduleQueueGroup{},
 	}
 
 	// 初始化调度队列组

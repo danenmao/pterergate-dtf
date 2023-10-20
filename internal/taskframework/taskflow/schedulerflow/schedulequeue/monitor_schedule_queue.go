@@ -22,7 +22,6 @@ const CheckCurrentTaskInterval = time.Duration(10) * time.Second
 
 // 添加到调度中任务队列
 func AddToCurrentTaskList(taskId taskmodel.TaskIdType) {
-
 	timeout := time.Now().Add(DefaultCurrentTaskTimeout).Unix()
 	cmd := redistool.DefaultRedis().ZAdd(context.Background(), CurrentTaskZSet, &redis.Z{
 		Score:  float64(timeout),
@@ -39,7 +38,6 @@ func AddToCurrentTaskList(taskId taskmodel.TaskIdType) {
 
 // 添加到调度中任务队列
 func AddListToCurrentTaskList(taskList []taskmodel.TaskIdType) {
-
 	if len(taskList) <= 0 {
 		return
 	}
@@ -109,7 +107,6 @@ func monitorCurrentTask() {
 
 // 获取在调度中丢失的任务
 func getLostTask(retTaskList *[]uint64) error {
-
 	if retTaskList == nil {
 		panic("invalid taskList pointer")
 	}

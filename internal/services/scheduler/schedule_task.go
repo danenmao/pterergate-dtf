@@ -19,7 +19,7 @@ func ScheduleTaskRoutine() {
 	// get the task and subtasks to schedule
 	var taskId taskmodel.TaskIdType
 	var subtasks = []taskmodel.SubtaskBody{}
-	err := schedulerflow.GetSubtaskToSchedule(&taskId, &subtasks)
+	err := schedulerflow.ScheduleSubtasks(&taskId, &subtasks)
 	if err != nil {
 		glog.Warning("failed to get task to schedule: ", err)
 		return

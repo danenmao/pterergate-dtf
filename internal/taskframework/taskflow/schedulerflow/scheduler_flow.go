@@ -23,11 +23,10 @@ func AddTaskToScheduler(
 }
 
 // if no task, retTaskId is 0, subtasks is empty
-func GetSubtaskToSchedule(
+func ScheduleSubtasks(
 	retTaskId *taskmodel.TaskIdType,
 	subtasks *[]taskmodel.SubtaskBody,
 ) error {
-
 	err := resourcegroup.GetResourceGroupMgr().Select(retTaskId, subtasks)
 	if err != nil {
 		glog.Warning("failed to select subtasks: ", err)
@@ -43,7 +42,6 @@ func ExecSubtasks(
 	subtasks *[]taskmodel.SubtaskBody,
 	toPushbackSubtask *[]taskmodel.SubtaskBody,
 ) error {
-
 	if len(*subtasks) <= 0 {
 		return nil
 	}
@@ -58,7 +56,7 @@ func ExecSubtasks(
 
 	// get the task scheduler
 	var scheduler taskmodel.ITaskSchedulerCallback = nil
-	err = GetTaskScheduler(taskType, &scheduler)
+	err = GetTaskSchedulerCallback(taskType, &scheduler)
 	if err != nil {
 		glog.Warning("failed to get task scheduler: ", taskType, ", ", err.Error())
 		return err
@@ -81,6 +79,7 @@ func ExecSubtasks(
 	// to monitor these subtasks' running statuses
 	tasktool.AddSubtaskToRunningList(&doneSubtaskList)
 
+	// to execute subtasks
 	err = executorconnector.ExecSubtasks(taskId, subtasks)
 	if err != nil {
 		glog.Error("failed to execute subtasks: ", taskId, ", ", err.Error())
@@ -89,8 +88,7 @@ func ExecSubtasks(
 	return nil
 }
 
-func GetTaskScheduler(taskType uint32, scheduler *taskmodel.ITaskSchedulerCallback) error {
-
+func GetTaskSchedulerCallback(taskType uint32, callback *taskmodel.ITaskSchedulerCallback) error {
 	var plugin taskplugin.ITaskPlugin = nil
 	err := taskloader.LookupTaskPlugin(taskType, &plugin)
 	if err != nil {
@@ -105,22 +103,21 @@ func GetTaskScheduler(taskType uint32, scheduler *taskmodel.ITaskSchedulerCallba
 		return err
 	}
 
-	*scheduler = taskBody.SchedulerCallback
-	glog.Info("succeeded to get task scheduler: ", taskType)
+	*callback = taskBody.SchedulerCallback
+	glog.Info("succeeded to get task scheduler callback: ", taskType)
 	return nil
 }
 
 // 对子任务执行调度操作
 func DispatchSubtask(
 	taskType uint32,
-	scheduler taskmodel.ITaskSchedulerCallback,
+	callback taskmodel.ITaskSchedulerCallback,
 	subtask *taskmodel.SubtaskBody,
 ) error {
-
 	glog.Info("dipatch subtask: ", subtask)
 
 	// invoke the dispatch method
-	toDipatch, err := scheduler.BeforeDispatch(subtask.SubtaskId, subtask)
+	toDipatch, err := callback.BeforeDispatch(subtask.SubtaskId, subtask)
 	if err != nil {
 		glog.Info("dispatch subtask error,  pushed back: ", subtask, ", ", err.Error())
 		return err
@@ -133,7 +130,7 @@ func DispatchSubtask(
 		return &errordef.DummyError{}
 	}
 
-	err = scheduler.AfterDispatch(subtask.SubtaskId)
+	err = callback.AfterDispatch(subtask.SubtaskId)
 	if err != nil {
 		glog.Warning("AfterDispatch failed: ", subtask.SubtaskId, ",", err)
 	}

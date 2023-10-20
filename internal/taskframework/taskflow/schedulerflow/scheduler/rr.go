@@ -12,5 +12,5 @@ func (scheduler *RRScheduler) Schedule(
 	retTaskId *taskmodel.TaskIdType,
 	noTask *bool,
 ) error {
-	return ScheduleQueue(scheduler.QueueKeyName, retTaskId, noTask)
+	return ScheduleTaskInQueue(scheduler.QueueKeyName, retTaskId, noTask)
 }

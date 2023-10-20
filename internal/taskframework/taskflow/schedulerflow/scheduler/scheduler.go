@@ -16,8 +16,8 @@ type IScheduleQueue interface {
 	Schedule(taskId *taskmodel.TaskIdType, noTask *bool) error
 }
 
-// 从队列key中取任务ID
-func ScheduleQueue(
+// 从队列中取出任务ID
+func ScheduleTaskInQueue(
 	keyName string,
 	retTaskId *taskmodel.TaskIdType,
 	noTask *bool,
