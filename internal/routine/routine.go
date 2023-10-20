@@ -5,8 +5,8 @@ import (
 
 	"github.com/golang/glog"
 
+	"github.com/danenmao/pterergate-dtf/internal/exitctrl"
 	"github.com/danenmao/pterergate-dtf/internal/misc"
-	"github.com/danenmao/pterergate-dtf/internal/signalctrl"
 )
 
 // 例程类型
@@ -21,7 +21,6 @@ type WorkingRoutine struct {
 
 // 启动所有的工作例程
 func StartWorkingRoutine(workers []WorkingRoutine) error {
-
 	// 按数量创建工作例程
 	for _, worker := range workers {
 		name := misc.GetFunctionName(worker.RoutineFn)
@@ -36,23 +35,22 @@ func StartWorkingRoutine(workers []WorkingRoutine) error {
 // 工作例程包装函数
 func WorkingRoutineWrapper(name string, fn RoutineFn, interval time.Duration) RoutineFn {
 	return func() {
-		ExecRoutineByDuration(name, fn, interval)
+		ExecRoutineWithInterval(name, fn, interval)
 	}
 }
 
-// 工作例程流程框架
-func ExecRoutineByDuration(
+// 定期执行工作例程
+func ExecRoutineWithInterval(
 	name string,
 	routine RoutineFn,
 	interval time.Duration,
 ) {
-
 	glog.Info("begin to ", name)
 
 	// 定期执行检查
 	for {
 		// 检查并等待退出信号
-		if signalctrl.WaitForNotify(interval) {
+		if exitctrl.WaitForNotify(interval) {
 			glog.Info("got to exit signal")
 			break
 		}

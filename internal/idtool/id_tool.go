@@ -21,7 +21,7 @@ const (
 )
 
 // ID可用范围：[Start, FormerEnd),[NewStart, End)
-type IDKeeper struct {
+type IdKeeper struct {
 	KeyName   string
 	Lock      sync.RWMutex
 	Step      uint32
@@ -32,23 +32,23 @@ type IDKeeper struct {
 	End       uint64
 }
 
-var gs_IDKeeper = IDKeeper{}
+var gs_IdKeeper = IdKeeper{}
 
-func GetIDKeeper() *IDKeeper {
-	return &gs_IDKeeper
+func GetIdKeeper() *IdKeeper {
+	return &gs_IdKeeper
 }
 
 // 初始化
 func Init(keyName string) error {
-	return GetIDKeeper().Init(keyName)
+	return GetIdKeeper().Init(keyName)
 }
 
 // 获取可用的ID
 func GetId(keyName string) (uint64, error) {
-	return GetIDKeeper().GetId(keyName)
+	return GetIdKeeper().GetId(keyName)
 }
 
-func (keeper *IDKeeper) Init(keyName string) error {
+func (keeper *IdKeeper) Init(keyName string) error {
 	if len(keyName) <= 0 {
 		return errors.New("empty key name")
 	}
@@ -60,13 +60,13 @@ func (keeper *IDKeeper) Init(keyName string) error {
 
 	// 启动后台维护协程
 	go func() {
-		keeper.refreshID()
+		keeper.refreshId()
 	}()
 
 	return nil
 }
 
-func (keeper *IDKeeper) GetId(keyName string) (uint64, error) {
+func (keeper *IdKeeper) GetId(keyName string) (uint64, error) {
 	if keyName != keeper.KeyName {
 		return 0, errors.New("mismatched key name")
 	}
@@ -80,7 +80,7 @@ func (keeper *IDKeeper) GetId(keyName string) (uint64, error) {
 			keeper.Lock.Unlock()
 
 			glog.Info("renew id range immediately")
-			keeper.reallocIDIfNeed()
+			keeper.reallocIdIfNeed()
 
 			keeper.Lock.Lock()
 			continue
@@ -132,17 +132,17 @@ func (keeper *IDKeeper) GetId(keyName string) (uint64, error) {
 }
 
 // 后台协程，根据当前可用ID的情况，来获取ID
-func (keeper *IDKeeper) refreshID() {
+func (keeper *IdKeeper) refreshId() {
 	// 定期执行检查
-	routine.ExecRoutineByDuration("refreshID",
+	routine.ExecRoutineWithInterval("refreshId",
 		func() {
-			keeper.reallocIDIfNeed()
+			keeper.reallocIdIfNeed()
 		},
 		time.Second*time.Duration(ReallocCheckInterval))
 }
 
 // 扩大可用ID范围
-func (keeper *IDKeeper) reallocIDIfNeed() {
+func (keeper *IdKeeper) reallocIdIfNeed() {
 	if len(keeper.KeyName) <= 0 {
 		glog.Warning("empty key name")
 		return

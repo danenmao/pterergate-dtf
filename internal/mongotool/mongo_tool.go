@@ -43,7 +43,7 @@ func InitDefaultMongoClient() {
 	s_DefaultMongoDB = client.Database(config.DefaultMongoDB.Database)
 }
 
-// 创建新的 Mongo 客户端
+// 创建新的MongoDB客户端
 func NewMongoClient(uri string) (*mongo.Client, error) {
 
 	opts := options.Client()

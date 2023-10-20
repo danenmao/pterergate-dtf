@@ -77,7 +77,7 @@ func RemoveListFromCurrentTaskList(taskIdList []interface{}, pipeline redis.Pipe
 
 // 协程 <<go_monitor_current_task>>
 func MonitorCurrentTaskRoutine() {
-	routine.ExecRoutineByDuration(
+	routine.ExecRoutineWithInterval(
 		"MonitorCurrentTaskRoutine",
 		monitorCurrentTask,
 		CheckCurrentTaskInterval,
@@ -116,7 +116,7 @@ func getLostTask(retTaskList *[]uint64) error {
 
 	// 从current_task_list中取超时的子任务
 	taskList := []uint64{}
-	err := redistool.GetTimeoutElemList(CurrentTaskZSet, 100, &taskList)
+	err := redistool.GetTimeoutElements(CurrentTaskZSet, 100, &taskList)
 	if err != nil {
 		glog.Warning("failed to get lost task from redis: ", err)
 		return err
@@ -128,7 +128,7 @@ func getLostTask(retTaskList *[]uint64) error {
 	}
 
 	ownedTaskList := []uint64{}
-	err = redistool.TryToOwnElemList(CurrentTaskZSet, &taskList, &ownedTaskList)
+	err = redistool.OwnElementsInList(CurrentTaskZSet, &taskList, &ownedTaskList)
 	if err != nil {
 		glog.Warning("failed to own lost task: ", taskList)
 		return err

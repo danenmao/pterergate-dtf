@@ -66,7 +66,7 @@ func AddSubtasksToRetryQueue(
 // 重试例程
 // 重试将子任务推送给执行器服务
 func RetryPushToExecutorRoutine() {
-	routine.ExecRoutineByDuration(
+	routine.ExecRoutineWithInterval(
 		"RetryPushToExecutorRoutine",
 		retryPushToExecutor,
 		time.Duration(RetryToPushInterval)*time.Second,

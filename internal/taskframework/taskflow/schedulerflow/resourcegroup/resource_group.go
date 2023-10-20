@@ -199,7 +199,7 @@ func (rg *ResourceGroupMgr) stochasticAccept() (int, error) {
 // 同步资源组的记录的例程
 func (rg *ResourceGroupMgr) syncRecordRoutine() error {
 
-	routine.ExecRoutineByDuration(
+	routine.ExecRoutineWithInterval(
 		"syncRecordRoutine",
 		func() {
 			rg.syncRecord()

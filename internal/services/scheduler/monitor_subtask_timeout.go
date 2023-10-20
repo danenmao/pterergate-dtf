@@ -94,7 +94,7 @@ func repairTimeoutSubtask(subtaskList *[]uint64) error {
 
 	// remove this subtask from running subtasks list
 	owndSubtaskList := []uint64{}
-	err := redistool.TryToOwnElemList(config.RunningSubtaskZset, subtaskList, &owndSubtaskList)
+	err := redistool.OwnElementsInList(config.RunningSubtaskZset, subtaskList, &owndSubtaskList)
 	if err != nil {
 		return err
 	}

@@ -10,8 +10,7 @@ import (
 )
 
 // 试图获取元素的所有权
-func TryToOwnElemList(keyName string, elemList *[]uint64, ownedElemList *[]uint64) error {
-
+func OwnElementsInList(keyName string, elemList *[]uint64, ownedElemList *[]uint64) error {
 	// 从 key 中删除子任务
 	pipeline := DefaultRedis().Pipeline()
 	for _, elem := range *elemList {
@@ -46,7 +45,6 @@ func TryToOwnElemList(keyName string, elemList *[]uint64, ownedElemList *[]uint6
 
 		result := intCmd.Val()
 		if result == 0 {
-			//glog.Info("elem owned by other: ", elem)
 			continue
 		}
 
@@ -59,8 +57,7 @@ func TryToOwnElemList(keyName string, elemList *[]uint64, ownedElemList *[]uint6
 }
 
 // 获取超时的元素列表
-func GetTimeoutElemList(keyName string, count uint, elemList *[]uint64) error {
-
+func GetTimeoutElements(keyName string, count uint, elemList *[]uint64) error {
 	if elemList == nil {
 		panic("invalid elem list pointer")
 	}
@@ -104,7 +101,6 @@ func GetTimeoutElemList(keyName string, count uint, elemList *[]uint64) error {
 
 	// 如果列表为空，表示没有超时的任务
 	if len(*elemList) == 0 {
-		//glog.Info("get empty list, no timeout elem")
 		return nil
 	}
 

@@ -185,7 +185,7 @@ func (queues *ScheduleQueueArray) createScheduleQueues() error {
 // Priority Boost策略例程
 func (queues *ScheduleQueueArray) priorityBoostRoutine(idx uint32) error {
 
-	routine.ExecRoutineByDuration(
+	routine.ExecRoutineWithInterval(
 		"priorityBoostRoutine",
 		func() {
 			queues.execPriorityBoost(idx)
@@ -199,7 +199,7 @@ func (queues *ScheduleQueueArray) priorityBoostRoutine(idx uint32) error {
 // RR队列的Priority Boost策略例程
 func (queues *ScheduleQueueArray) rrPriorityBoostRoutine() error {
 
-	routine.ExecRoutineByDuration(
+	routine.ExecRoutineWithInterval(
 		"rrPriorityBoostRoutine",
 		func() {
 			queues.execRRPriorityBoost()
@@ -213,7 +213,7 @@ func (queues *ScheduleQueueArray) rrPriorityBoostRoutine() error {
 // 任务剩余时间加速策略例程
 func (queues *ScheduleQueueArray) remainAccelerationRoutine() error {
 
-	routine.ExecRoutineByDuration(
+	routine.ExecRoutineWithInterval(
 		"remainAccelerationRoutine",
 		func() {
 			queues.execRemainAcceleration()

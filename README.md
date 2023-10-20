@@ -24,3 +24,13 @@ go get github.com/danenmao/pterergate-dtf
 1. Redis
 
 ## Usage
+
+1. Create the task plugin.
+
+1. Register the task type.
+
+1. Invoke the dtf services.
+
+1. Create a task.
+
+1. Wait for the task to complete.

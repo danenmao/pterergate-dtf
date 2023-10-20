@@ -16,11 +16,11 @@ type ReadRowFn func(*sqlx.Rows) error
 // 分页读取MySQL表, 有总记录数限制
 func ReadDBByPage(queryFn QueryFn, readFn ReadRowFn) error {
 	const TotalCountLimit = 1000
-	return ReadDBByPageCustom(queryFn, readFn, TotalCountLimit)
+	return ReadDBByPageWithLimit(queryFn, readFn, TotalCountLimit)
 }
 
 // 分页读取MySQL表，可设置记录数上限
-func ReadDBByPageCustom(queryFn QueryFn, readFn ReadRowFn, totalCountLimit int) error {
+func ReadDBByPageWithLimit(queryFn QueryFn, readFn ReadRowFn, totalCountLimit int) error {
 	const MaxRetryCount = 3
 	var countLimitPerQuery = 100
 	if totalCountLimit > 0 && totalCountLimit < countLimitPerQuery {

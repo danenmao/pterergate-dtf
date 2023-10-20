@@ -117,7 +117,7 @@ func completeTask(taskList *[]uint64) error {
 
 	// 批量从redis_task_schedule_zset中删除taskid
 	var ownedTasks = []uint64{}
-	err := redistool.TryToOwnElemList(config.RunningTaskZset, taskList, &ownedTasks)
+	err := redistool.OwnElementsInList(config.RunningTaskZset, taskList, &ownedTasks)
 	if err != nil {
 		return err
 	}

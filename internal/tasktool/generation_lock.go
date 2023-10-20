@@ -9,13 +9,13 @@ import (
 
 // 尝试获取对任务生成的所有权
 func TryToOwnTask(taskId taskmodel.TaskIdType) error {
-	err := redistool.GetLockWithExpire(GetTaskLockKey(taskId), 200, time.Minute*5)
+	err := redistool.LockWithExpire(GetTaskLockKey(taskId), 200, time.Minute*5)
 	return err
 }
 
 // 释放对任务生成的所有权
 func ReleaseTask(taskId taskmodel.TaskIdType) {
-	redistool.ReleaseLock(GetTaskLockKey(taskId))
+	redistool.Unlock(GetTaskLockKey(taskId))
 }
 
 // 对所有权续期

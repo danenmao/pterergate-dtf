@@ -54,7 +54,7 @@ func getExceptionalTasks(taskList *[]taskmodel.TaskIdType) error {
 		return nil
 	}
 
-	err := mysqltool.ReadDBByPageCustom(queryFn, readFn, 10)
+	err := mysqltool.ReadDBByPageWithLimit(queryFn, readFn, 10)
 	if err != nil {
 		glog.Warning("failed to get exceptional tasks: ", err)
 		return err

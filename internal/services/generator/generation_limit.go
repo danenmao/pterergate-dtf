@@ -12,12 +12,12 @@ const (
 
 var (
 	// 当前实例中并行执行生成的任务数上限
-	gs_GenerationRoutineCountLimit = routine.RoutineCountLimit{}
+	gs_GenerationRoutineCountLimit = routine.RoutineCountLimiter{}
 )
 
 // 初始化
 func init() {
-	gs_GenerationRoutineCountLimit.CountLimit = uint32(misc.GetIntFromEnv(GeneratingRoutineLimitEnvName,
+	gs_GenerationRoutineCountLimit.UpperLimit = uint32(misc.GetIntFromEnv(GeneratingRoutineLimitEnvName,
 		GenerationRoutineCountDefaultLimit))
 }
 

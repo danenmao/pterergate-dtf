@@ -19,7 +19,7 @@ func Test_ReadFromDBByPageCustom_QueryRetryCount(t *testing.T) {
 
 		readFn := func(*sqlx.Rows) error { return nil }
 
-		err := ReadDBByPageCustom(queryFn, readFn, 100)
+		err := ReadDBByPageWithLimit(queryFn, readFn, 100)
 
 		Convey("return err", func() {
 			So(err, ShouldNotBeNil)
@@ -40,7 +40,7 @@ func Test_ReadFromDBByPageCustom_0Limit(t *testing.T) {
 
 		readFn := func(*sqlx.Rows) error { return nil }
 
-		err := ReadDBByPageCustom(queryFn, readFn, 0)
+		err := ReadDBByPageWithLimit(queryFn, readFn, 0)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -68,7 +68,7 @@ func Test_ReadFromDBByPageCustom_NoData(t *testing.T) {
 			return nil
 		}
 
-		err := ReadDBByPageCustom(queryFn, readFn, 10)
+		err := ReadDBByPageWithLimit(queryFn, readFn, 10)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -92,7 +92,7 @@ func Test_ReadFromDBByPageCustom_LessThanDefaultPage(t *testing.T) {
 			return nil
 		}
 
-		err := ReadDBByPageCustom(queryFn, readFn, 9)
+		err := ReadDBByPageWithLimit(queryFn, readFn, 9)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -124,7 +124,7 @@ func Test_ReadFromDBByPageCustom_ReadFailed(t *testing.T) {
 			return errors.New("internal error")
 		}
 
-		err := ReadDBByPageCustom(queryFn, readFn, dataCount)
+		err := ReadDBByPageWithLimit(queryFn, readFn, dataCount)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -182,7 +182,7 @@ func Test_ReadFromDBByPageCustom_MoreThanOnePage(t *testing.T) {
 			return nil
 		}
 
-		err := ReadDBByPageCustom(queryFn, readFn, totalCount)
+		err := ReadDBByPageWithLimit(queryFn, readFn, totalCount)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)
@@ -215,7 +215,7 @@ func Test_ReadFromDBByPageCustom_TwoPage(t *testing.T) {
 			return nil
 		}
 
-		err := ReadDBByPageCustom(queryFn, readFn, totalCount)
+		err := ReadDBByPageWithLimit(queryFn, readFn, totalCount)
 
 		Convey("return nil", func() {
 			So(err, ShouldBeNil)

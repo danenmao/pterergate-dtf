@@ -5,7 +5,7 @@ import (
 
 	"github.com/danenmao/pterergate-dtf/dtf/dtfdef"
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
-	"github.com/danenmao/pterergate-dtf/internal/signalctrl"
+	"github.com/danenmao/pterergate-dtf/internal/exitctrl"
 )
 
 // 启动指定的服务
@@ -19,7 +19,7 @@ func StartService(role dtfdef.ServiceRole, cfg *dtfdef.ServiceConfig) error {
 	}
 
 	// to process exit signal
-	signalctrl.RegisterSignal()
+	exitctrl.Register()
 
 	// invoke the start fn
 	startFn(cfg)
@@ -29,12 +29,12 @@ func StartService(role dtfdef.ServiceRole, cfg *dtfdef.ServiceConfig) error {
 
 // 通知停止服务
 func NotifyStop() error {
-	signalctrl.NotifyToExit()
+	exitctrl.NotifyToExit()
 	return nil
 }
 
 // 等待服务停止
 func Join() error {
-	signalctrl.WaitPreStop()
+	exitctrl.Prestop()
 	return nil
 }
