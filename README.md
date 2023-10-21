@@ -21,11 +21,19 @@ go get github.com/danenmao/pterergate-dtf
 
 1. MySQL
 
-    PDTF uses a MySQL table `tbl_task` to store the information of created tasks. Users shoule provide a MySQL server, and create this table in a database.
+    PDTF uses a MySQL table `tbl_task` to store the information of created tasks. Users should provide a MySQL server, and create this table in a database.
+
+    See the Usage part to known more.
 
 2. Redis
 
    PDTF uses Redis frequently to store kinds of intermediate data.Users should provide a Redis server.
+
+   See the Usage part to known more.
+
+## Get Started
+
+Read the [Get Started](https://github.com/danenmao/pterergate-dtf/wiki/Get-Started) wiki to get how to use PDTF.
 
 ## Usage
 
@@ -100,8 +108,15 @@ go get github.com/danenmao/pterergate-dtf
     // start the task manager service
     err := dtf.StartService(
         dtfdef.ServiceRole_Manager, 
-        dtf.WithMySQL(&extconfig.MySQLAddress{...}),
-        dtf.WithRedis(&extconfig.RedisAddress{...}),
+        dtf.WithMySQL(&extconfig.MySQLAddress{
+            Name:"mysql", Type:"mysql", Protocol:"tcp", Address:"192.168.1.101:3306", Username:"servera", Password:"*", DB:"db_task",
+        }),
+        dtf.WithRedis(&extconfig.RedisAddress{
+            Name:"redis", Type:"tcp", Address:"192.168.1.100:6380", Password:"*", DB:"0",
+        }),
+        dtf.WithMongoDB(&extconfig.MongoAddress{
+            Address:"", Username:"", Password:"", Database:"", ReplicaSet:"",
+        }),
     )
     ```
 
