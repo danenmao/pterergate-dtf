@@ -1,6 +1,6 @@
 # pterergate-dtf
 
-Pterergate-dtf (Pterergate Distributed Task Framework) is a high-performance distributed task framework that supports parallelly scheduling thousands 
+Pterergate-dtf (Pterergate Distributed Task Framework, PDTF) is a high-performance distributed task framework that supports parallelly scheduling thousands 
 of running tasks deployed in a cluster consisting of tens thousands of nodes.
 
 [![Go](https://github.com/danenmao/pterergate-dtf/actions/workflows/go.yml/badge.svg)](https://github.com/danenmao/pterergate-dtf/actions/workflows/go.yml)
@@ -21,15 +21,15 @@ go get github.com/danenmao/pterergate-dtf
 
 1. MySQL
 
-    DTF uses a MySQL table `tbl_task` to store the information of created tasks. Users shoule provide a MySQL server, and create this table in a database.
+    PDTF uses a MySQL table `tbl_task` to store the information of created tasks. Users shoule provide a MySQL server, and create this table in a database.
 
 2. Redis
 
-   DTF uses Redis frequently to store kinds of intermediate data.Users should provide a Redis server.
+   PDTF uses Redis frequently to store kinds of intermediate data.Users should provide a Redis server.
 
 ## Usage
 
-1. Implement ITaskGenerator, ITaskExecutor, ITaskSchedulerCallback and ITaskCollectorCallback. Users can perform their business logic in these interface.
+1. Implement ITaskGenerator, ITaskExecutor, ITaskSchedulerCallback and ITaskCollectorCallback. Users can perform their business logic in these interfaces.
 
     ```Go
     // implement taskmodel.ITaskGenerator
@@ -97,11 +97,65 @@ go get github.com/danenmao/pterergate-dtf
 4. Invoke the dtf services.
 
     ``` Go
+    // start the task manager service
     err := dtf.StartService(
         dtfdef.ServiceRole_Manager, 
-        dtf.WithMySQL(...),
-        dtf.WithRedis(...),
+        dtf.WithMySQL(&extconfig.MySQLAddress{...}),
+        dtf.WithRedis(&extconfig.RedisAddress{...}),
     )
+    ```
+
+    ```Go
+    // start the task generator
+    // start the task manager service
+    err := dtf.StartService(
+        dtfdef.ServiceRole_Generator, 
+        dtf.WithMySQL(&extconfig.MySQLAddress{...}),
+        dtf.WithRedis(&extconfig.RedisAddress{...}),
+    )
+    ```
+
+    ```Go
+    // start the task scheduler service
+    err := dtf.StartService(
+        dtfdef.ServiceRole_Scheduler, 
+        dtf.WithMySQL(&extconfig.MySQLAddress{...}),
+        dtf.WithRedis(&extconfig.RedisAddress{...}),
+        dtf.WithExecutor(serversupport.ExecutorInvoker{...}.GetInvoker()),
+    )
+    ```
+
+    ```Go
+    // define the executor server
+    executorSvr := serversupport.ExecutorServer{...}
+
+    // start the executor service
+    err := dtf.StartService(
+        dtfdef.ServiceRole_Executor, 
+        dtf.WithMySQL(&extconfig.MySQLAddress{...}),
+        dtf.WithRedis(&extconfig.RedisAddress{...}),
+        dtf.WithRegisterExecutorHandler(executorSvr.GetRegister()),
+        dtf.WithCollector(serversupport.CollectorInvoker{...}.GetInvoker()),
+    )
+
+    // start the executor server
+    executorSvr.StartServer()
+    ```
+
+    ```Go
+    // define the collector server
+    collectorSvr := serversupport.CollectorServer{...}
+
+    // start the collector service
+    err := dtf.StartService(
+        dtfdef.ServiceRole_Collector, 
+        dtf.WithMySQL(&extconfig.MySQLAddress{...}),
+        dtf.WithRedis(&extconfig.RedisAddress{...}),
+        dtf.WithRegisterCollectorHandler(collectorSvr.GetRegister()),
+    )
+
+    // start the collector server
+    colletorSvr.StartServer()
     ```
 
 5. Create a task to perform some operation.
