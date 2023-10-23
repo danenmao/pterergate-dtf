@@ -43,8 +43,6 @@ type ResponseHeader struct {
 	Message   string `json:"Message"`
 }
 
-const ResponseBodyField string = "ResponseBody"
-
 type IRequest interface{}
 type IResponse interface{}
 

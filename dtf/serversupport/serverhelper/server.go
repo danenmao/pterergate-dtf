@@ -16,13 +16,13 @@ import (
 )
 
 type RequestHandler func(header RequestHeader, requestBody string) (responseBody string, err error)
-type Server struct {
+type SimpleServer struct {
 	Handler    RequestHandler
 	URI        string
 	ServerPort uint16
 }
 
-func (s *Server) StartServer() error {
+func (s *SimpleServer) StartServer() error {
 	ginMode := gin.DebugMode
 	if config.WorkEnv == config.ENV_ONLINE {
 		ginMode = gin.ReleaseMode
@@ -32,9 +32,9 @@ func (s *Server) StartServer() error {
 	router := gin.Default()
 	router.POST(
 		s.URI,
-		s.RequestTracing(),
-		s.AuthMiddleware(),
-		s.HandleCommonRequest(),
+		s.requestTracing(),
+		s.authMiddleware(),
+		s.handleCommonRequest(),
 	)
 
 	err := router.Run(fmt.Sprintf(":%d", s.ServerPort))
@@ -46,18 +46,18 @@ func (s *Server) StartServer() error {
 	return nil
 }
 
-func (s *Server) RequestTracing() gin.HandlerFunc {
+func (s *SimpleServer) requestTracing() gin.HandlerFunc {
 	return func(c *gin.Context) {
 	}
 }
 
-func (s *Server) AuthMiddleware() gin.HandlerFunc {
+func (s *SimpleServer) authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		glog.Info("Authentication")
 	}
 }
 
-func (s *Server) HandleCommonRequest() gin.HandlerFunc {
+func (s *SimpleServer) handleCommonRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
@@ -74,31 +74,37 @@ func (s *Server) HandleCommonRequest() gin.HandlerFunc {
 			returnErrorResponse(c, "", errordef.Error_Msg_ParsingParam, "failed to parse parameter")
 			return
 		}
-
 		c.Request.Body = io.NopCloser(bytes.NewReader(body))
 
-		commonParam := request.Header
-		actionName := commonParam.Action
-		requestId := commonParam.RequestId
-
 		start := time.Now()
-		response, err := s.processByAction(request)
+		response, err := s.handle(request)
 		timeCost := time.Since(start)
-		glog.Info("action stat, action: ", actionName, ", requestId: ", requestId, ", timeCost: ", timeCost)
+		glog.Info("action stat, requestId:", request.Header.RequestId, ", timeCost: ", timeCost)
 
 		if err == nil {
 			c.JSON(http.StatusOK, response)
 		} else {
-			returnInternalErrorResponse(c, requestId)
+			returnInternalErrorResponse(c, request.Header.RequestId)
 		}
 	}
 }
 
-func (s *Server) processByAction(request CommonRequest) (response IResponse, err error) {
+func (s *SimpleServer) handle(request CommonRequest) (response IResponse, err error) {
+	// invoke the outer handler
+	rspBody, err := s.Handler(request.Header, request.Body)
+	if err != nil {
+		return ReturnErrorResponse(request.Header.RequestId,
+			errordef.Error_Msg_OperationFailed, err.Error()), nil
+	}
 
-	s.Handler(request.Header, "")
-	return ReturnErrorResponse(
-		request.Header.RequestId,
-		errordef.Error_Msg_InvalidParameter,
-		"unknown action"), nil
+	// return response
+	response = CommonResponse{
+		Header: ResponseHeader{
+			RequestId: request.Header.RequestId,
+			Code:      errordef.Error_Msg_Success,
+			Message:   errordef.Error_Msg_Success,
+		},
+		Body: rspBody,
+	}
+	return
 }

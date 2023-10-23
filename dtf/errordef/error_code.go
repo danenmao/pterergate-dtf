@@ -11,6 +11,7 @@ const (
 	Error_Msg_Success          = "Success"
 	Error_Msg_InvalidParameter = "InvalidParameter"
 	Error_Msg_ParsingParam     = "ParsingParamError"
+	Error_Msg_OperationFailed  = "OperationFailed"
 )
 
 // 错误码映射表

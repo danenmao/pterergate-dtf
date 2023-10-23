@@ -5,6 +5,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
 
+const ExecutorServerURI = "/executor"
+
 type ExecutorRequestBody struct {
 	Subtasks []taskmodel.SubtaskBody `json:"Subtasks"`
 }
@@ -27,7 +29,7 @@ func (s *ExecutorServer) GetRegister() taskmodel.RegisterExecutorRequestHandler 
 
 // start the executor server to receive requests
 func (s *ExecutorServer) StartServer() error {
-	server := serverhelper.Server{
+	server := serverhelper.SimpleServer{
 		URI:        s.URI,
 		ServerPort: s.ServerPort,
 		Handler: func(

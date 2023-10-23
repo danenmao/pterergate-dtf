@@ -1,9 +1,14 @@
 package serversupport
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/danenmao/pterergate-dtf/dtf/serversupport/serverhelper"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
+
+const CollectorServerURI = "/collector"
 
 // collector request body structure
 type CollectorRequestBody struct {
@@ -11,10 +16,10 @@ type CollectorRequestBody struct {
 }
 
 // the Collector Server
+// receive the requests of subtask results
 type CollectorServer struct {
-	Handler    taskmodel.CollectorRequestHandler
-	URI        string
-	ServerPort uint16
+	Handler taskmodel.CollectorRequestHandler
+	server  serverhelper.SimpleServer
 }
 
 // return a register function
@@ -29,10 +34,10 @@ func (s *CollectorServer) GetRegister() taskmodel.RegisterCollectorRequestHandle
 }
 
 // start the collector server to receive requests
-func (s *CollectorServer) StartServer() error {
-	server := serverhelper.Server{
-		URI:        s.URI,
-		ServerPort: s.ServerPort,
+func (s *CollectorServer) StartServer(uri string, serverPort uint16) error {
+	s.server = serverhelper.SimpleServer{
+		URI:        uri,
+		ServerPort: serverPort,
 		Handler: func(
 			requestHeader serverhelper.RequestHeader,
 			requestBody string,
@@ -41,7 +46,7 @@ func (s *CollectorServer) StartServer() error {
 		},
 	}
 
-	server.StartServer()
+	s.server.StartServer()
 	return nil
 }
 
@@ -49,5 +54,12 @@ func (s *CollectorServer) handleRequest(
 	requestHeader serverhelper.RequestHeader,
 	requestBody string,
 ) (response string, err error) {
-	return "", nil
+	body := CollectorRequestBody{}
+	err = json.Unmarshal([]byte(requestBody), &body)
+	if err != nil {
+		return "", errors.New("failed to parse request body")
+	}
+
+	err = s.Handler(body.Results)
+	return "", err
 }
