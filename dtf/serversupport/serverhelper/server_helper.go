@@ -3,8 +3,15 @@ package serverhelper
 import (
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/gin-gonic/gin"
 )
+
+// claim
+type CommonClaims struct {
+	UserName string `json:"username"`
+	jwt.StandardClaims
+}
 
 // Request
 //
@@ -18,12 +25,12 @@ type CommonRequest struct {
 }
 
 type RequestHeader struct {
-	Action    string `json:"Action"`
 	RequestId string `json:"RequestId"`
 	Version   string `json:"Version"`
-	APIModule string `json:"ApiModule"`
 	Sign      string `json:"Sign"`
 	Timestamp string `json:"Timestamp"`
+	Module    string `json:"Module"`
+	Action    string `json:"Action"`
 }
 
 // Response

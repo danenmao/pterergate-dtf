@@ -30,6 +30,11 @@ github.com/cespare/xxhash/v2
 # github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311
 ## explicit; go 1.15
 github.com/chenzhuoyu/base64x
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+## explicit
+# github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+## explicit; go 1.12
+github.com/dgrijalva/jwt-go/v4
 # github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f
 ## explicit
 github.com/dgryski/go-rendezvous
@@ -94,6 +99,9 @@ github.com/golang/glog/internal/stackdump
 # github.com/golang/snappy v0.0.1
 ## explicit
 github.com/golang/snappy
+# github.com/google/uuid v1.3.1
+## explicit
+github.com/google/uuid
 # github.com/gopherjs/gopherjs v1.17.2
 ## explicit; go 1.17
 github.com/gopherjs/gopherjs/js
