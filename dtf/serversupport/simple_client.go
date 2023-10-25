@@ -1,6 +1,8 @@
 package serversupport
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,18 +12,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/dtf/serversupport/serverhelper"
 )
 
-type SimpleHTTPClient struct {
+const TokenExpireDuration time.Duration = 5 * time.Minute
+const Issuer = "SimpleInvoker"
+const Subject = "pterergate-service"
+
+type SimpleInvoker struct {
 	client *http.Client
 }
 
-func NewSimpleHTTPClient() *SimpleHTTPClient {
-	s := &SimpleHTTPClient{}
+func NewSimpleHTTPClient() *SimpleInvoker {
+	s := &SimpleInvoker{}
 	s.client = &http.Client{
 		Timeout: time.Second * 10,
 		Transport: &http.Transport{
@@ -32,10 +39,15 @@ func NewSimpleHTTPClient() *SimpleHTTPClient {
 	return s
 }
 
-func (s *SimpleHTTPClient) Post(url string, userName string, requestBody string) error {
+func (s *SimpleInvoker) Post(url string, userName string, requestBody string) error {
 	// commonReq json
 	commonReq := s.genCommonRequest(requestBody)
 	commonReqData, err := json.Marshal(commonReq)
+	if err != nil {
+		return err
+	}
+
+	sign, err := s.sign(userName, commonReq)
 	if err != nil {
 		return err
 	}
@@ -50,7 +62,7 @@ func (s *SimpleHTTPClient) Post(url string, userName string, requestBody string)
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Accept", "application/json")
 	httpReq.Header.Set("Accept-Encoding", "gzip")
-	httpReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", commonReq.Header.Sign))
+	httpReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sign))
 
 	rsp, err := s.client.Do(httpReq)
 	if err != nil {
@@ -82,7 +94,7 @@ func (s *SimpleHTTPClient) Post(url string, userName string, requestBody string)
 	return nil
 }
 
-func (s *SimpleHTTPClient) genCommonRequest(requestBody string) *serverhelper.CommonRequest {
+func (s *SimpleInvoker) genCommonRequest(requestBody string) *serverhelper.CommonRequest {
 	req := &serverhelper.CommonRequest{
 		Body: requestBody,
 	}
@@ -94,11 +106,32 @@ func (s *SimpleHTTPClient) genCommonRequest(requestBody string) *serverhelper.Co
 	req.Header.Module = ""
 	req.Header.Action = ""
 
-	// sign the request body
-	req.Header.Sign, _ = s.sign(req)
+	// calc the body hash
+	hash := sha256.New()
+	hash.Write([]byte(requestBody))
+	bytes := hash.Sum(nil)
+	hashCode := hex.EncodeToString(bytes)
+	req.Header.BodyHash = hashCode
+
 	return req
 }
 
-func (s *SimpleHTTPClient) sign(req *serverhelper.CommonRequest) (string, error) {
-	return "", nil
+func (s *SimpleInvoker) sign(userName string, req *serverhelper.CommonRequest) (string, error) {
+	now := time.Now()
+	claims := serverhelper.CommonClaims{
+		UserName: userName,
+		BodyHash: req.Header.BodyHash,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(TokenExpireDuration)),
+			NotBefore: jwt.NewNumericDate(now),
+			IssuedAt:  jwt.NewNumericDate(now),
+			Issuer:    Issuer,
+			ID:        uuid.NewString(),
+			Audience:  jwt.ClaimStrings{"executor", "collector"},
+			Subject:   Subject,
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	return token.SignedString("")
 }

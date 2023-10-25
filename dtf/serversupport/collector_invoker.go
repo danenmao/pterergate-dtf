@@ -14,7 +14,7 @@ type CollectorInvoker struct {
 	URI        string
 	UserName   string
 	url        string
-	client     *SimpleHTTPClient
+	client     *SimpleInvoker
 }
 
 func NewCollectorInvoker(serverHost string, serverPort uint16, user string) *CollectorInvoker {
