@@ -9,7 +9,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/config"
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 )
 
 // 添加任务记录

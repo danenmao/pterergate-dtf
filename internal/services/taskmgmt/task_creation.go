@@ -14,7 +14,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/idtool"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 

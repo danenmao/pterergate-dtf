@@ -9,8 +9,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
 	"github.com/danenmao/pterergate-dtf/internal/routine"
 	"github.com/danenmao/pterergate-dtf/internal/services/scheduler"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic/executorconnector"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic/quotagroup"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/schedulerlogic/executorconnector"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/schedulerlogic/quotagroup"
 )
 
 func StartScheduler(cfg *dtfdef.ServiceConfig) error {

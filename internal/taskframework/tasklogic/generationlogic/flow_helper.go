@@ -9,7 +9,7 @@ import (
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 

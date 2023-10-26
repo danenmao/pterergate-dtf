@@ -4,8 +4,8 @@ import (
 	"github.com/golang/glog"
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/schedulerlogic"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
 )
 
 const (

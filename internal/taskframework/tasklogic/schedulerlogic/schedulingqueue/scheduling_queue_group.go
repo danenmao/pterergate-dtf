@@ -9,7 +9,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/misc"
 	"github.com/danenmao/pterergate-dtf/internal/routine"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 

@@ -13,9 +13,9 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/config"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/generationlogic"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/generationlogic"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/schedulerlogic"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 

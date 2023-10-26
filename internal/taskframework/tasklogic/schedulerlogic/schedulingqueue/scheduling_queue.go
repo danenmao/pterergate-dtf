@@ -11,9 +11,9 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskdef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic/scheduler"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/schedulerlogic/scheduler"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 

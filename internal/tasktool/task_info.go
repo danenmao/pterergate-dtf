@@ -15,8 +15,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/config"
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 )
 
 // 为任务创建info key
