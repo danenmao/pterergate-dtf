@@ -17,7 +17,6 @@ type SubtaskQueueMgr struct {
 // 添加任务
 // 当创建任务、恢复任务生成时，执行添加操作
 func (mgr *SubtaskQueueMgr) AddTask(taskId taskmodel.TaskIdType) error {
-
 	if taskId == 0 {
 		glog.Info("invalid task id: ", taskId)
 		return errors.New("invalid task id")
@@ -33,7 +32,6 @@ func (mgr *SubtaskQueueMgr) AddTask(taskId taskmodel.TaskIdType) error {
 // 删除任务
 // 当任务完成时，执行删除操作
 func (mgr *SubtaskQueueMgr) RemoveTask(taskId taskmodel.TaskIdType) error {
-
 	// 检查任务是否存在
 	_, ok := mgr.SubtaskQueueMap[taskId]
 	if !ok {
@@ -53,7 +51,6 @@ func (mgr *SubtaskQueueMgr) PushSubtask(
 	taskId taskmodel.TaskIdType,
 	subtask *taskmodel.SubtaskBody,
 ) error {
-
 	queue, ok := mgr.SubtaskQueueMap[taskId]
 	if !ok {
 		glog.Warning("task id not found in subtask queue map: ", taskId)
@@ -61,7 +58,7 @@ func (mgr *SubtaskQueueMgr) PushSubtask(
 	}
 
 	// 将子任务放到任务的子任务队列中
-	queue.PushSubtask(subtask)
+	queue.Push(subtask)
 
 	return nil
 }
@@ -71,7 +68,6 @@ func (mgr *SubtaskQueueMgr) PopSubtask(
 	taskId taskmodel.TaskIdType,
 	subtask *taskmodel.SubtaskBody,
 ) error {
-
 	queue, ok := mgr.SubtaskQueueMap[taskId]
 	if !ok {
 		glog.Warning("task id not found in subtask queue map: ", taskId)
@@ -79,7 +75,7 @@ func (mgr *SubtaskQueueMgr) PopSubtask(
 	}
 
 	// 从子任务队列中取子任务
-	err := queue.PopSubtask(subtask)
+	err := queue.Pop(subtask)
 	if err == errordef.ErrNotFound {
 		return err
 	}

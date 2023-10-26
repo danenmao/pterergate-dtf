@@ -14,7 +14,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
 	"github.com/danenmao/pterergate-dtf/internal/routine"
 	"github.com/danenmao/pterergate-dtf/internal/subtasktool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/collectorflow"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/collectorlogic"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -176,7 +176,7 @@ func processSubtaskResult(
 		return nil
 	}
 
-	collectorflow.OnSubtaskResult(result, subtaskCompleted)
+	collectorlogic.OnSubtaskResult(result, subtaskCompleted)
 	if *subtaskCompleted {
 		SetSubtaskResult(result.SubtaskId, result, &pipeline)
 	}

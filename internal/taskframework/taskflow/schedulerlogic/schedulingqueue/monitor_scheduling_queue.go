@@ -11,7 +11,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
 	"github.com/danenmao/pterergate-dtf/internal/routine"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -170,7 +170,7 @@ func repairLostTaskList(taskList *[]uint64) error {
 func repairLostTask(taskId uint64, pipeline redis.Pipeliner) error {
 
 	// 读取任务的调度数据
-	data := flowdef.TaskScheduleData{}
+	data := tasklogicdef.TaskScheduleData{}
 	err := tasktool.GetTaskScheduleData(taskmodel.TaskIdType(taskId), &data)
 	if err != nil {
 		glog.Warning("failed to get task schedule data while repair task: ", taskId, ",", err)

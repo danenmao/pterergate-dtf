@@ -13,9 +13,9 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/config"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/generatorflow"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/generationlogic"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -166,7 +166,7 @@ func taskGenerationImpl(taskId taskmodel.TaskIdType, toRecover bool, taskType ui
 	glog.Info("begin to generate a plugin task: ", taskId, ", ", taskType)
 
 	// 获取任务的信息，信息在创建任务的流程中提供
-	createParam := flowdef.TaskCreateParam{}
+	createParam := tasklogicdef.TaskCreateParam{}
 	err := tasktool.GetTaskCreateParam(taskmodel.TaskIdType(taskId), &createParam)
 	if err != nil {
 		glog.Warning("failed to get image task create param: ", taskId, ", ", err)
@@ -200,17 +200,17 @@ func AddTaskToScheduler(
 	taskType uint32,
 	priority uint32,
 ) error {
-	return schedulerflow.AddTaskToScheduler(taskId, groupName, taskType, priority)
+	return schedulerlogic.AddTaskToScheduler(taskId, groupName, taskType, priority)
 }
 
 // 任务插件的生成逻辑
 func GenerationMainLoop(
 	taskId taskmodel.TaskIdType,
-	createParam *flowdef.TaskCreateParam,
+	createParam *tasklogicdef.TaskCreateParam,
 ) {
 
 	// 创建生成工作流
-	flow := generatorflow.NewGeneratorFlow()
+	flow := generationlogic.NewGenerationiFlow()
 
 	// 初始化生成操作
 	taskData := taskmodel.TaskParam{

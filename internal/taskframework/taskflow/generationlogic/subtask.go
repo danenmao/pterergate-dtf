@@ -1,4 +1,4 @@
-package generatorflow
+package generationlogic
 
 import (
 	"time"

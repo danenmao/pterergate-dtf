@@ -14,7 +14,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/idtool"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -51,7 +51,7 @@ func TaskCreationRoutine(
 	tasktool.SetTaskRawTypeParam(taskId, taskParam.TypeParam)
 
 	// 记录任务的创建参数
-	createParam := flowdef.TaskCreateParam{
+	createParam := tasklogicdef.TaskCreateParam{
 		ResourceGroupName: taskParam.ResourceGroup,
 		TaskType:          taskParam.TaskType,
 		Priority:          taskParam.Priority,

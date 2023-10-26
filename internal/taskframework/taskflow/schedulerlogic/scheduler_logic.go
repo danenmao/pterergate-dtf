@@ -1,4 +1,4 @@
-package schedulerflow
+package schedulerlogic
 
 import (
 	"github.com/golang/glog"
@@ -6,8 +6,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/dtf/taskplugin"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/executorconnector"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/quotagroup"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic/executorconnector"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic/quotagroup"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskloader"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"

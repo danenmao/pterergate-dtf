@@ -1,4 +1,4 @@
-package collectorflow
+package collectorlogic
 
 import (
 	"github.com/golang/glog"

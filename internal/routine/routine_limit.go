@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-// 例程限制结构
+// routine count limiter
 type RoutineCountLimiter struct {
 	UpperLimit uint32     // 上限值
 	counter    uint32     // 当前实例中正在执行的例程数
@@ -12,7 +12,7 @@ type RoutineCountLimiter struct {
 }
 
 // 返回当前的例程数
-func (limit *RoutineCountLimiter) GetCount() uint32 {
+func (limit *RoutineCountLimiter) Count() uint32 {
 	return limit.counter
 }
 

@@ -15,7 +15,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -102,7 +102,7 @@ func RefillTaskParam(
 		return errors.New("invalid task id")
 	}
 
-	createParam := flowdef.TaskCreateParam{}
+	createParam := tasklogicdef.TaskCreateParam{}
 	err := tasktool.GetTaskCreateParam(taskId, &createParam)
 	if err != nil {
 		glog.Warning("failed to get the create param of task: ", taskId, err)

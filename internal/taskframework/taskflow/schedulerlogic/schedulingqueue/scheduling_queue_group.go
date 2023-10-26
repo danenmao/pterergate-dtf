@@ -9,7 +9,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/misc"
 	"github.com/danenmao/pterergate-dtf/internal/routine"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -134,7 +134,7 @@ func (queues *SchedulingGroup) appendToNextQueue(
 	}
 
 	// 取任务的类型信息
-	createParam := flowdef.TaskCreateParam{}
+	createParam := tasklogicdef.TaskCreateParam{}
 	err := tasktool.GetTaskCreateParam(taskId, &createParam)
 	if err != nil {
 		glog.Warning("failed to get task create param: ", taskId, ", ", err)

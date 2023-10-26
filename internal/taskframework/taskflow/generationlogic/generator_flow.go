@@ -1,4 +1,4 @@
-package generatorflow
+package generationlogic
 
 import (
 	"github.com/golang/glog"
@@ -8,22 +8,22 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskloader"
 )
 
-// generator flow
-type GeneratorFlow struct {
+// generation flow
+type GenerationFlow struct {
 	TaskId    taskmodel.TaskIdType
 	TaskType  uint32
 	Generator taskmodel.ITaskGenerator
 	TaskData  *taskmodel.TaskParam
 }
 
-// create a generator flow object
-// every task has their own generator flow object
-func NewGeneratorFlow() *GeneratorFlow {
-	return &GeneratorFlow{}
+// create a generation flow object
+// every task has their own generation flow object
+func NewGenerationiFlow() *GenerationFlow {
+	return &GenerationFlow{}
 }
 
 // init the generation
-func (flow *GeneratorFlow) InitGeneration(
+func (flow *GenerationFlow) InitGeneration(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
 	taskData *taskmodel.TaskParam,
@@ -66,7 +66,7 @@ func (flow *GeneratorFlow) InitGeneration(
 }
 
 // finish the generation process
-func (flow *GeneratorFlow) FinishGeneration() error {
+func (flow *GenerationFlow) FinishGeneration() error {
 
 	// invoke the generator
 	err := flow.Generator.End(flow.TaskId)
@@ -86,7 +86,7 @@ func (flow *GeneratorFlow) FinishGeneration() error {
 }
 
 // generation loop
-func (flow *GeneratorFlow) GenerationLoop() error {
+func (flow *GenerationFlow) GenerationLoop() error {
 	err := GetGeneratorFlowHelper().GenerationLoop(flow.TaskId)
 	if err != nil {
 		glog.Warning("GeneratorFlowHelper.GenerationLoop failed: ", flow.TaskId, ", ", err)

@@ -15,8 +15,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/config"
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 )
 
 // 为任务创建info key
@@ -99,7 +99,7 @@ func GetTaskRawTypeParam(taskId taskmodel.TaskIdType, typeParam *string) error {
 // 获取任务的创建参数
 func GetTaskCreateParam(
 	taskId taskmodel.TaskIdType,
-	retParam *flowdef.TaskCreateParam,
+	retParam *tasklogicdef.TaskCreateParam,
 ) error {
 
 	keyName := GetTaskCreateParamKey(taskId)
@@ -123,7 +123,7 @@ func GetTaskCreateParam(
 // 保存任务的创建参数
 func SaveTaskCreateParam(
 	taskId taskmodel.TaskIdType,
-	createParam *flowdef.TaskCreateParam,
+	createParam *tasklogicdef.TaskCreateParam,
 ) error {
 
 	data, err := json.Marshal(createParam)
@@ -315,7 +315,7 @@ func GetTaskPriority(
 // 获取任务的调度数据
 func GetTaskScheduleData(
 	taskId taskmodel.TaskIdType,
-	retScheduleData *flowdef.TaskScheduleData,
+	retScheduleData *tasklogicdef.TaskScheduleData,
 ) error {
 
 	keyName := GetTaskScheduleDataKey(taskId)
@@ -343,7 +343,7 @@ func GetTaskScheduleData(
 // 保存任务的调度数据
 func SaveTaskScheduleData(
 	taskId taskmodel.TaskIdType,
-	scheduleData *flowdef.TaskScheduleData,
+	scheduleData *tasklogicdef.TaskScheduleData,
 ) error {
 
 	data, err := json.Marshal(scheduleData)

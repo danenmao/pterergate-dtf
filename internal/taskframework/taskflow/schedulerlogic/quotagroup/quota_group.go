@@ -10,7 +10,7 @@ import (
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/routine"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/schedulingqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic/schedulingqueue"
 )
 
 // 资源组结构

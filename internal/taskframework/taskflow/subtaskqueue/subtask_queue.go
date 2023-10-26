@@ -32,7 +32,7 @@ type SubtaskQueue struct {
 }
 
 // 将子任务放入子任务队列中
-func (queue *SubtaskQueue) PushSubtask(subtask *taskmodel.SubtaskBody) error {
+func (queue *SubtaskQueue) Push(subtask *taskmodel.SubtaskBody) error {
 
 	// 序列化子任务
 	data, err := json.Marshal(subtask)
@@ -57,7 +57,7 @@ func (queue *SubtaskQueue) PushSubtask(subtask *taskmodel.SubtaskBody) error {
 }
 
 // 从子任务队列中取子任务
-func (queue *SubtaskQueue) PopSubtask(subtask *taskmodel.SubtaskBody) error {
+func (queue *SubtaskQueue) Pop(subtask *taskmodel.SubtaskBody) error {
 
 	// 从子任务队列中取子任务
 	cmd := redistool.DefaultRedis().LPop(context.Background(),

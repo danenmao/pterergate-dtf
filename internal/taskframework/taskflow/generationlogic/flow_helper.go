@@ -1,4 +1,4 @@
-package generatorflow
+package generationlogic
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ const (
 )
 
 // generator flow helpr
-type GeneratorFlowHelper struct {
+type GenerationFlowHelper struct {
 	SubtaskQueues subtaskqueue.SubtaskQueueMgr                // subtask queue manager
 	GeneratorMap  map[taskmodel.TaskIdType]TaskGenerationImpl // task generator object map
 	Mutex         sync.Mutex                                  // lock
@@ -30,8 +30,8 @@ type TaskGenerationImpl struct {
 	TaskType uint32
 }
 
-func NewGeneratorFlowHelper() GeneratorFlowHelper {
-	return GeneratorFlowHelper{
+func NewGenerationFlowHelper() GenerationFlowHelper {
+	return GenerationFlowHelper{
 		SubtaskQueues: subtaskqueue.SubtaskQueueMgr{
 			SubtaskQueueMap: make(map[taskmodel.TaskIdType]*subtaskqueue.SubtaskQueue),
 		},
@@ -41,13 +41,13 @@ func NewGeneratorFlowHelper() GeneratorFlowHelper {
 }
 
 // global generator helper object
-var gs_GeneratorHelper = NewGeneratorFlowHelper()
+var gs_GeneratorHelper = NewGenerationFlowHelper()
 
-func GetGeneratorFlowHelper() *GeneratorFlowHelper {
+func GetGeneratorFlowHelper() *GenerationFlowHelper {
 	return &gs_GeneratorHelper
 }
 
-func (generator *GeneratorFlowHelper) Begin(
+func (generator *GenerationFlowHelper) Begin(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
 	taskData *taskmodel.TaskParam,
@@ -69,7 +69,7 @@ func (generator *GeneratorFlowHelper) Begin(
 	return nil
 }
 
-func (generator *GeneratorFlowHelper) End(
+func (generator *GenerationFlowHelper) End(
 	taskId taskmodel.TaskIdType,
 ) error {
 
@@ -87,7 +87,7 @@ func (generator *GeneratorFlowHelper) End(
 	return nil
 }
 
-func (generator *GeneratorFlowHelper) GenerationLoop(
+func (generator *GenerationFlowHelper) GenerationLoop(
 	taskId taskmodel.TaskIdType,
 ) error {
 
@@ -104,7 +104,7 @@ func (generator *GeneratorFlowHelper) GenerationLoop(
 	return generator.pickupSubtaskLoop(taskId, &impl)
 }
 
-func (generator *GeneratorFlowHelper) pickupSubtaskLoop(
+func (generator *GenerationFlowHelper) pickupSubtaskLoop(
 	taskId taskmodel.TaskIdType,
 	impl *TaskGenerationImpl,
 ) error {

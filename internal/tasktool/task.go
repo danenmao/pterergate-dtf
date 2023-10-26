@@ -9,7 +9,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/config"
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/mysqltool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 )
 
 // 添加任务记录
@@ -38,7 +38,7 @@ func GetTaskInfoKey(taskId taskmodel.TaskIdType) string {
 
 // 获取保存任务调度数据的Key
 func GetTaskCreateParamKey(taskId taskmodel.TaskIdType) string {
-	return fmt.Sprintf("%s%d", flowdef.TaskCreateParamPrefix, taskId)
+	return fmt.Sprintf("%s%d", tasklogicdef.TaskCreateParamPrefix, taskId)
 }
 
 func GetTaskLockKey(taskId taskmodel.TaskIdType) string {
@@ -59,5 +59,5 @@ func GetSubtaskKey(subtaskId uint64) string {
 
 // 获取保存任务调度数据的Key
 func GetTaskScheduleDataKey(taskId taskmodel.TaskIdType) string {
-	return fmt.Sprintf("%s%d", flowdef.TaskScheduleDataPrefix, taskId)
+	return fmt.Sprintf("%s%d", tasklogicdef.TaskScheduleDataPrefix, taskId)
 }

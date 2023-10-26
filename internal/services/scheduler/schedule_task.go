@@ -4,7 +4,7 @@ import (
 	"github.com/golang/glog"
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
 )
 
@@ -19,7 +19,7 @@ func ScheduleTaskRoutine() {
 	// get the task and subtasks to schedule
 	var taskId taskmodel.TaskIdType
 	var subtasks = []taskmodel.SubtaskBody{}
-	err := schedulerflow.ScheduleSubtasks(&taskId, &subtasks)
+	err := schedulerlogic.ScheduleSubtasks(&taskId, &subtasks)
 	if err != nil {
 		glog.Warning("failed to get task to schedule: ", err)
 		return
@@ -34,7 +34,7 @@ func ScheduleTaskRoutine() {
 
 	// to execute subtasks
 	toPushbackSubtask := []taskmodel.SubtaskBody{}
-	err = schedulerflow.ExecSubtasks(taskId, &subtasks, &toPushbackSubtask)
+	err = schedulerlogic.ExecSubtasks(taskId, &subtasks, &toPushbackSubtask)
 	if err != nil {
 		glog.Warning("failed to exec subtask: ", taskId, ",", err)
 

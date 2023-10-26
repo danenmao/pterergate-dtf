@@ -11,9 +11,9 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskdef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/flowdef"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/scheduler"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerlogic/scheduler"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -164,7 +164,7 @@ func (queue *SchedulingQueue) setTaskScheduleData(
 	initSlice := queue.calcTaskSliceCount(priority)
 
 	// 读取任务的调度数据
-	data := flowdef.TaskScheduleData{
+	data := tasklogicdef.TaskScheduleData{
 		ResourceGroupName:   queue.QuotaGroupName,
 		CurrentQueue:        queue.QueueIndex,
 		CurrentQueueKeyName: queue.QueueKeyName,
@@ -316,7 +316,7 @@ func (queue *SchedulingQueue) DecreaseTaskSliceCount(
 ) error {
 
 	// 取当前的调度数据
-	data := flowdef.TaskScheduleData{}
+	data := tasklogicdef.TaskScheduleData{}
 	err := tasktool.GetTaskScheduleData(taskId, &data)
 	if err != nil {
 		glog.Warning("failed to get task schedule data when move task to tail: ", taskId, ",", err)
@@ -343,7 +343,7 @@ func (queue *SchedulingQueue) getTaskRemainSliceCount(
 ) (uint32, error) {
 
 	// 取任务的调度数据
-	var scheduleData = flowdef.TaskScheduleData{}
+	var scheduleData = tasklogicdef.TaskScheduleData{}
 	err := tasktool.GetTaskScheduleData(taskId, &scheduleData)
 	if err != nil {
 		glog.Warning("failed to get task schedule data: ", taskId, ", ", err.Error())
@@ -386,7 +386,7 @@ func (queue *SchedulingQueue) pickSubtaskLoop(
 	subtaskCount := 0
 
 	// 取任务的调度数据
-	var scheduleData = flowdef.TaskScheduleData{}
+	var scheduleData = tasklogicdef.TaskScheduleData{}
 	err := tasktool.GetTaskScheduleData(taskId, &scheduleData)
 	if err != nil {
 		glog.Warning("failed to get task schedule data: ", taskId, ", ", err.Error())
@@ -461,7 +461,7 @@ func GetSubtask(
 
 	// get a subtask from the subtask queue
 	queue := subtaskqueue.SubtaskQueue{TaskId: taskId}
-	err := queue.PopSubtask(subtaskData)
+	err := queue.Pop(subtaskData)
 	noSubtask := (err == errordef.ErrNotFound)
 
 	// check if the generation is over
