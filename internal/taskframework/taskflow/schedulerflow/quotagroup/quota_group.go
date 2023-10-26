@@ -1,4 +1,4 @@
-package resourcegroup
+package quotagroup
 
 import (
 	"errors"
@@ -10,17 +10,17 @@ import (
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/routine"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/schedulequeue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/schedulingqueue"
 )
 
 // 资源组结构
-type ResourceGroup struct {
-	ID          uint32                            // ID
-	Name        string                            // 资源组名
-	Quota       float32                           // 资源组的调度资源配额
-	Description string                            // 资源组的描述
-	InsertTime  uint64                            // 资源组的插入时间
-	QueueArray  *schedulequeue.ScheduleQueueGroup // 资源组的调度队列组
+type QuotaGroup struct {
+	ID          uint32                           // ID
+	Name        string                           // 资源组名
+	Quota       float32                          // 资源组的调度资源配额
+	Description string                           // 资源组的描述
+	InsertTime  uint64                           // 资源组的插入时间
+	QueueGroup  *schedulingqueue.SchedulingGroup // 资源组的调度队列组
 }
 
 // 资源组的fit值结构
@@ -30,27 +30,27 @@ type Quota struct {
 }
 
 // 资源组管理器
-type ResourceGroupMgr struct {
-	GroupMap      map[string]*ResourceGroup // 资源组表
-	QuotaList     []Quota                   // 所有资源组的quota值的列表
-	MaxQuota      float32                   // 资源组中最大的quota值
-	MaxQuotaIndex int                       // 最大quota值元素的索引
-	Mutex         sync.Mutex                // 访问锁
+type QuotaGroupMgr struct {
+	GroupMap      map[string]*QuotaGroup // 资源组表
+	QuotaList     []Quota                // 所有资源组的quota值的列表
+	MaxQuota      float32                // 资源组中最大的quota值
+	MaxQuotaIndex int                    // 最大quota值元素的索引
+	Mutex         sync.Mutex             // 访问锁
 }
 
 // 全局的资源组管理器对象
-var gs_resourceGroupMgr = ResourceGroupMgr{
-	GroupMap:  map[string]*ResourceGroup{},
+var gs_quotaGroupMgr = QuotaGroupMgr{
+	GroupMap:  map[string]*QuotaGroup{},
 	QuotaList: []Quota{},
 }
 
 // 获取模块的资源组管理器对象
-func GetResourceGroupMgr() *ResourceGroupMgr {
-	return &gs_resourceGroupMgr
+func GetQuotaGroupMgr() *QuotaGroupMgr {
+	return &gs_quotaGroupMgr
 }
 
 // 初始化资源组
-func (rg *ResourceGroupMgr) Init() error {
+func (rg *QuotaGroupMgr) Init() error {
 
 	// 初始化管理器结构
 	err := rg.initMgr()
@@ -63,14 +63,14 @@ func (rg *ResourceGroupMgr) Init() error {
 	go rg.syncRecordRoutine()
 
 	// 创建调度监控例程
-	go schedulequeue.MonitorCurrentTaskRoutine()
+	go schedulingqueue.MonitorCurrentTaskRoutine()
 
 	glog.Info("succeeded to init rg mgr")
 	return nil
 }
 
 // 向资源组中添加任务
-func (rg *ResourceGroupMgr) AddTask(
+func (rg *QuotaGroupMgr) AddTask(
 	groupName string,
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
@@ -83,24 +83,24 @@ func (rg *ResourceGroupMgr) AddTask(
 	// 选择指定的资源组
 	group, ok := rg.GroupMap[groupName]
 	if !ok {
-		glog.Warning("unknown resource group name: ", groupName)
-		return errors.New("unknown resource group name")
+		glog.Warning("unknown quota group name: ", groupName)
+		return errors.New("unknown quota group name")
 	}
 
 	// 向资源组中添加任务
-	err := group.QueueArray.AddTask(taskId, taskType, priority)
+	err := group.QueueGroup.AddTask(taskId, taskType, priority)
 	if err != nil {
-		glog.Warning("failed to add task to rg: ", taskId, ", ", groupName)
+		glog.Warning("failed to add task to group: ", taskId, ", ", groupName)
 		return err
 	}
 
-	glog.Info("succeeded to add task to rg: ", taskId, ", ", groupName)
+	glog.Info("succeeded to add task to group: ", taskId, ", ", groupName)
 	return nil
 }
 
 // 选择要调度的资源组, 调度任务, 返回任务下被调度到的子任务列表
 // 无法选出子任务时, retTaskId为0, subtasks返回的元素为空
-func (rg *ResourceGroupMgr) Select(
+func (rg *QuotaGroupMgr) Select(
 	retTaskId *taskmodel.TaskIdType,
 	subtasks *[]taskmodel.SubtaskBody,
 ) error {
@@ -118,12 +118,12 @@ func (rg *ResourceGroupMgr) Select(
 	// 根据索引取资源组
 	group, ok := rg.GroupMap[rg.QuotaList[i].Name]
 	if !ok {
-		glog.Error("unknown resource group name: ", rg.QuotaList[i].Name)
+		glog.Error("unknown quota group name: ", rg.QuotaList[i].Name)
 		return err
 	}
 
 	// 从资源组的调度队列组中选择任务
-	err = group.QueueArray.Schedule(retTaskId, subtasks)
+	err = group.QueueGroup.Schedule(retTaskId, subtasks)
 	if err != nil {
 		glog.Warning("failed to schedule tasks from queue array: ", err.Error())
 		return err
@@ -137,7 +137,7 @@ func (rg *ResourceGroupMgr) Select(
 }
 
 // 获取调度中的任务总数
-func (rg *ResourceGroupMgr) GetTaskCount() (taskCount uint, err error) {
+func (rg *QuotaGroupMgr) GetTaskCount() (taskCount uint, err error) {
 
 	rg.Mutex.Lock()
 	defer rg.Mutex.Unlock()
@@ -145,7 +145,7 @@ func (rg *ResourceGroupMgr) GetTaskCount() (taskCount uint, err error) {
 	taskCount = 0
 	count := uint(0)
 	for _, group := range rg.GroupMap {
-		count, err = group.QueueArray.GetTaskCount()
+		count, err = group.QueueGroup.GetTaskCount()
 		if err != nil {
 			return
 		}
@@ -157,7 +157,7 @@ func (rg *ResourceGroupMgr) GetTaskCount() (taskCount uint, err error) {
 }
 
 // 初始化管理器结构
-func (rg *ResourceGroupMgr) initMgr() error {
+func (rg *QuotaGroupMgr) initMgr() error {
 
 	// 读取资源组记录
 	err := rg.syncRecord()
@@ -171,7 +171,7 @@ func (rg *ResourceGroupMgr) initMgr() error {
 }
 
 // 基于随机接受（Stochastic Acceptance）的算法来实现资源组之间的配额调度
-func (rg *ResourceGroupMgr) stochasticAccept() (int, error) {
+func (rg *QuotaGroupMgr) stochasticAccept() (int, error) {
 
 	i := 0
 	const MaxTryCount = 20
@@ -197,27 +197,27 @@ func (rg *ResourceGroupMgr) stochasticAccept() (int, error) {
 }
 
 // 同步资源组的记录的例程
-func (rg *ResourceGroupMgr) syncRecordRoutine() error {
+func (rg *QuotaGroupMgr) syncRecordRoutine() error {
 
 	routine.ExecRoutineWithInterval(
 		"syncRecordRoutine",
 		func() {
 			rg.syncRecord()
 		},
-		time.Duration(ResourceGroupSyncInterval)*time.Second,
+		time.Duration(QuotaGroupSyncInterval)*time.Second,
 	)
 
 	return nil
 }
 
 // 同步资源组的记录
-func (rg *ResourceGroupMgr) syncRecord() error {
+func (rg *QuotaGroupMgr) syncRecord() error {
 
 	// 读取资源组记录
-	records := []ResourceGroupRecord{}
-	err := readResourceGroupRecord(&records)
+	records := []QuotaGroupRecord{}
+	err := readQuotaGroupRecord(&records)
 	if err != nil {
-		glog.Warning("failed to read resource group records: ", err.Error())
+		glog.Warning("failed to read quota group records: ", err.Error())
 		return err
 	}
 
@@ -228,9 +228,9 @@ func (rg *ResourceGroupMgr) syncRecord() error {
 	for i, record := range records {
 
 		// 创建或更新资源组结构
-		group, err := rg.initOrUpdateResourceGroup(&record)
+		group, err := rg.initOrUpdateGroup(&record)
 		if err != nil {
-			glog.Warning("failed to init resource group: ", record.Name, ",", err)
+			glog.Warning("failed to init quota group: ", record.Name, ",", err)
 			continue
 		}
 
@@ -252,11 +252,11 @@ func (rg *ResourceGroupMgr) syncRecord() error {
 }
 
 // 从数据库中读取资源组的记录
-func readResourceGroupRecord(
-	records *[]ResourceGroupRecord,
+func readQuotaGroupRecord(
+	records *[]QuotaGroupRecord,
 ) error {
 
-	predefinedRG := []ResourceGroupRecord{
+	predefinedRG := []QuotaGroupRecord{
 		{
 			ID: 2, Name: " 1", Quota: 0.6,
 		},
@@ -271,9 +271,9 @@ func readResourceGroupRecord(
 }
 
 // 初始化或更新资源组记录
-func (rg *ResourceGroupMgr) initOrUpdateResourceGroup(
-	record *ResourceGroupRecord,
-) (*ResourceGroup, error) {
+func (rg *QuotaGroupMgr) initOrUpdateGroup(
+	record *QuotaGroupRecord,
+) (*QuotaGroup, error) {
 
 	groupName := record.Name
 	groupQuota := record.Quota
@@ -287,17 +287,17 @@ func (rg *ResourceGroupMgr) initOrUpdateResourceGroup(
 	}
 
 	// 若为新资源组，创建记录
-	group = &ResourceGroup{
+	group = &QuotaGroup{
 		Name:        groupName,
 		ID:          record.ID,
 		Quota:       groupQuota,
 		Description: record.Description,
 		InsertTime:  uint64(time.Now().Unix()),
-		QueueArray:  &schedulequeue.ScheduleQueueGroup{},
+		QueueGroup:  &schedulingqueue.SchedulingGroup{},
 	}
 
 	// 初始化调度队列组
-	err := group.QueueArray.Init(group.Name)
+	err := group.QueueGroup.Init(group.Name)
 	if err != nil {
 		glog.Warning("failed to init schedule queue array: ", record)
 		return nil, err

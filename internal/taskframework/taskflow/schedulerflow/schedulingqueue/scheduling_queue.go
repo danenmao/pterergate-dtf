@@ -1,4 +1,4 @@
-package schedulequeue
+package schedulingqueue
 
 import (
 	"context"
@@ -21,45 +21,45 @@ const RRQueueIdx uint32 = 1000000
 const PriorityBoostMaxTaskCount = uint32(10)
 
 // 调度队列
-type ScheduleQueue struct {
-	ResourceGroupName string                   // 队列所属的资源组的名称
-	QueueIndex        uint32                   // 队列在资源组内的索引
-	QueueKeyName      string                   // 队列的Key名
-	TimeSlice         uint32                   // 任务队列的轮转时间片，单位为ms
-	BaseQueueSlice    uint32                   // 任务队列授予任务的基础时间片的数量, 单位为个
-	Scheduler         scheduler.IScheduleQueue // 调度队列的调度接口
-	NextQueue         *ScheduleQueue           // 下一个调度队列
-	TaskCount         uint                     // 队列中的任务数
+type SchedulingQueue struct {
+	QuotaGroupName string                    // 队列所属的资源组的名称
+	QueueIndex     uint32                    // 队列在资源组内的索引
+	QueueKeyName   string                    // 队列的Key名
+	TimeSlice      uint32                    // 任务队列的轮转时间片，单位为ms
+	BaseQueueSlice uint32                    // 任务队列授予任务的基础时间片的数量, 单位为个
+	Scheduler      scheduler.IQueueScheduler // 调度队列的调度接口
+	NextQueue      *SchedulingQueue          // 下一个调度队列
+	TaskCount      uint                      // 队列中的任务数
 }
 
 // 创建一个优先级队列
-func NewPriorityQueue(groupName string, queueName string, idx uint32) *ScheduleQueue {
-	return &ScheduleQueue{
-		ResourceGroupName: groupName,
-		QueueIndex:        idx,
-		QueueKeyName:      queueName,
-		TimeSlice:         QueueBaseTimeSlice + idx*QueueTimeSliceStep,
-		BaseQueueSlice:    PriorityBaseQueueSliceCount,
-		Scheduler:         &scheduler.FCFSScheduler{QueueKeyName: queueName},
+func NewPriorityQueue(groupName string, queueName string, idx uint32) *SchedulingQueue {
+	return &SchedulingQueue{
+		QuotaGroupName: groupName,
+		QueueIndex:     idx,
+		QueueKeyName:   queueName,
+		TimeSlice:      QueueBaseTimeSlice + idx*QueueTimeSliceStep,
+		BaseQueueSlice: PriorityBaseQueueSliceCount,
+		Scheduler:      &scheduler.FCFSScheduler{QueueKeyName: queueName},
 	}
 }
 
 // 创建一个低优先级队列
-func NewRRQueue(groupName string, queueName string) *ScheduleQueue {
-	return &ScheduleQueue{
-		ResourceGroupName: groupName,
-		QueueIndex:        RRQueueIdx,
-		QueueKeyName:      queueName,
-		TimeSlice:         RRQueueTimeSlice,
-		BaseQueueSlice:    1000000,
-		Scheduler:         &scheduler.RRScheduler{QueueKeyName: queueName},
+func NewRRQueue(groupName string, queueName string) *SchedulingQueue {
+	return &SchedulingQueue{
+		QuotaGroupName: groupName,
+		QueueIndex:     RRQueueIdx,
+		QueueKeyName:   queueName,
+		TimeSlice:      RRQueueTimeSlice,
+		BaseQueueSlice: 1000000,
+		Scheduler:      &scheduler.RRScheduler{QueueKeyName: queueName},
 	}
 }
 
 // 调度任务
 // 从当前的调度队列中选出一个任务, 进行调度, 返回获取的子任务列表
 // 处理调度队列为空的情况, retTaskId为0, subtasks返回的元素为空
-func (queue *ScheduleQueue) Schedule(
+func (queue *SchedulingQueue) Schedule(
 	retTaskId *taskmodel.TaskIdType,
 	subtasks *[]taskmodel.SubtaskBody,
 ) (bool, error) {
@@ -125,7 +125,7 @@ func (queue *ScheduleQueue) Schedule(
 }
 
 // 各队列尾部添加任务
-func (queue *ScheduleQueue) AppendTask(
+func (queue *SchedulingQueue) AppendTask(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
 	priority uint32,
@@ -154,7 +154,7 @@ func (queue *ScheduleQueue) AppendTask(
 }
 
 // 设置任务在本队列的调度数据
-func (queue *ScheduleQueue) setTaskScheduleData(
+func (queue *SchedulingQueue) setTaskScheduleData(
 	taskId taskmodel.TaskIdType,
 	priority uint32,
 ) error {
@@ -165,7 +165,7 @@ func (queue *ScheduleQueue) setTaskScheduleData(
 
 	// 读取任务的调度数据
 	data := flowdef.TaskScheduleData{
-		ResourceGroupName:   queue.ResourceGroupName,
+		ResourceGroupName:   queue.QuotaGroupName,
 		CurrentQueue:        queue.QueueIndex,
 		CurrentQueueKeyName: queue.QueueKeyName,
 		InitiallQueueSlice:  initSlice,
@@ -184,7 +184,7 @@ func (queue *ScheduleQueue) setTaskScheduleData(
 }
 
 // 根据优先级得到任务的时间片数量
-func (queue *ScheduleQueue) calcTaskSliceCount(priority uint32) uint32 {
+func (queue *SchedulingQueue) calcTaskSliceCount(priority uint32) uint32 {
 
 	priorityBonus := uint32(0)
 	if priority <= taskdef.TaskPriority_Low {
@@ -199,7 +199,7 @@ func (queue *ScheduleQueue) calcTaskSliceCount(priority uint32) uint32 {
 }
 
 // 从队列中移除任务
-func (queue *ScheduleQueue) RemoveTask(taskId taskmodel.TaskIdType) error {
+func (queue *SchedulingQueue) RemoveTask(taskId taskmodel.TaskIdType) error {
 
 	queue.TaskCount -= 1
 	glog.Info("succeeded to remove task from queue: ", taskId, ",", queue.QueueKeyName)
@@ -207,7 +207,7 @@ func (queue *ScheduleQueue) RemoveTask(taskId taskmodel.TaskIdType) error {
 }
 
 // 向队列尾部添加PriorityBoost的任务列表
-func (queue *ScheduleQueue) AppendBoostTaskList(taskIdList *[]taskmodel.TaskIdType) error {
+func (queue *SchedulingQueue) AppendBoostTaskList(taskIdList *[]taskmodel.TaskIdType) error {
 
 	// 设置这些任务在本队列的调度数据
 	for _, task := range *taskIdList {
@@ -234,7 +234,7 @@ func (queue *ScheduleQueue) AppendBoostTaskList(taskIdList *[]taskmodel.TaskIdTy
 }
 
 // 从队列中取出前若干个任务
-func (queue *ScheduleQueue) PopBoostTask(taskIdList *[]taskmodel.TaskIdType) error {
+func (queue *SchedulingQueue) PopBoostTask(taskIdList *[]taskmodel.TaskIdType) error {
 
 	// 构造命令pipeline
 	pipeline := redistool.DefaultRedis().Pipeline()
@@ -286,7 +286,7 @@ func (queue *ScheduleQueue) PopBoostTask(taskIdList *[]taskmodel.TaskIdType) err
 }
 
 // 将任务移到队尾
-func (queue *ScheduleQueue) MoveTaskToTail(taskId taskmodel.TaskIdType, toDecrSlice bool) error {
+func (queue *SchedulingQueue) MoveTaskToTail(taskId taskmodel.TaskIdType, toDecrSlice bool) error {
 
 	// 减少任务的时间片数量
 	if toDecrSlice {
@@ -311,7 +311,7 @@ func (queue *ScheduleQueue) MoveTaskToTail(taskId taskmodel.TaskIdType, toDecrSl
 }
 
 // 减少任务的时间片数量
-func (queue *ScheduleQueue) DecreaseTaskSliceCount(
+func (queue *SchedulingQueue) DecreaseTaskSliceCount(
 	taskId taskmodel.TaskIdType,
 ) error {
 
@@ -338,7 +338,7 @@ func (queue *ScheduleQueue) DecreaseTaskSliceCount(
 }
 
 // 获取任务在队列中剩余的时间片数量
-func (queue *ScheduleQueue) getTaskRemainSliceCount(
+func (queue *SchedulingQueue) getTaskRemainSliceCount(
 	taskId taskmodel.TaskIdType,
 ) (uint32, error) {
 
@@ -356,7 +356,7 @@ func (queue *ScheduleQueue) getTaskRemainSliceCount(
 }
 
 // 获取任务的子任务列表
-func (queue *ScheduleQueue) getSubtasks(
+func (queue *SchedulingQueue) getSubtasks(
 	taskId taskmodel.TaskIdType,
 	subtasks *[]taskmodel.SubtaskBody,
 	retFinished *bool,
@@ -374,7 +374,7 @@ func (queue *ScheduleQueue) getSubtasks(
 }
 
 // 取子任务循环
-func (queue *ScheduleQueue) pickSubtaskLoop(
+func (queue *SchedulingQueue) pickSubtaskLoop(
 	taskId taskmodel.TaskIdType,
 	subtasks *[]taskmodel.SubtaskBody,
 	retFinished *bool,

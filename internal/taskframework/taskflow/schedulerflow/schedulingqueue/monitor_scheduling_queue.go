@@ -1,4 +1,4 @@
-package schedulequeue
+package schedulingqueue
 
 import (
 	"context"

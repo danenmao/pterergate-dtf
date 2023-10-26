@@ -23,7 +23,7 @@ func NewCollectorInvoker(serverHost string, serverPort uint16, user string) *Col
 		ServerPort: serverPort,
 		URI:        CollectorServerURI,
 		UserName:   user,
-		client:     NewSimpleHTTPClient(),
+		client:     NewSimpleInvoker(),
 	}
 
 	c.url = fmt.Sprintf("http://%s:%d%s", c.ServerHost, c.ServerPort, c.URI)

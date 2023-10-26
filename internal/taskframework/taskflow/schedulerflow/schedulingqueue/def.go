@@ -1,4 +1,4 @@
-package schedulequeue
+package schedulingqueue
 
 const (
 	// 调度队列授予任务的基础时间片的大小, ms

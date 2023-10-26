@@ -7,7 +7,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/dtf/taskplugin"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/executorconnector"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/resourcegroup"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/schedulerflow/quotagroup"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskflow/subtaskqueue"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/taskloader"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
@@ -19,7 +19,7 @@ func AddTaskToScheduler(
 	taskType uint32,
 	priority uint32,
 ) error {
-	return resourcegroup.GetResourceGroupMgr().AddTask(groupName, taskId, taskType, priority)
+	return quotagroup.GetQuotaGroupMgr().AddTask(groupName, taskId, taskType, priority)
 }
 
 // if no task, retTaskId is 0, subtasks is empty
@@ -27,7 +27,7 @@ func ScheduleSubtasks(
 	retTaskId *taskmodel.TaskIdType,
 	subtasks *[]taskmodel.SubtaskBody,
 ) error {
-	err := resourcegroup.GetResourceGroupMgr().Select(retTaskId, subtasks)
+	err := quotagroup.GetQuotaGroupMgr().Select(retTaskId, subtasks)
 	if err != nil {
 		glog.Warning("failed to select subtasks: ", err)
 		return err

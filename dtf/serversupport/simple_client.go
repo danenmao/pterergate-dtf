@@ -27,12 +27,12 @@ type SimpleInvoker struct {
 	client *http.Client
 }
 
-func NewSimpleHTTPClient() *SimpleInvoker {
+func NewSimpleInvoker() *SimpleInvoker {
 	s := &SimpleInvoker{}
 	s.client = &http.Client{
 		Timeout: time.Second * 10,
 		Transport: &http.Transport{
-			MaxConnsPerHost: 1,
+			MaxConnsPerHost: 5,
 		},
 	}
 
@@ -40,7 +40,7 @@ func NewSimpleHTTPClient() *SimpleInvoker {
 }
 
 func (s *SimpleInvoker) Post(url string, userName string, requestBody string) error {
-	// commonReq json
+	// generate the request json
 	commonReq := s.genCommonRequest(requestBody)
 	commonReqData, err := json.Marshal(commonReq)
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *SimpleInvoker) Post(url string, userName string, requestBody string) er
 		return err
 	}
 
-	// send the request
+	// new a request
 	httpReq, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(commonReqData)))
 	if err != nil {
 		return nil
@@ -64,6 +64,7 @@ func (s *SimpleInvoker) Post(url string, userName string, requestBody string) er
 	httpReq.Header.Set("Accept-Encoding", "gzip")
 	httpReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sign))
 
+	// send the request
 	rsp, err := s.client.Do(httpReq)
 	if err != nil {
 		return err
@@ -107,13 +108,17 @@ func (s *SimpleInvoker) genCommonRequest(requestBody string) *serverhelper.Commo
 	req.Header.Action = ""
 
 	// calc the body hash
-	hash := sha256.New()
-	hash.Write([]byte(requestBody))
-	bytes := hash.Sum(nil)
-	hashCode := hex.EncodeToString(bytes)
-	req.Header.BodyHash = hashCode
+	req.Header.BodyHash = CalcMsgHash(requestBody)
 
 	return req
+}
+
+func CalcMsgHash(msg string) string {
+	hash := sha256.New()
+	hash.Write([]byte(msg))
+	bytes := hash.Sum(nil)
+	hashCode := hex.EncodeToString(bytes)
+	return hashCode
 }
 
 func (s *SimpleInvoker) sign(userName string, req *serverhelper.CommonRequest) (string, error) {

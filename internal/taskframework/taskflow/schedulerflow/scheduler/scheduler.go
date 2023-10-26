@@ -12,7 +12,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
 )
 
-type IScheduleQueue interface {
+type IQueueScheduler interface {
 	Schedule(taskId *taskmodel.TaskIdType, noTask *bool) error
 }
 
