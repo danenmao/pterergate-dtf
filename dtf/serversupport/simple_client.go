@@ -1,8 +1,6 @@
 package serversupport
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/dtf/serversupport/serverhelper"
+	"github.com/danenmao/pterergate-dtf/internal/msgsigner"
 )
 
 const TokenExpireDuration time.Duration = 5 * time.Minute
@@ -25,10 +23,12 @@ const Subject = "pterergate-service"
 
 type SimpleInvoker struct {
 	client *http.Client
+	signer *msgsigner.MsgSigner
 }
 
 func NewSimpleInvoker() *SimpleInvoker {
 	s := &SimpleInvoker{}
+	s.signer = msgsigner.NewMsgSigner()
 	s.client = &http.Client{
 		Timeout: time.Second * 10,
 		Transport: &http.Transport{
@@ -47,6 +47,7 @@ func (s *SimpleInvoker) Post(url string, userName string, requestBody string) er
 		return err
 	}
 
+	// sign the request body
 	sign, err := s.sign(userName, commonReq)
 	if err != nil {
 		return err
@@ -108,35 +109,22 @@ func (s *SimpleInvoker) genCommonRequest(requestBody string) *serverhelper.Commo
 	req.Header.Action = ""
 
 	// calc the body hash
-	req.Header.BodyHash = CalcMsgHash(requestBody)
+	req.Header.BodyHash = serverhelper.CalcMsgHash(requestBody)
 
 	return req
 }
 
-func CalcMsgHash(msg string) string {
-	hash := sha256.New()
-	hash.Write([]byte(msg))
-	bytes := hash.Sum(nil)
-	hashCode := hex.EncodeToString(bytes)
-	return hashCode
-}
-
 func (s *SimpleInvoker) sign(userName string, req *serverhelper.CommonRequest) (string, error) {
-	now := time.Now()
-	claims := serverhelper.CommonClaims{
+	msg := serverhelper.CommonMessage{
 		UserName: userName,
 		BodyHash: req.Header.BodyHash,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(now.Add(TokenExpireDuration)),
-			NotBefore: jwt.NewNumericDate(now),
-			IssuedAt:  jwt.NewNumericDate(now),
-			Issuer:    Issuer,
-			ID:        uuid.NewString(),
-			Audience:  jwt.ClaimStrings{"executor", "collector"},
-			Subject:   Subject,
-		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	return token.SignedString("")
+	data, err := json.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	audience := []string{"executor", "collector"}
+	return s.signer.Sign(Issuer, Subject, audience, string(data), TokenExpireDuration)
 }

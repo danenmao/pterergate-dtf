@@ -15,12 +15,12 @@ import (
 
 // 资源组结构
 type QuotaGroup struct {
-	ID          uint32                           // ID
-	Name        string                           // 资源组名
-	Quota       float32                          // 资源组的调度资源配额
-	Description string                           // 资源组的描述
-	InsertTime  uint64                           // 资源组的插入时间
-	QueueGroup  *schedulingqueue.SchedulingGroup // 资源组的调度队列组
+	ID          uint32                          // ID
+	Name        string                          // 资源组名
+	Quota       float32                         // 资源组的调度资源配额
+	Description string                          // 资源组的描述
+	InsertTime  uint64                          // 资源组的插入时间
+	QueueGroup  *schedulingqueue.SchedulingTeam // 资源组的调度队列组
 }
 
 // 资源组的fit值结构
@@ -293,7 +293,7 @@ func (rg *QuotaGroupMgr) initOrUpdateGroup(
 		Quota:       groupQuota,
 		Description: record.Description,
 		InsertTime:  uint64(time.Now().Unix()),
-		QueueGroup:  &schedulingqueue.SchedulingGroup{},
+		QueueGroup:  &schedulingqueue.SchedulingTeam{},
 	}
 
 	// 初始化调度队列组

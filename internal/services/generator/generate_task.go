@@ -20,8 +20,7 @@ import (
 )
 
 // 协程, 检查并处理要生成的任务，执行生成操作
-func StartGenerateTaskRoutine() {
-
+func StartTaskGenerationRoutine() {
 	// 检查当前实例生成的任务数是否超过上限
 	if IsFull() {
 		glog.Warning("exceed task generation limit")
@@ -50,7 +49,6 @@ func StartGenerateTaskRoutine() {
 
 // 获取要执行生成的任务ID
 func getTaskIdToGenerate() (taskmodel.TaskIdType, error) {
-
 	// 按优先级从高到低从待生成任务列表中取要执行调度的任务ID
 	opt := redis.ZRangeBy{
 		Min: "-inf", Max: "+inf",
@@ -123,7 +121,6 @@ func getTaskIdToGenerate() (taskmodel.TaskIdType, error) {
 
 // 开始生成流程
 func startGeneration(taskId taskmodel.TaskIdType) {
-
 	err := tasktool.TryToOwnTask(taskId)
 	if err != nil {
 		glog.Warning("failed to own task: ", taskId, err)
@@ -136,7 +133,6 @@ func startGeneration(taskId taskmodel.TaskIdType) {
 
 // 任务的生成例程
 func TaskGenerationRoutine(taskId taskmodel.TaskIdType, toRecover bool) {
-
 	glog.Info("begin to generate task: ", taskId, ", ", toRecover)
 
 	// 减少正在生成的例程数

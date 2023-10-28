@@ -10,7 +10,6 @@ import (
 
 // 创建任务
 func CreateTask(taskType uint32, param *taskmodel.TaskParam) (taskmodel.TaskIdType, error) {
-
 	// 获取任务ID
 	taskId, err := generateTaskId()
 	if err != nil {

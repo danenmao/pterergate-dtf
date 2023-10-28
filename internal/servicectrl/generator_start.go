@@ -26,7 +26,7 @@ func StartGenerator(cfg *dtfdef.ServiceConfig) error {
 	// start service working routines
 	routine.StartWorkingRoutine([]routine.WorkingRoutine{
 		{
-			RoutineFn:    generator.StartGenerateTaskRoutine,
+			RoutineFn:    generator.StartTaskGenerationRoutine,
 			RoutineCount: config.EnvGenerateTaskConcurrencyLimit,
 			Interval:     time.Second * time.Duration(config.EnvGenerateTaskCheckInterval),
 		},

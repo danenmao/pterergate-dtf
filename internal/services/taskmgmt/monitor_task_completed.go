@@ -15,7 +15,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
-// 协程 <<go_monitor_completed_task>>
+// <<monitor_completed_task>>
 // 检查并处理已完成队列中的任务
 func MonitorCompletedTask() {
 	// 从已完成任务列表中取完成的任务id

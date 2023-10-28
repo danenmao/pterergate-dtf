@@ -14,7 +14,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
-// 协程 <<go_monitor_task_timeout >>
+// <<monitor_task_timeout >>
 // 用于检查执行超时的任务
 func MonitorTaskTimeout() {
 

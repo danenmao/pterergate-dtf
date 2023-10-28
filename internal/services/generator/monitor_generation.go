@@ -16,9 +16,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
-// go_monitor_task_generation
+// monitor_task_generation
 func MonitorTaskGenerationRoutine() {
-
 	// 检查当前实例生成的任务数是否超过上限
 	if IsFull() {
 		glog.Info("exceed generating limit")
@@ -144,7 +143,6 @@ func getGeneratingTaskList(taskList *[]taskmodel.TaskIdType) error {
 
 // 检查任务生成过程是否异常
 func isTaskGenerationExceptional(taskId taskmodel.TaskIdType) (bool, error) {
-
 	// 检查redis_task_generation.$taskid.progress
 	cmd := redistool.DefaultRedis().HGetAll(context.Background(), tasktool.GetTaskGenerationProgressKey(taskId))
 	err := cmd.Err()

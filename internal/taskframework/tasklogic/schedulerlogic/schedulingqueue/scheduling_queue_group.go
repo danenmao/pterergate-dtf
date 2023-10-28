@@ -14,16 +14,16 @@ import (
 )
 
 // 调度队列组
-type SchedulingGroup struct {
-	GroupName      string             // 调度队列组名
+type SchedulingTeam struct {
+	TeamName       string             // 调度队列组名
 	PriorityQueues []*SchedulingQueue // 优先级队列, 队列内的任务有优先级
 	RRQueue        *SchedulingQueue   // 低优先级队列, 队列内的任务使用时间片轮转策略
 }
 
 // 初始化
-func (queues *SchedulingGroup) Init(groupName string) error {
+func (queues *SchedulingTeam) Init(groupName string) error {
 	// 记录队列组名
-	queues.GroupName = groupName
+	queues.TeamName = groupName
 
 	// 创建调度队列组
 	err := queues.createSchedulingQueues()
@@ -38,8 +38,8 @@ func (queues *SchedulingGroup) Init(groupName string) error {
 	}
 
 	// 启用RR队列的工作例程
-	go queues.rrPriorityBoostRoutine()
-	go queues.remainAccelerationRoutine()
+	go queues.rrPriorityBoost()
+	go queues.remainAcceleration()
 
 	glog.Infof("succeeded to init scheduling queue array: %+v", queues)
 	misc.DumpDataInTest("scheduling queue array", queues)
@@ -47,7 +47,7 @@ func (queues *SchedulingGroup) Init(groupName string) error {
 }
 
 // 获取调度队列组中的任务数
-func (queues *SchedulingGroup) GetTaskCount() (taskCount uint, err error) {
+func (queues *SchedulingTeam) GetTaskCount() (taskCount uint, err error) {
 	taskCount = 0
 	for _, queue := range queues.PriorityQueues {
 		taskCount += queue.TaskCount
@@ -58,7 +58,7 @@ func (queues *SchedulingGroup) GetTaskCount() (taskCount uint, err error) {
 }
 
 // 向调度队列组中添加任务
-func (queues *SchedulingGroup) AddTask(
+func (queues *SchedulingTeam) AddTask(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
 	priority uint32,
@@ -78,7 +78,7 @@ func (queues *SchedulingGroup) AddTask(
 
 // 从调度队列组中选出一个任务来执行, 返回任务的子任务列表
 // 处理调度队列为空的情况, retTaskId为0, subtasks返回的元素为空
-func (queues *SchedulingGroup) Schedule(
+func (queues *SchedulingTeam) Schedule(
 	retTaskId *taskmodel.TaskIdType,
 	subtasks *[]taskmodel.SubtaskBody,
 ) error {
@@ -124,7 +124,7 @@ func (queues *SchedulingGroup) Schedule(
 }
 
 // 将任务移到下个队列
-func (queues *SchedulingGroup) appendToNextQueue(
+func (queues *SchedulingTeam) appendToNextQueue(
 	queue *SchedulingQueue,
 	taskId taskmodel.TaskIdType,
 ) error {
@@ -154,17 +154,17 @@ func (queues *SchedulingGroup) appendToNextQueue(
 }
 
 // 创建调度队列
-func (queues *SchedulingGroup) createSchedulingQueues() error {
+func (queues *SchedulingTeam) createSchedulingQueues() error {
 
 	// 创建优先级调度队列
 	for i := uint32(0); i < PrioirtyQueueCount; i++ {
-		queueName := fmt.Sprintf("%s.%s.P%d.queue", ScheduleQueueKeyPrefix, queues.GroupName, i)
-		queues.PriorityQueues = append(queues.PriorityQueues, NewPriorityQueue(queues.GroupName, queueName, i))
+		queueName := fmt.Sprintf("%s.%s.P%d.queue", ScheduleQueueKeyPrefix, queues.TeamName, i)
+		queues.PriorityQueues = append(queues.PriorityQueues, NewPriorityQueue(queues.TeamName, queueName, i))
 	}
 
 	// 创建低优先级调度队列
-	queueName := fmt.Sprintf("%s.%s.RR.queue", ScheduleQueueKeyPrefix, queues.GroupName)
-	queues.RRQueue = NewRRQueue(queues.GroupName, queueName)
+	queueName := fmt.Sprintf("%s.%s.RR.queue", ScheduleQueueKeyPrefix, queues.TeamName)
+	queues.RRQueue = NewRRQueue(queues.TeamName, queueName)
 
 	// 设置队列的next queue
 	for i := uint32(0); i < PrioirtyQueueCount-1; i++ {
@@ -179,7 +179,7 @@ func (queues *SchedulingGroup) createSchedulingQueues() error {
 }
 
 // Priority Boost策略例程
-func (queues *SchedulingGroup) priorityBoostRoutine(idx uint32) error {
+func (queues *SchedulingTeam) priorityBoostRoutine(idx uint32) error {
 	routine.ExecRoutineWithInterval(
 		"priorityBoostRoutine",
 		func() {
@@ -192,7 +192,7 @@ func (queues *SchedulingGroup) priorityBoostRoutine(idx uint32) error {
 }
 
 // RR队列的Priority Boost策略例程
-func (queues *SchedulingGroup) rrPriorityBoostRoutine() error {
+func (queues *SchedulingTeam) rrPriorityBoost() error {
 	routine.ExecRoutineWithInterval(
 		"rrPriorityBoostRoutine",
 		func() {
@@ -205,7 +205,7 @@ func (queues *SchedulingGroup) rrPriorityBoostRoutine() error {
 }
 
 // 任务剩余时间加速策略例程
-func (queues *SchedulingGroup) remainAccelerationRoutine() error {
+func (queues *SchedulingTeam) remainAcceleration() error {
 	routine.ExecRoutineWithInterval(
 		"remainAccelerationRoutine",
 		func() {
@@ -218,7 +218,7 @@ func (queues *SchedulingGroup) remainAccelerationRoutine() error {
 }
 
 // 执行Priority Boost策略
-func (queues *SchedulingGroup) triggerPriorityBoost(idx uint32) error {
+func (queues *SchedulingTeam) triggerPriorityBoost(idx uint32) error {
 	if idx >= uint32(len(queues.PriorityQueues)) {
 		glog.Error("priority queue idx out of range: ", idx)
 		return nil
@@ -237,7 +237,7 @@ func (queues *SchedulingGroup) triggerPriorityBoost(idx uint32) error {
 }
 
 // 在指定的队列上执行Priority Boost策略
-func (queues *SchedulingGroup) priorityBoostOnQueue(
+func (queues *SchedulingTeam) priorityBoostOnQueue(
 	currentQueue *SchedulingQueue,
 ) error {
 	queueName := currentQueue.QueueKeyName
@@ -267,7 +267,7 @@ func (queues *SchedulingGroup) priorityBoostOnQueue(
 }
 
 // 对RR队列执行Priority Boost策略
-func (queues *SchedulingGroup) triggerRRPriorityBoost() error {
+func (queues *SchedulingTeam) triggerRRPriorityBoost() error {
 	currentQueue := queues.RRQueue
 	err := queues.priorityBoostOnQueue(currentQueue)
 	if err != nil {
@@ -280,6 +280,6 @@ func (queues *SchedulingGroup) triggerRRPriorityBoost() error {
 }
 
 // 执行任务剩余时间加速策略
-func (queues *SchedulingGroup) triggerRemainAcceleration() error {
+func (queues *SchedulingTeam) triggerRemainAcceleration() error {
 	return nil
 }

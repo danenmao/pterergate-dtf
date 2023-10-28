@@ -8,14 +8,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
 )
 
-const (
-	// subtask timeout, second
-	s_timeout_second = 900
-)
-
 // go_schedule_subtask
 func ScheduleTaskRoutine() {
-
 	// get the task and subtasks to schedule
 	var taskId taskmodel.TaskIdType
 	var subtasks = []taskmodel.SubtaskBody{}

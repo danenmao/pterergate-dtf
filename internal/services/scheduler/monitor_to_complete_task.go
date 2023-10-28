@@ -37,7 +37,6 @@ func MonitorRunningTaskToComplete() {
 }
 
 func getToBeCompletedTask(taskList *[]uint64) error {
-
 	if taskList == nil {
 		panic("invalid taskList pointer")
 	}
@@ -71,7 +70,7 @@ func getToBeCompletedTask(taskList *[]uint64) error {
 
 		// 检查任务是否已经完成, 或者为过久的任务
 		taskId := taskmodel.TaskIdType(id)
-		if !tasktool.CheckIfTaskCompleted(taskId) && !checkIfTooLongTask(taskId) {
+		if !tasktool.CheckIfTaskCompleted(taskId) && !isTaskTooLong(taskId) {
 			continue
 		}
 
@@ -90,8 +89,7 @@ func getToBeCompletedTask(taskList *[]uint64) error {
 }
 
 // 检查任务是否创建了太久时间
-func checkIfTooLongTask(taskId taskmodel.TaskIdType) bool {
-
+func isTaskTooLong(taskId taskmodel.TaskIdType) bool {
 	var createTime uint64 = 0
 	err := tasktool.GetTaskCreateTime(taskId, &createTime)
 

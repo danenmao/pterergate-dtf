@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,13 +14,27 @@ import (
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/internal/config"
+	"github.com/danenmao/pterergate-dtf/internal/msgsigner"
 )
+
+const BODY_HASH = "BodyHash"
+const USER_NAME = "UserName"
 
 type RequestHandler func(header RequestHeader, requestBody string) (responseBody string, err error)
 type SimpleServer struct {
 	Handler    RequestHandler
 	URI        string
 	ServerPort uint16
+	signer     *msgsigner.MsgSigner
+}
+
+func NewSimpleServer(uri string, serverPort uint16, handler RequestHandler) *SimpleServer {
+	return &SimpleServer{
+		URI:        uri,
+		ServerPort: serverPort,
+		Handler:    handler,
+		signer:     msgsigner.NewMsgSigner(),
+	}
 }
 
 func (s *SimpleServer) StartServer() error {
@@ -54,6 +69,38 @@ func (s *SimpleServer) requestTracing() gin.HandlerFunc {
 func (s *SimpleServer) authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		glog.Info("Authentication")
+		authHeader := c.Request.Header.Get("Authorization")
+		if authHeader == "" {
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "No Authorization")
+			c.Abort()
+			return
+		}
+
+		parts := strings.SplitN(authHeader, " ", 2)
+		if !(len(parts) == 2 && parts[0] == "Bearer") {
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "invalid Authorization format")
+			c.Abort()
+			return
+		}
+
+		msg, err := s.signer.Verify(parts[1])
+		if err != nil {
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "invalid Authorization token")
+			c.Abort()
+			return
+		}
+
+		commonMsg := CommonMessage{}
+		err = json.Unmarshal([]byte(msg), &commonMsg)
+		if err != nil {
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "invalid token data")
+			c.Abort()
+			return
+		}
+
+		c.Set(USER_NAME, commonMsg.UserName)
+		c.Set(BODY_HASH, commonMsg.BodyHash)
+		c.Next()
 	}
 }
 
@@ -75,6 +122,19 @@ func (s *SimpleServer) handleCommonRequest() gin.HandlerFunc {
 			return
 		}
 		c.Request.Body = io.NopCloser(bytes.NewReader(body))
+
+		actualBodyHash := CalcMsgHash(request.Body)
+		expectedHash, existed := c.Get(BODY_HASH)
+		if !existed {
+			returnInternalErrorResponse(c, request.Header.RequestId)
+			return
+		}
+
+		if actualBodyHash != expectedHash {
+			returnErrorResponse(c, request.Header.RequestId, errordef.Error_Msg_AuthorizationFailed,
+				"invalid body hash")
+			return
+		}
 
 		start := time.Now()
 		response, err := s.handle(request)

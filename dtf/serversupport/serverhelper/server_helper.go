@@ -4,14 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 // claim
-type CommonClaims struct {
+type CommonMessage struct {
 	UserName string `json:"username"`
 	BodyHash string `json:"bodyhash"`
-	jwt.RegisteredClaims
 }
 
 // Request

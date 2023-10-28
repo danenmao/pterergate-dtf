@@ -21,7 +21,6 @@ var gs_TaskPluginTable = TaskPluginTable{
 
 // 查找指定类型任务的插件对象
 func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
-
 	gs_TaskPluginTable.Lock.Lock()
 	defer gs_TaskPluginTable.Lock.Unlock()
 
@@ -47,7 +46,6 @@ func LookupTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
 
 // 加载任务插件, 返回任务插件指针
 func NewTaskPlugin(taskType uint32, plugin *taskplugin.ITaskPlugin) error {
-
 	// 查找传入任务类型对应的加载器
 	register, ok := gs_PluginRegister.RegistrationTable[taskType]
 	if !ok {
