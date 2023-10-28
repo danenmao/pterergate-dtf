@@ -19,7 +19,7 @@ type CollectorRequestBody struct {
 // receive the requests of subtask results
 type CollectorServer struct {
 	Handler taskmodel.CollectorRequestHandler
-	server  serverhelper.SimpleServer
+	server  *serverhelper.SimpleServer
 }
 
 // return a register function
@@ -35,7 +35,7 @@ func (s *CollectorServer) GetRegister() taskmodel.RegisterCollectorRequestHandle
 
 // start the collector server to receive requests
 func (s *CollectorServer) StartServer(uri string, serverPort uint16) error {
-	s.server = *serverhelper.NewSimpleServer(
+	s.server = serverhelper.NewSimpleServer(
 		uri, serverPort,
 		func(
 			requestHeader serverhelper.RequestHeader,

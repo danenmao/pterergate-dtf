@@ -8,7 +8,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
 
-type CollectorInvoker struct {
+type InvokerBase struct {
 	ServerHost string
 	ServerPort uint16
 	URI        string
@@ -17,8 +17,8 @@ type CollectorInvoker struct {
 	client     *SimpleInvoker
 }
 
-func NewCollectorInvoker(serverHost string, serverPort uint16, user string) *CollectorInvoker {
-	c := &CollectorInvoker{
+func NewInvokerBase(serverHost string, serverPort uint16, user string) *InvokerBase {
+	i := &InvokerBase{
 		ServerHost: serverHost,
 		ServerPort: serverPort,
 		URI:        CollectorServerURI,
@@ -26,8 +26,18 @@ func NewCollectorInvoker(serverHost string, serverPort uint16, user string) *Col
 		client:     NewSimpleInvoker(),
 	}
 
-	c.url = fmt.Sprintf("http://%s:%d%s", c.ServerHost, c.ServerPort, c.URI)
-	return nil
+	i.url = fmt.Sprintf("http://%s:%d%s", i.ServerHost, i.ServerPort, i.URI)
+	return i
+}
+
+type CollectorInvoker struct {
+	InvokerBase
+}
+
+func NewCollectorInvoker(serverHost string, serverPort uint16, user string) *CollectorInvoker {
+	return &CollectorInvoker{
+		InvokerBase: *NewInvokerBase(serverHost, serverPort, user),
+	}
 }
 
 // return an invoker function

@@ -1,11 +1,20 @@
 package serversupport
 
-import "github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+import (
+	"encoding/json"
+
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
+	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+)
 
 type ExecutorInvoker struct {
-	ServerHost string
-	ServerPort uint16
-	URI        string
+	InvokerBase
+}
+
+func NewExecutorInvoker(serverHost string, serverPort uint16, user string) *ExecutorInvoker {
+	return &ExecutorInvoker{
+		InvokerBase: *NewInvokerBase(serverHost, serverPort, user),
+	}
 }
 
 // return an invoker function
@@ -13,6 +22,19 @@ type ExecutorInvoker struct {
 // executor invoker, send subtasks to the executor
 func (e *ExecutorInvoker) GetInvoker() taskmodel.ExecutorInvoker {
 	return func(subtaskBody []taskmodel.SubtaskBody) error {
-		return nil
+		return e.invoker(subtaskBody)
 	}
+}
+
+func (e *ExecutorInvoker) invoker(subtasks []taskmodel.SubtaskBody) error {
+	body := ExecutorRequestBody{
+		Subtasks: subtasks,
+	}
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return errordef.ErrOperationFailed
+	}
+
+	return e.client.Post(e.url, e.UserName, string(data))
 }

@@ -1,6 +1,9 @@
 package serversupport
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/danenmao/pterergate-dtf/dtf/serversupport/serverhelper"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
@@ -12,9 +15,8 @@ type ExecutorRequestBody struct {
 }
 
 type ExecutorServer struct {
-	Handler    taskmodel.ExecutorRequestHandler
-	URI        string
-	ServerPort uint16
+	Handler taskmodel.ExecutorRequestHandler
+	server  *serverhelper.SimpleServer
 }
 
 // for executor
@@ -28,19 +30,18 @@ func (s *ExecutorServer) GetRegister() taskmodel.RegisterExecutorRequestHandler 
 }
 
 // start the executor server to receive requests
-func (s *ExecutorServer) StartServer() error {
-	server := serverhelper.SimpleServer{
-		URI:        s.URI,
-		ServerPort: s.ServerPort,
-		Handler: func(
+func (s *ExecutorServer) StartServer(uri string, serverPort uint16) error {
+	s.server = serverhelper.NewSimpleServer(
+		uri, serverPort,
+		func(
 			requestHeader serverhelper.RequestHeader,
 			requestBody string,
 		) (response string, err error) {
 			return s.handleRequest(requestHeader, requestBody)
 		},
-	}
+	)
 
-	server.StartServer()
+	s.server.StartServer()
 	return nil
 }
 
@@ -48,5 +49,12 @@ func (s *ExecutorServer) handleRequest(
 	requestHeader serverhelper.RequestHeader,
 	requestBody string,
 ) (response string, err error) {
-	return "", nil
+	body := ExecutorRequestBody{}
+	err = json.Unmarshal([]byte(requestBody), &body)
+	if err != nil {
+		return "", errors.New("failed to parse request body")
+	}
+
+	err = s.Handler(body.Subtasks)
+	return "", err
 }
