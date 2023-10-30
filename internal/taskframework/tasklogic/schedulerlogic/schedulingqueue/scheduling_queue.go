@@ -11,8 +11,8 @@ import (
 	"github.com/danenmao/pterergate-dtf/dtf/taskdef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/generationqueue"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/schedulerlogic/scheduler"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
@@ -460,7 +460,7 @@ func GetSubtask(
 ) error {
 
 	// get a subtask from the subtask queue
-	queue := subtaskqueue.SubtaskQueue{TaskId: taskId}
+	queue := generationqueue.GenerationQueue{TaskId: taskId}
 	err := queue.Pop(subtaskData)
 	noSubtask := (err == errordef.ErrNotFound)
 

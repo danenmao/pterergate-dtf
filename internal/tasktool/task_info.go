@@ -15,7 +15,7 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/config"
 	"github.com/danenmao/pterergate-dtf/internal/dbdef"
 	"github.com/danenmao/pterergate-dtf/internal/redistool"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/generationqueue"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/tasklogicdef"
 )
 
@@ -294,7 +294,7 @@ func CheckIfTaskCompleted(taskId taskmodel.TaskIdType) bool {
 // 检查任务的本地子任务列表是否为空
 func CheckIfLocalSubtaskListEmpty(taskId taskmodel.TaskIdType) bool {
 
-	subtaskCount, err := subtaskqueue.GetSubtaskCount(taskmodel.TaskIdType(taskId))
+	subtaskCount, err := generationqueue.GetSubtaskCount(taskmodel.TaskIdType(taskId))
 	if err != nil {
 		glog.Warning("failed to get local subtask count: ", taskId, ",", err)
 		return false

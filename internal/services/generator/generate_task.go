@@ -206,7 +206,7 @@ func GenerationMainLoop(
 ) {
 
 	// 创建生成工作流
-	flow := generationlogic.NewGenerationiFlow()
+	flow := generationlogic.NewGenerationFlow()
 
 	// 初始化生成操作
 	taskData := taskmodel.TaskParam{

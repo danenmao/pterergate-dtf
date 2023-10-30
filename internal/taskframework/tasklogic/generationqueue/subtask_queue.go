@@ -1,4 +1,4 @@
-package subtaskqueue
+package generationqueue
 
 import (
 	"context"
@@ -21,18 +21,18 @@ const (
 )
 
 // 获取任务的子任务队列的键名
-func GetSubtaskQueueOfTask(taskId taskmodel.TaskIdType) string {
+func GetGenerationQueueOfTask(taskId taskmodel.TaskIdType) string {
 	return fmt.Sprintf("%s%d", ToScheduleSubtaskSetOfTaskPrefix, taskId)
 }
 
 // 任务的子任务队列
 // 一个任务一个子任务队列
-type SubtaskQueue struct {
+type GenerationQueue struct {
 	TaskId taskmodel.TaskIdType
 }
 
 // 将子任务放入子任务队列中
-func (queue *SubtaskQueue) Push(subtask *taskmodel.SubtaskBody) error {
+func (queue *GenerationQueue) Push(subtask *taskmodel.SubtaskBody) error {
 
 	// 序列化子任务
 	data, err := json.Marshal(subtask)
@@ -42,7 +42,7 @@ func (queue *SubtaskQueue) Push(subtask *taskmodel.SubtaskBody) error {
 	}
 
 	// 将子任务放到任务的子任务队列中
-	subtaskQueueKey := GetSubtaskQueueOfTask(taskmodel.TaskIdType(subtask.TaskId))
+	subtaskQueueKey := GetGenerationQueueOfTask(taskmodel.TaskIdType(subtask.TaskId))
 	cmd := redistool.DefaultRedis().RPush(context.Background(), subtaskQueueKey, string(data))
 	redistool.DefaultRedis().Expire(context.Background(), subtaskQueueKey, time.Hour*8)
 
@@ -57,11 +57,11 @@ func (queue *SubtaskQueue) Push(subtask *taskmodel.SubtaskBody) error {
 }
 
 // 从子任务队列中取子任务
-func (queue *SubtaskQueue) Pop(subtask *taskmodel.SubtaskBody) error {
+func (queue *GenerationQueue) Pop(subtask *taskmodel.SubtaskBody) error {
 
 	// 从子任务队列中取子任务
 	cmd := redistool.DefaultRedis().LPop(context.Background(),
-		GetSubtaskQueueOfTask(taskmodel.TaskIdType(queue.TaskId)))
+		GetGenerationQueueOfTask(taskmodel.TaskIdType(queue.TaskId)))
 	err := cmd.Err()
 
 	// 无子任务
@@ -87,14 +87,14 @@ func (queue *SubtaskQueue) Pop(subtask *taskmodel.SubtaskBody) error {
 }
 
 // 判断子任务队列中子任务的数量
-func (queue *SubtaskQueue) GetSubtaskCount(taskId taskmodel.TaskIdType) (uint, error) {
+func (queue *GenerationQueue) GetSubtaskCount(taskId taskmodel.TaskIdType) (uint, error) {
 	return GetSubtaskCount(taskId)
 }
 
 // 判断子任务队列中子任务的数量
 func GetSubtaskCount(taskId taskmodel.TaskIdType) (uint, error) {
 
-	cmd := redistool.DefaultRedis().LLen(context.Background(), GetSubtaskQueueOfTask(taskId))
+	cmd := redistool.DefaultRedis().LLen(context.Background(), GetGenerationQueueOfTask(taskId))
 	err := cmd.Err()
 
 	// 如果列表 key 不存在，则 key 被解释为一个空列表，返回 0
@@ -125,7 +125,7 @@ func PushSubtaskBack(
 		}
 
 		// 将子任务放到任务的子任务队列中
-		subtaskKey := GetSubtaskQueueOfTask(taskmodel.TaskIdType(subtask.TaskId))
+		subtaskKey := GetGenerationQueueOfTask(taskmodel.TaskIdType(subtask.TaskId))
 		cmd := pipeline.RPush(context.Background(), subtaskKey, string(data))
 		pipeline.Expire(context.Background(), subtaskKey, time.Hour*8)
 

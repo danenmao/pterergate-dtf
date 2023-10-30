@@ -13,12 +13,12 @@ type GenerationFlow struct {
 	TaskId    taskmodel.TaskIdType
 	TaskType  uint32
 	Generator taskmodel.ITaskGenerator
-	TaskData  *taskmodel.TaskParam
+	TaskParam *taskmodel.TaskParam
 }
 
 // create a generation flow object
 // every task has their own generation flow object
-func NewGenerationiFlow() *GenerationFlow {
+func NewGenerationFlow() *GenerationFlow {
 	return &GenerationFlow{}
 }
 
@@ -26,12 +26,12 @@ func NewGenerationiFlow() *GenerationFlow {
 func (flow *GenerationFlow) InitGeneration(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
-	taskData *taskmodel.TaskParam,
+	taskParam *taskmodel.TaskParam,
 ) error {
 
 	flow.TaskId = taskId
 	flow.TaskType = taskType
-	flow.TaskData = taskData
+	flow.TaskParam = taskParam
 
 	// get the generator instance of this task type
 	err := GetTaskGenerator(taskType, &flow.Generator)
@@ -40,7 +40,7 @@ func (flow *GenerationFlow) InitGeneration(
 		return err
 	}
 
-	err = GetGeneratorFlowHelper().Begin(taskId, taskType, taskData, flow.Generator)
+	err = GetGeneratorFlowHelper().Begin(taskId, taskType, taskParam, flow.Generator)
 	if err != nil {
 		glog.Warning("failed to invoke GeneratorFlowHelper.Begin: ", taskId, ", ", taskType, ", ", err)
 		return err
@@ -55,7 +55,7 @@ func (flow *GenerationFlow) InitGeneration(
 	}
 
 	// begin to generate
-	err = flow.Generator.Begin(taskId, taskType, taskData, lastStatus)
+	err = flow.Generator.Begin(taskId, taskType, taskParam, lastStatus)
 	if err != nil {
 		glog.Warning("generator.Begin failed: ", taskId, ",", err)
 		return err

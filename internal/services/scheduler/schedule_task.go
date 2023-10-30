@@ -4,8 +4,8 @@ import (
 	"github.com/golang/glog"
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/generationqueue"
 	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/schedulerlogic"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
 )
 
 // go_schedule_subtask
@@ -33,14 +33,14 @@ func ScheduleTaskRoutine() {
 		glog.Warning("failed to exec subtask: ", taskId, ",", err)
 
 		// if failed, push back all subtasks
-		subtaskqueue.PushSubtaskBack(taskId, &subtasks)
+		generationqueue.PushSubtaskBack(taskId, &subtasks)
 		return
 	}
 
 	// push back all subtasks
 	if len(toPushbackSubtask) > 0 {
 		glog.Info("push subtasks back to generation queue: ", taskId, ", ", len(toPushbackSubtask))
-		subtaskqueue.PushSubtaskBack(taskId, &toPushbackSubtask)
+		generationqueue.PushSubtaskBack(taskId, &toPushbackSubtask)
 	}
 
 	glog.Info("succeeded to schedule subtasks: ", taskId)

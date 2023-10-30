@@ -9,7 +9,7 @@ import (
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
-	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/subtaskqueue"
+	"github.com/danenmao/pterergate-dtf/internal/taskframework/tasklogic/generationqueue"
 	"github.com/danenmao/pterergate-dtf/internal/tasktool"
 )
 
@@ -20,9 +20,9 @@ const (
 
 // generator flow helpr
 type GenerationFlowHelper struct {
-	SubtaskQueues subtaskqueue.SubtaskQueueMgr                // subtask queue manager
-	GeneratorMap  map[taskmodel.TaskIdType]TaskGenerationImpl // task generator object map
-	Mutex         sync.Mutex                                  // lock
+	GenerationQueues generationqueue.GenerationiQueueMgr         // subtask queue manager
+	GeneratorMap     map[taskmodel.TaskIdType]TaskGenerationImpl // task generator object map
+	Mutex            sync.Mutex                                  // lock
 }
 
 type TaskGenerationImpl struct {
@@ -30,10 +30,10 @@ type TaskGenerationImpl struct {
 	TaskType uint32
 }
 
-func NewGenerationFlowHelper() GenerationFlowHelper {
-	return GenerationFlowHelper{
-		SubtaskQueues: subtaskqueue.SubtaskQueueMgr{
-			SubtaskQueueMap: make(map[taskmodel.TaskIdType]*subtaskqueue.SubtaskQueue),
+func NewGenerationFlowHelper() *GenerationFlowHelper {
+	return &GenerationFlowHelper{
+		GenerationQueues: generationqueue.GenerationiQueueMgr{
+			GenerationQueueMap: make(map[taskmodel.TaskIdType]*generationqueue.GenerationQueue),
 		},
 		GeneratorMap: make(map[taskmodel.TaskIdType]TaskGenerationImpl),
 		Mutex:        sync.Mutex{},
@@ -44,13 +44,13 @@ func NewGenerationFlowHelper() GenerationFlowHelper {
 var gs_GeneratorHelper = NewGenerationFlowHelper()
 
 func GetGeneratorFlowHelper() *GenerationFlowHelper {
-	return &gs_GeneratorHelper
+	return gs_GeneratorHelper
 }
 
 func (generator *GenerationFlowHelper) Begin(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
-	taskData *taskmodel.TaskParam,
+	taskParam *taskmodel.TaskParam,
 	taskGenerator taskmodel.ITaskGenerator,
 ) error {
 
@@ -58,7 +58,7 @@ func (generator *GenerationFlowHelper) Begin(
 	defer generator.Mutex.Unlock()
 
 	// create a subtask queue of the task
-	generator.SubtaskQueues.AddTask(taskId)
+	generator.GenerationQueues.AddTask(taskId)
 
 	// save into the task generator map
 	generator.GeneratorMap[taskId] = TaskGenerationImpl{
@@ -77,7 +77,7 @@ func (generator *GenerationFlowHelper) End(
 	defer generator.Mutex.Unlock()
 
 	// delete the subtask queue of the task
-	err := generator.SubtaskQueues.RemoveTask(taskId)
+	err := generator.GenerationQueues.RemoveTask(taskId)
 	if err != nil {
 		glog.Warning("failed to remove task: ", taskId, ", ", err.Error())
 	}
@@ -96,7 +96,7 @@ func (generator *GenerationFlowHelper) GenerationLoop(
 	impl, ok := generator.GeneratorMap[taskId]
 	generator.Mutex.Unlock()
 	if !ok {
-		glog.Warning("task id not found in subtask fn map: ", taskId)
+		glog.Warning("task id not found in generator map: ", taskId)
 		return errors.New("task id not found")
 	}
 
@@ -146,7 +146,7 @@ func (generator *GenerationFlowHelper) pickupSubtaskLoop(
 
 		// push the subtask into the subtask queue
 		if gotSubtask {
-			err = generator.SubtaskQueues.PushSubtask(taskId, &subtaskData)
+			err = generator.GenerationQueues.PushSubtask(taskId, &subtaskData)
 			if err != nil {
 				glog.Warning("failed to push subtask: ", taskId, ", ", err.Error())
 				break
