@@ -12,7 +12,7 @@ const (
 
 var (
 	// 当前实例中并行执行生成的任务数上限
-	gs_GenerationLimiter = routine.RoutineCountLimiter{}
+	gs_GenerationLimiter = routine.CountLimiter{}
 )
 
 // 初始化

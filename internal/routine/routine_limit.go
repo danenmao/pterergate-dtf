@@ -4,29 +4,29 @@ import (
 	"sync"
 )
 
-// routine count limiter
-type RoutineCountLimiter struct {
-	UpperLimit uint32     // 上限值
-	counter    uint32     // 当前实例中正在执行的例程数
-	lock       sync.Mutex // 锁
+// count limiter
+type CountLimiter struct {
+	UpperLimit uint32     // the upper limit
+	counter    uint32     // the current count
+	lock       sync.Mutex // the lock
 }
 
-// 返回当前的例程数
-func (limit *RoutineCountLimiter) Count() uint32 {
+// return the current count
+func (limit *CountLimiter) Count() uint32 {
 	return limit.counter
 }
 
-// 检查当前实例的例程数是否超过上限
-func (limit *RoutineCountLimiter) IsFull() bool {
+// check if the count exceeds the upper limit
+func (limit *CountLimiter) IsFull() bool {
 
 	limit.lock.Lock()
 	defer limit.lock.Unlock()
 	return limit.counter >= limit.UpperLimit
 }
 
-// 如果当前实例的例程数未超过上限，增加计数
-// 返回是否成功增加计数
-func (limit *RoutineCountLimiter) IncrIfNotFull() bool {
+// if the count don't exceed the upper limit, incr the count
+// return if incr the count
+func (limit *CountLimiter) IncrIfNotFull() bool {
 
 	limit.lock.Lock()
 	defer limit.lock.Unlock()
@@ -35,20 +35,19 @@ func (limit *RoutineCountLimiter) IncrIfNotFull() bool {
 		return false
 	}
 
-	// 增加计数
 	limit.counter += 1
 	return true
 }
 
-// 增加正在执行的例程数
-func (limit *RoutineCountLimiter) Incr() {
+// incr the count
+func (limit *CountLimiter) Incr() {
 	limit.lock.Lock()
 	defer limit.lock.Unlock()
 	limit.counter += 1
 }
 
-// 减少正在执行的例程数
-func (limit *RoutineCountLimiter) Decr() {
+// decr the count
+func (limit *CountLimiter) Decr() {
 	limit.lock.Lock()
 	defer limit.lock.Unlock()
 	limit.counter -= 1

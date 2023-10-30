@@ -26,7 +26,7 @@ const (
 
 var (
 	// control the complete subtask routine limit
-	gs_RoutineLimit = routine.RoutineCountLimiter{
+	gs_RoutineLimit = routine.CountLimiter{
 		UpperLimit: SubtaskRoutineCountDefaultLimit,
 	}
 )
