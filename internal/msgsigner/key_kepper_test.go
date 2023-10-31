@@ -12,7 +12,7 @@ import (
 func TestMain(m *testing.M) {
 	fmt.Println("setup...")
 	wd, _ := os.Getwd()
-	idx := strings.Index(wd, "pterergate-dtf")
+	idx := strings.LastIndex(wd, "pterergate-dtf")
 	rootDir := wd[0 : idx+len("pterergate-dtf")]
 	os.Chdir(rootDir)
 
