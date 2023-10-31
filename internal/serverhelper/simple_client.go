@@ -1,4 +1,4 @@
-package serversupport
+package serverhelper
 
 import (
 	"encoding/json"
@@ -13,7 +13,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
-	"github.com/danenmao/pterergate-dtf/dtf/serversupport/serverhelper"
 	"github.com/danenmao/pterergate-dtf/internal/msgsigner"
 )
 
@@ -83,7 +82,7 @@ func (s *SimpleInvoker) Post(url string, userName string, requestBody string) er
 	}
 
 	// parse the common response
-	commonResp := serverhelper.CommonResponse{}
+	commonResp := CommonResponse{}
 	err = json.Unmarshal(respBody, &commonResp)
 	if err != nil {
 		return err
@@ -96,8 +95,8 @@ func (s *SimpleInvoker) Post(url string, userName string, requestBody string) er
 	return nil
 }
 
-func (s *SimpleInvoker) genCommonRequest(requestBody string) *serverhelper.CommonRequest {
-	req := &serverhelper.CommonRequest{
+func (s *SimpleInvoker) genCommonRequest(requestBody string) *CommonRequest {
+	req := &CommonRequest{
 		Body: requestBody,
 	}
 
@@ -109,13 +108,13 @@ func (s *SimpleInvoker) genCommonRequest(requestBody string) *serverhelper.Commo
 	req.Header.Action = ""
 
 	// calc the body hash
-	req.Header.BodyHash = serverhelper.CalcMsgHash(requestBody)
+	req.Header.BodyHash = CalcMsgHash(requestBody)
 
 	return req
 }
 
-func (s *SimpleInvoker) sign(userName string, req *serverhelper.CommonRequest) (string, error) {
-	msg := serverhelper.CommonMessage{
+func (s *SimpleInvoker) sign(userName string, req *CommonRequest) (string, error) {
+	msg := CommonMessage{
 		UserName: userName,
 		BodyHash: req.Header.BodyHash,
 	}

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/danenmao/pterergate-dtf/dtf/serversupport/serverhelper"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/serverhelper"
 )
 
 const ExecutorServerURI = "/executor"

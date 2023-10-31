@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/golang/glog"
 	"github.com/spf13/viper"
 )
 
@@ -28,10 +29,18 @@ func init() {
 }
 
 func (k *KeyKeeper) GetPrivateKey() (*rsa.PrivateKey, error) {
+	if k.privateKey == nil {
+		return nil, errors.New("invalid private key")
+	}
+
 	return k.privateKey, nil
 }
 
 func (k *KeyKeeper) GetPublicKey() (*rsa.PublicKey, error) {
+	if k.publicKey == nil {
+		return nil, errors.New("invalid public key")
+	}
+
 	return k.publicKey, nil
 }
 
@@ -52,11 +61,13 @@ func (k *KeyKeeper) Load() error {
 
 	k.privateKey, err = ParsePrivateKey([]byte(keyConf.PrivateKey))
 	if err != nil {
+		glog.Warning("failed to parse the private key: ", err)
 		return err
 	}
 
 	k.publicKey, err = ParsePublicKey([]byte(keyConf.PublicKey))
 	if err != nil {
+		glog.Warning("failed to parse the public key: ", err)
 		return err
 	}
 

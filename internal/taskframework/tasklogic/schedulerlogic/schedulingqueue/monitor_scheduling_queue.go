@@ -125,7 +125,7 @@ func getLostTask(retTaskList *[]uint64) error {
 	}
 
 	ownedTaskList := []uint64{}
-	err = redistool.OwnElementsInList(CurrentTaskZSet, &taskList, &ownedTaskList)
+	err = redistool.TryToOwnElements(CurrentTaskZSet, &taskList, &ownedTaskList)
 	if err != nil {
 		glog.Warning("failed to own lost task: ", taskList)
 		return err

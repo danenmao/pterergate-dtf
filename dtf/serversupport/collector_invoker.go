@@ -6,6 +6,7 @@ import (
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/serverhelper"
 )
 
 type InvokerBase struct {
@@ -14,7 +15,7 @@ type InvokerBase struct {
 	URI        string
 	UserName   string
 	url        string
-	client     *SimpleInvoker
+	client     *serverhelper.SimpleInvoker
 }
 
 func NewInvokerBase(serverHost string, serverPort uint16, user string) *InvokerBase {
@@ -23,7 +24,7 @@ func NewInvokerBase(serverHost string, serverPort uint16, user string) *InvokerB
 		ServerPort: serverPort,
 		URI:        CollectorServerURI,
 		UserName:   user,
-		client:     NewSimpleInvoker(),
+		client:     serverhelper.NewSimpleInvoker(),
 	}
 
 	i.url = fmt.Sprintf("http://%s:%d%s", i.ServerHost, i.ServerPort, i.URI)

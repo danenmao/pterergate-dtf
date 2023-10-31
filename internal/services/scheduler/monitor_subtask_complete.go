@@ -137,7 +137,7 @@ func processCompletedSubtask(subtaskList *[]uint64) error {
 
 // 试图获取完成子任务的所有权
 func ownCompletedSubtasks(subtaskList *[]uint64, ownedSubtaskList *[]uint64) error {
-	return redistool.OwnElementsInList(config.CompletedSubtaskList, subtaskList, ownedSubtaskList)
+	return redistool.TryToOwnElements(config.CompletedSubtaskList, subtaskList, ownedSubtaskList)
 }
 
 // 执行子任务后处理

@@ -56,12 +56,10 @@ func IdStrToId64List(idStr string, idList *[]uint64) error {
 
 // 交集
 func Intersection(a *[]uint64, b *[]uint64, dest *[]uint64) {
-
 	sort.Slice((*a), func(i, j int) bool { return (*a)[i] < (*a)[j] })
 	sort.Slice((*b), func(i, j int) bool { return (*b)[i] < (*b)[j] })
 
 	for _, policy := range *a {
-
 		pos := sort.Search(len(*b), func(i int) bool {
 			return (*b)[i] >= policy
 		})

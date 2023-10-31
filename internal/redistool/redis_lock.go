@@ -11,7 +11,6 @@ import (
 const sleepInterval = 50
 const defaultExpire = time.Millisecond * 1000 * 20
 
-// 尝试获取锁, 支持超时
 func Lock(lockName string, timeoutMS uint) error {
 	totalCount := timeoutMS / sleepInterval
 	var counter uint = 0
@@ -33,7 +32,6 @@ func Lock(lockName string, timeoutMS uint) error {
 	}
 }
 
-// 尝试获取锁, 支持超时
 func LockWithExpire(lockName string, timeoutMS uint, expire time.Duration) error {
 	totalCount := timeoutMS / sleepInterval
 	var counter uint = 0
@@ -55,9 +53,7 @@ func LockWithExpire(lockName string, timeoutMS uint, expire time.Duration) error
 	}
 }
 
-// 释放锁
 func Unlock(lockName string) error {
-
 	cmd := DefaultRedis().Del(context.Background(), lockName)
 	err := cmd.Err()
 	if err != nil {
@@ -70,9 +66,7 @@ func Unlock(lockName string) error {
 	return nil
 }
 
-// 对锁续期
 func RenewLock(lockName string, expire time.Duration) error {
-
 	cmd := DefaultRedis().SetNX(context.Background(), lockName, 1, expire)
 	err := cmd.Err()
 	if err != nil {
@@ -89,9 +83,7 @@ func RenewLock(lockName string, expire time.Duration) error {
 	return nil
 }
 
-// 尝试获取锁
 func tryToLock(lockName string, expire time.Duration) error {
-
 	cmd := DefaultRedis().SetNX(context.Background(), lockName, 1, expire)
 	err := cmd.Err()
 	if err != nil {

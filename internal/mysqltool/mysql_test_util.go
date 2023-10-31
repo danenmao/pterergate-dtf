@@ -13,7 +13,6 @@ var DBMock sqlmock.Sqlmock
 
 // 配置测试环境
 func Setup() {
-
 	// save actual sqlx.DB
 	if gs_MySQLDB != nil {
 		s_actualDB = gs_MySQLDB
@@ -35,7 +34,6 @@ func Setup() {
 
 // 清理测试环境
 func Teardown() {
-
 	// restore default sqlx.DB
 	if s_actualDB != nil {
 		gs_MySQLDB = s_actualDB
