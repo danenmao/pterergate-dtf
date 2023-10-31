@@ -16,6 +16,8 @@ func Test_Register_Normal(t *testing.T) {
 			So(IfNeedToExit(), ShouldBeTrue)
 		})
 	})
+
+	WaitForSignal(500 * time.Millisecond)
 }
 
 func Test_IfNeedToExit_False(t *testing.T) {
@@ -28,6 +30,7 @@ func Test_IfNeedToExit_False(t *testing.T) {
 	})
 
 	NotifyToExit()
+	WaitForSignal(500 * time.Millisecond)
 }
 
 func Test_WaitForSignal_True(t *testing.T) {
@@ -51,6 +54,7 @@ func Test_WaitForSignal_False(t *testing.T) {
 	})
 
 	NotifyToExit()
+	WaitForSignal(500 * time.Millisecond)
 }
 
 func Test_clean_True(t *testing.T) {
