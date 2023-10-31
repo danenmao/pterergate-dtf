@@ -50,7 +50,7 @@ func ExecRoutineWithInterval(
 	// 定期执行检查
 	for {
 		// 检查并等待退出信号
-		if exitctrl.WaitForNotify(interval) {
+		if exitctrl.WaitForSignal(interval) {
 			glog.Info("got to exit signal")
 			break
 		}

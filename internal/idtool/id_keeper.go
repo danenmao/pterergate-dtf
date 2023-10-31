@@ -13,17 +13,17 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/routine"
 )
 
-// ID的步长设置
 const (
 	ReallocStep          = 100
 	ReallocThreshold     = 20
 	ReallocCheckInterval = 5
 )
 
-// ID可用范围：[Start, FormerEnd),[NewStart, End)
+// id range:
+// [Start, FormerEnd),[NewStart, End)
 type IdKeeper struct {
 	KeyName   string
-	Lock      sync.RWMutex
+	Lock      sync.Mutex
 	Step      uint32
 	Count     uint32
 	Start     uint64
@@ -38,12 +38,10 @@ func GetIdKeeper() *IdKeeper {
 	return &gs_IdKeeper
 }
 
-// 初始化
 func Init(keyName string) error {
 	return GetIdKeeper().Init(keyName)
 }
 
-// 获取可用的ID
 func GetId(keyName string) (uint64, error) {
 	return GetIdKeeper().GetId(keyName)
 }
@@ -56,11 +54,11 @@ func (keeper *IdKeeper) Init(keyName string) error {
 	keeper.KeyName = keyName
 	keeper.Step = ReallocStep
 
-	// TODO: 定期同步至MySQL, 处理迁移的场景
+	// TODO: sync data to MySQL
 
-	// 启动后台维护协程
+	// start to maintain the id range
 	go func() {
-		keeper.refreshId()
+		keeper.maintain()
 	}()
 
 	return nil
@@ -74,13 +72,13 @@ func (keeper *IdKeeper) GetId(keyName string) (uint64, error) {
 	keeper.Lock.Lock()
 	defer keeper.Lock.Unlock()
 
-	// 检查是否有可用ID
+	// check if there is an available id
 	for i := 0; i < 2; i++ {
 		if keeper.Count <= 0 {
 			keeper.Lock.Unlock()
 
-			glog.Info("renew id range immediately")
-			keeper.reallocIdIfNeed()
+			glog.Info("realloc the id range immediately")
+			keeper.realloc()
 
 			keeper.Lock.Lock()
 			continue
@@ -93,56 +91,52 @@ func (keeper *IdKeeper) GetId(keyName string) (uint64, error) {
 		return 0, errors.New("no available id")
 	}
 
+	retId := keeper.updateRange()
+	return retId, nil
+}
+
+func (keeper *IdKeeper) updateRange() uint64 {
 	var retId uint64 = 0
 	keeper.Count--
 
 	if keeper.FormerEnd == 0 {
-
-		// 位于单一分区, [Start, End)
-		// 正常取值，后移
+		// a single range, [Start, End)
 		retId = keeper.Start
 		keeper.Start++
 
 	} else if keeper.FormerEnd != 0 && keeper.Start < keeper.FormerEnd {
-
-		// 位于双分区中的[Start, FormerEnd)
-		// 正常取值，后移
+		// in a dual range, [Start, FormerEnd)
 		retId = keeper.Start
 		keeper.Start++
 
 	} else if keeper.FormerEnd != 0 && keeper.Start >= keeper.FormerEnd {
-
-		// 切换到[NewStart, End), Start指针移动到双分区中的[NewStart, End)
+		// switch to [NewStart, End),  move the start pointer to[NewStart, End)
 		keeper.Start = keeper.NewStart
 		glog.Info("switched to id range: ", keeper.NewStart, keeper.End)
 
-		// 正常取值, 后移
 		retId = keeper.Start
 		keeper.Start++
 
-		// 删除已用尽的[Start, FormerEnd)
+		// delete the empty range [Start, FormerEnd)
 		keeper.FormerEnd = 0
 		keeper.NewStart = 0
 	}
 
 	glog.Info(fmt.Sprintf("id status: %d, [%d,%d), %d", retId,
 		keeper.Start, keeper.End, keeper.Count))
-
-	return retId, nil
+	return retId
 }
 
-// 后台协程，根据当前可用ID的情况，来获取ID
-func (keeper *IdKeeper) refreshId() {
-	// 定期执行检查
-	routine.ExecRoutineWithInterval("refreshId",
+func (keeper *IdKeeper) maintain() {
+	routine.ExecRoutineWithInterval("realloc",
 		func() {
-			keeper.reallocIdIfNeed()
+			keeper.realloc()
 		},
 		time.Second*time.Duration(ReallocCheckInterval))
 }
 
-// 扩大可用ID范围
-func (keeper *IdKeeper) reallocIdIfNeed() {
+// reallocate the id range
+func (keeper *IdKeeper) realloc() {
 	if len(keeper.KeyName) <= 0 {
 		glog.Warning("empty key name")
 		return
@@ -151,12 +145,11 @@ func (keeper *IdKeeper) reallocIdIfNeed() {
 	keeper.Lock.Lock()
 	defer keeper.Lock.Unlock()
 
-	// 当可用范围小于阈值时，扩展可用范围
 	if keeper.Count > ReallocThreshold {
 		return
 	}
 
-	// 扩展可用范围
+	// extend the id range
 	cmd := redistool.DefaultRedis().IncrBy(context.Background(), keeper.KeyName, ReallocStep)
 	val, err := cmd.Result()
 	if err != nil {
@@ -166,7 +159,6 @@ func (keeper *IdKeeper) reallocIdIfNeed() {
 
 	glog.Info("redis incrby id return: ", val)
 
-	// 更新可用范围
 	keeper.Count += uint32(keeper.Step)
 
 	// [Start, FormerEnd), [NewStart, End)
