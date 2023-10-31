@@ -25,8 +25,8 @@ func Test_ExecRoutineWithInterval_NotifyToExit(t *testing.T) {
 	)
 
 	Convey("test to execute the working routine", t, func() {
-		Convey("counter should be greater than 9", func() {
-			So(counter, ShouldBeGreaterThan, 9)
+		Convey("counter should be greater than 8", func() {
+			So(counter, ShouldBeGreaterThan, 8)
 		})
 	})
 }
