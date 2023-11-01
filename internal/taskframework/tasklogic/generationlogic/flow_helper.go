@@ -18,8 +18,8 @@ const (
 	SubtaskGenerationMaxTime  = 3600
 )
 
-// generator flow helpr
-type GenerationFlowHelper struct {
+// generation flow helpr
+type FlowHelper struct {
 	GenerationQueues generationqueue.GenerationiQueueMgr         // subtask queue manager
 	GeneratorMap     map[taskmodel.TaskIdType]TaskGenerationImpl // task generator object map
 	Mutex            sync.Mutex                                  // lock
@@ -30,8 +30,8 @@ type TaskGenerationImpl struct {
 	TaskType uint32
 }
 
-func NewGenerationFlowHelper() *GenerationFlowHelper {
-	return &GenerationFlowHelper{
+func NewFlowHelper() *FlowHelper {
+	return &FlowHelper{
 		GenerationQueues: generationqueue.GenerationiQueueMgr{
 			GenerationQueueMap: make(map[taskmodel.TaskIdType]*generationqueue.GenerationQueue),
 		},
@@ -41,13 +41,13 @@ func NewGenerationFlowHelper() *GenerationFlowHelper {
 }
 
 // global generator helper object
-var gs_GeneratorHelper = NewGenerationFlowHelper()
+var gs_GeneratorHelper = NewFlowHelper()
 
-func GetGeneratorFlowHelper() *GenerationFlowHelper {
+func GetFlowHelper() *FlowHelper {
 	return gs_GeneratorHelper
 }
 
-func (generator *GenerationFlowHelper) Begin(
+func (generator *FlowHelper) Begin(
 	taskId taskmodel.TaskIdType,
 	taskType uint32,
 	taskParam *taskmodel.TaskParam,
@@ -69,7 +69,7 @@ func (generator *GenerationFlowHelper) Begin(
 	return nil
 }
 
-func (generator *GenerationFlowHelper) End(
+func (generator *FlowHelper) End(
 	taskId taskmodel.TaskIdType,
 ) error {
 
@@ -87,7 +87,7 @@ func (generator *GenerationFlowHelper) End(
 	return nil
 }
 
-func (generator *GenerationFlowHelper) GenerationLoop(
+func (generator *FlowHelper) GenerationLoop(
 	taskId taskmodel.TaskIdType,
 ) error {
 
@@ -104,7 +104,7 @@ func (generator *GenerationFlowHelper) GenerationLoop(
 	return generator.pickupSubtaskLoop(taskId, &impl)
 }
 
-func (generator *GenerationFlowHelper) pickupSubtaskLoop(
+func (generator *FlowHelper) pickupSubtaskLoop(
 	taskId taskmodel.TaskIdType,
 	impl *TaskGenerationImpl,
 ) error {

@@ -36,13 +36,13 @@ func (s *CollectorServer) GetRegister() taskmodel.RegisterCollectorRequestHandle
 // start the collector server to receive requests
 func (s *CollectorServer) StartServer(uri string, serverPort uint16) error {
 	s.server = serverhelper.NewSimpleServer(
-		uri, serverPort,
-		func(
+		serverPort,
+		map[string]serverhelper.RequestHandler{uri: func(
 			requestHeader serverhelper.RequestHeader,
 			requestBody string,
 		) (response string, err error) {
 			return s.handleRequest(requestHeader, requestBody)
-		},
+		}},
 	)
 
 	s.server.StartServer()

@@ -32,13 +32,13 @@ func (s *ExecutorServer) GetRegister() taskmodel.RegisterExecutorRequestHandler 
 // start the executor server to receive requests
 func (s *ExecutorServer) StartServer(uri string, serverPort uint16) error {
 	s.server = serverhelper.NewSimpleServer(
-		uri, serverPort,
-		func(
+		serverPort,
+		map[string]serverhelper.RequestHandler{uri: func(
 			requestHeader serverhelper.RequestHeader,
 			requestBody string,
 		) (response string, err error) {
 			return s.handleRequest(requestHeader, requestBody)
-		},
+		}},
 	)
 
 	s.server.StartServer()

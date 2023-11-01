@@ -2,6 +2,7 @@ package serverhelper
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,19 +23,25 @@ const USER_NAME = "UserName"
 
 type RequestHandler func(header RequestHeader, requestBody string) (responseBody string, err error)
 type SimpleServer struct {
-	Handler    RequestHandler
-	URI        string
 	ServerPort uint16
+	handlerMap map[string]RequestHandler
+	server     *http.Server
 	signer     *msgsigner.MsgSigner
 }
 
-func NewSimpleServer(uri string, serverPort uint16, handler RequestHandler) *SimpleServer {
-	return &SimpleServer{
-		URI:        uri,
+func NewSimpleServer(serverPort uint16, handlerMap map[string]RequestHandler) *SimpleServer {
+	server := &SimpleServer{
+		handlerMap: make(map[string]RequestHandler),
 		ServerPort: serverPort,
-		Handler:    handler,
+		server:     nil,
 		signer:     msgsigner.NewMsgSigner(),
 	}
+
+	if handlerMap != nil {
+		server.handlerMap = handlerMap
+	}
+
+	return server
 }
 
 func (s *SimpleServer) StartServer() error {
@@ -45,19 +52,46 @@ func (s *SimpleServer) StartServer() error {
 	gin.SetMode(ginMode)
 
 	router := gin.Default()
-	router.POST(
-		s.URI,
-		s.requestTracing(),
-		s.authMiddleware(),
-		s.handleCommonRequest(),
-	)
+	for uri, handler := range s.handlerMap {
+		router.POST(
+			uri,
+			s.requestTracing(),
+			s.authMiddleware(),
+			s.handleRequest(handler),
+		)
+	}
 
-	err := router.Run(fmt.Sprintf(":%d", s.ServerPort))
-	if err != nil {
-		glog.Error("failed to run gin: ", err.Error())
+	s.server = &http.Server{
+		Addr:    fmt.Sprintf(":%d", s.ServerPort),
+		Handler: router,
+	}
+
+	if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		glog.Error("failed to run the gin server: ", err.Error())
 	}
 
 	glog.Info("exited")
+	return nil
+}
+
+func (s *SimpleServer) Shutdown() error {
+	return s.ShutdownWithDuration(5 * time.Second)
+}
+
+func (s *SimpleServer) ShutdownWithDuration(duration time.Duration) error {
+	if s.server == nil {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	defer cancel()
+
+	if err := s.server.Shutdown(ctx); err != nil {
+		glog.Error("The server shutdown error: ", err)
+		return err
+	}
+
+	glog.Info("The server shutdown successfully.")
 	return nil
 }
 
@@ -68,24 +102,27 @@ func (s *SimpleServer) requestTracing() gin.HandlerFunc {
 
 func (s *SimpleServer) authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		glog.Info("Authentication")
+		glog.Info("verify the Authentication header")
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
-			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "No Authorization")
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed,
+				"No Authorization")
 			c.Abort()
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "invalid Authorization format")
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed,
+				"invalid Authorization format")
 			c.Abort()
 			return
 		}
 
 		msg, err := s.signer.Verify(parts[1])
 		if err != nil {
-			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "invalid Authorization token")
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed,
+				"invalid Authorization token")
 			c.Abort()
 			return
 		}
@@ -93,7 +130,8 @@ func (s *SimpleServer) authMiddleware() gin.HandlerFunc {
 		commonMsg := CommonMessage{}
 		err = json.Unmarshal([]byte(msg), &commonMsg)
 		if err != nil {
-			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed, "invalid token data")
+			returnErrorResponse(c, "", errordef.Error_Msg_AuthorizationFailed,
+				"invalid token data")
 			c.Abort()
 			return
 		}
@@ -104,12 +142,13 @@ func (s *SimpleServer) authMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (s *SimpleServer) handleCommonRequest() gin.HandlerFunc {
+func (s *SimpleServer) handleRequest(handler RequestHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			glog.Warning("failed to get body: ", err.Error())
-			returnErrorResponse(c, "", errordef.Error_Msg_ParsingParam, "NO request id found")
+			returnErrorResponse(c, "", errordef.Error_Msg_ParsingParam,
+				"NO request id found")
 			return
 		}
 
@@ -118,7 +157,8 @@ func (s *SimpleServer) handleCommonRequest() gin.HandlerFunc {
 		if err != nil {
 			glog.Warning("failed to parse common parameter: ", err.Error())
 			glog.Warning(string(body))
-			returnErrorResponse(c, "", errordef.Error_Msg_ParsingParam, "failed to parse parameter")
+			returnErrorResponse(c, "", errordef.Error_Msg_ParsingParam,
+				"failed to parse parameter")
 			return
 		}
 		c.Request.Body = io.NopCloser(bytes.NewReader(body))
@@ -131,15 +171,16 @@ func (s *SimpleServer) handleCommonRequest() gin.HandlerFunc {
 		}
 
 		if actualBodyHash != expectedHash {
-			returnErrorResponse(c, request.Header.RequestId, errordef.Error_Msg_AuthorizationFailed,
+			returnErrorResponse(c, request.Header.RequestId,
+				errordef.Error_Msg_AuthorizationFailed,
 				"invalid body hash")
 			return
 		}
 
 		start := time.Now()
-		response, err := s.handle(request)
+		response, err := s.invokeHandler(handler, request)
 		timeCost := time.Since(start)
-		glog.Info("action stat, requestId:", request.Header.RequestId, ", timeCost: ", timeCost)
+		glog.Info("handler stat, requestId:", request.Header.RequestId, ", timeCost: ", timeCost)
 
 		if err == nil {
 			c.JSON(http.StatusOK, response)
@@ -149,12 +190,17 @@ func (s *SimpleServer) handleCommonRequest() gin.HandlerFunc {
 	}
 }
 
-func (s *SimpleServer) handle(request CommonRequest) (response IResponse, err error) {
+func (s *SimpleServer) invokeHandler(
+	handler RequestHandler,
+	request CommonRequest,
+) (response IResponse, err error) {
 	// invoke the outer handler
-	rspBody, err := s.Handler(request.Header, request.Body)
+	rspBody, err := handler(request.Header, request.Body)
 	if err != nil {
-		return ReturnErrorResponse(request.Header.RequestId,
-			errordef.Error_Msg_OperationFailed, err.Error()), nil
+		return ReturnErrorResponse(
+			request.Header.RequestId,
+			errordef.Error_Msg_OperationFailed,
+			err.Error()), nil
 	}
 
 	// return response
@@ -166,5 +212,6 @@ func (s *SimpleServer) handle(request CommonRequest) (response IResponse, err er
 		},
 		Body: rspBody,
 	}
+
 	return
 }

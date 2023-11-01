@@ -3,7 +3,6 @@ package msgsigner
 import (
 	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -11,15 +10,12 @@ import (
 
 func TestMain(m *testing.M) {
 	fmt.Println("setup...")
-	wd, _ := os.Getwd()
-	idx := strings.LastIndex(wd, "pterergate-dtf")
-	rootDir := wd[0 : idx+len("pterergate-dtf")]
-	os.Chdir(rootDir)
+	Setup()
 
 	retCode := m.Run()
 
 	fmt.Println("teardown...")
-	os.Chdir(wd)
+	Teardown()
 	os.Exit(retCode)
 }
 

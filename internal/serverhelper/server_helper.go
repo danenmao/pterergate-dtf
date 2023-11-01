@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 )
 
 // claim
@@ -68,5 +70,5 @@ func returnErrorResponse(c *gin.Context, requestId string, code string, msg stri
 }
 
 func returnInternalErrorResponse(c *gin.Context, requestId string) {
-	returnErrorResponse(c, requestId, "InternalError", "internal error occurred")
+	returnErrorResponse(c, requestId, errordef.Error_Msg_InternalError, "internal error occurred")
 }

@@ -13,6 +13,7 @@ const (
 	Error_Msg_ParsingParam        = "ParsingParamError"
 	Error_Msg_OperationFailed     = "OperationFailed"
 	Error_Msg_AuthorizationFailed = "AuthorizationFailed"
+	Error_Msg_InternalError       = "InternalError"
 )
 
 // 错误码映射表

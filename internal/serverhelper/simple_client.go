@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/google/uuid"
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
@@ -67,6 +68,7 @@ func (s *SimpleInvoker) Post(url string, userName string, requestBody string) er
 	// send the request
 	rsp, err := s.client.Do(httpReq)
 	if err != nil {
+		glog.Warning("Failed to send a request to the server: ", err)
 		return err
 	}
 

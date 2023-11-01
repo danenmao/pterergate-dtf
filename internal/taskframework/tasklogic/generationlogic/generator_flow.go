@@ -28,7 +28,6 @@ func (flow *GenerationFlow) InitGeneration(
 	taskType uint32,
 	taskParam *taskmodel.TaskParam,
 ) error {
-
 	flow.TaskId = taskId
 	flow.TaskType = taskType
 	flow.TaskParam = taskParam
@@ -40,7 +39,7 @@ func (flow *GenerationFlow) InitGeneration(
 		return err
 	}
 
-	err = GetGeneratorFlowHelper().Begin(taskId, taskType, taskParam, flow.Generator)
+	err = GetFlowHelper().Begin(taskId, taskType, taskParam, flow.Generator)
 	if err != nil {
 		glog.Warning("failed to invoke GeneratorFlowHelper.Begin: ", taskId, ", ", taskType, ", ", err)
 		return err
@@ -67,7 +66,6 @@ func (flow *GenerationFlow) InitGeneration(
 
 // finish the generation process
 func (flow *GenerationFlow) FinishGeneration() error {
-
 	// invoke the generator
 	err := flow.Generator.End(flow.TaskId)
 	if err != nil {
@@ -75,7 +73,7 @@ func (flow *GenerationFlow) FinishGeneration() error {
 		return err
 	}
 
-	err = GetGeneratorFlowHelper().End(flow.TaskId)
+	err = GetFlowHelper().End(flow.TaskId)
 	if err != nil {
 		glog.Warning("failed to invoke GeneratorFlowHelper.End: ", flow.TaskId, ", ", err)
 		return err
@@ -87,7 +85,7 @@ func (flow *GenerationFlow) FinishGeneration() error {
 
 // generation loop
 func (flow *GenerationFlow) GenerationLoop() error {
-	err := GetGeneratorFlowHelper().GenerationLoop(flow.TaskId)
+	err := GetFlowHelper().GenerationLoop(flow.TaskId)
 	if err != nil {
 		glog.Warning("GeneratorFlowHelper.GenerationLoop failed: ", flow.TaskId, ", ", err)
 		return err
@@ -99,7 +97,6 @@ func (flow *GenerationFlow) GenerationLoop() error {
 
 // get the generator object of the specified task type
 func GetTaskGenerator(taskType uint32, generator *taskmodel.ITaskGenerator) error {
-
 	var plugin taskplugin.ITaskPlugin = nil
 	err := taskloader.LookupTaskPlugin(taskType, &plugin)
 	if err != nil {
