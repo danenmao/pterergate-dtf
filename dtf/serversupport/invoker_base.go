@@ -15,11 +15,11 @@ type InvokerBase struct {
 	client     *serverhelper.SimpleInvoker
 }
 
-func NewInvokerBase(serverHost string, serverPort uint16, user string) *InvokerBase {
+func NewInvokerBase(serverHost string, serverPort uint16, uri string, user string) *InvokerBase {
 	i := &InvokerBase{
 		ServerHost: serverHost,
 		ServerPort: serverPort,
-		URI:        CollectorServerURI,
+		URI:        uri,
 		UserName:   user,
 		client:     serverhelper.NewSimpleInvoker(),
 	}

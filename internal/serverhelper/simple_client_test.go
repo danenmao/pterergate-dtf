@@ -34,7 +34,7 @@ func Test_Post_Success(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 
 	invoker := NewSimpleInvoker()
@@ -59,7 +59,7 @@ func Test_Post_ResponseError(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 
 	invoker := NewSimpleInvoker()

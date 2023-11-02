@@ -74,7 +74,7 @@ func Test_Shutdown_Success(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 
 	time.Sleep(10 * time.Millisecond)
@@ -103,7 +103,7 @@ func Test_Shutdown_Fail(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 
@@ -135,7 +135,7 @@ func Test_authMiddleware_NoAuthorization(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 
@@ -169,7 +169,7 @@ func Test_authMiddleware_InvalidAuthorizationFormat(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 
@@ -204,7 +204,7 @@ func Test_authMiddleware_InvalidSign(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 
@@ -239,7 +239,7 @@ func Test_authMiddleware_InvalidMsg(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 
@@ -275,7 +275,7 @@ func Test_handleRequest_DifferentHash(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 
@@ -322,7 +322,7 @@ func Test_handleRequest_InvalidCommonRequest(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 
@@ -364,7 +364,7 @@ func Test_handleRequest_HandlerReturnError(t *testing.T) {
 		}})
 
 	go func() {
-		svr.StartServer()
+		svr.Serve()
 	}()
 	time.Sleep(10 * time.Millisecond)
 

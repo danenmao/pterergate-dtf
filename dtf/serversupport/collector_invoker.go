@@ -8,12 +8,12 @@ import (
 )
 
 type CollectorInvoker struct {
-	InvokerBase
+	*InvokerBase
 }
 
 func NewCollectorInvoker(serverHost string, serverPort uint16, user string) *CollectorInvoker {
 	return &CollectorInvoker{
-		InvokerBase: *NewInvokerBase(serverHost, serverPort, user),
+		InvokerBase: NewInvokerBase(serverHost, serverPort, CollectorServerURI, user),
 	}
 }
 
@@ -21,11 +21,11 @@ func NewCollectorInvoker(serverHost string, serverPort uint16, user string) *Col
 // for executor to invoke collector
 func (c *CollectorInvoker) GetInvoker() taskmodel.CollectorInvoker {
 	return func(results []taskmodel.SubtaskResult) error {
-		return c.invoker(results)
+		return c.invoke(results)
 	}
 }
 
-func (c *CollectorInvoker) invoker(results []taskmodel.SubtaskResult) error {
+func (c *CollectorInvoker) invoke(results []taskmodel.SubtaskResult) error {
 	body := CollectorRequestBody{
 		Results: results,
 	}

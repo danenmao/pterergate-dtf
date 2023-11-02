@@ -44,7 +44,7 @@ func NewSimpleServer(serverPort uint16, handlerMap map[string]RequestHandler) *S
 	return server
 }
 
-func (s *SimpleServer) StartServer() error {
+func (s *SimpleServer) Serve() error {
 	ginMode := gin.DebugMode
 	if config.WorkEnv == config.ENV_ONLINE {
 		ginMode = gin.ReleaseMode

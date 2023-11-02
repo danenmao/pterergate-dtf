@@ -8,12 +8,12 @@ import (
 )
 
 type ExecutorInvoker struct {
-	InvokerBase
+	*InvokerBase
 }
 
 func NewExecutorInvoker(serverHost string, serverPort uint16, user string) *ExecutorInvoker {
 	return &ExecutorInvoker{
-		InvokerBase: *NewInvokerBase(serverHost, serverPort, user),
+		InvokerBase: NewInvokerBase(serverHost, serverPort, ExecutorServerURI, user),
 	}
 }
 
@@ -22,11 +22,11 @@ func NewExecutorInvoker(serverHost string, serverPort uint16, user string) *Exec
 // executor invoker, send subtasks to the executor
 func (e *ExecutorInvoker) GetInvoker() taskmodel.ExecutorInvoker {
 	return func(subtaskBody []taskmodel.SubtaskBody) error {
-		return e.invoker(subtaskBody)
+		return e.invoke(subtaskBody)
 	}
 }
 
-func (e *ExecutorInvoker) invoker(subtasks []taskmodel.SubtaskBody) error {
+func (e *ExecutorInvoker) invoke(subtasks []taskmodel.SubtaskBody) error {
 	body := ExecutorRequestBody{
 		Subtasks: subtasks,
 	}

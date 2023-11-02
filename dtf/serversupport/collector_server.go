@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
-	"github.com/danenmao/pterergate-dtf/internal/exitctrl"
 	"github.com/danenmao/pterergate-dtf/internal/serverhelper"
 )
 
@@ -19,8 +18,15 @@ type CollectorRequestBody struct {
 // the Collector Server
 // receive the requests of subtask results
 type CollectorServer struct {
-	Handler taskmodel.CollectorRequestHandler
-	server  *serverhelper.SimpleServer
+	*ServerBase
+	handler taskmodel.CollectorRequestHandler
+}
+
+func NewCollectorServer(handler taskmodel.CollectorRequestHandler) *CollectorServer {
+	return &CollectorServer{
+		ServerBase: NewServerBase(),
+		handler:    handler,
+	}
 }
 
 // return a register function
@@ -29,33 +35,21 @@ type CollectorServer struct {
 func (s *CollectorServer) GetRegister() taskmodel.RegisterCollectorRequestHandler {
 	return func(handler taskmodel.CollectorRequestHandler) error {
 		// save the handler
-		s.Handler = handler
+		s.handler = handler
 		return nil
 	}
 }
 
 // start the collector server to receive requests
-func (s *CollectorServer) StartServer(uri string, serverPort uint16) error {
-	s.server = serverhelper.NewSimpleServer(
-		serverPort,
-		map[string]serverhelper.RequestHandler{uri: func(
+func (s *CollectorServer) Serve(serverPort uint16) error {
+	return s.serve(
+		serverPort, CollectorServerURI,
+		func(
 			requestHeader serverhelper.RequestHeader,
 			requestBody string,
 		) (response string, err error) {
 			return s.handleRequest(requestHeader, requestBody)
-		}},
-	)
-
-	exitctrl.AddExitRoutine(func() {
-		s.Shutdown()
-	})
-
-	s.server.StartServer()
-	return nil
-}
-
-func (s *CollectorServer) Shutdown() error {
-	return s.server.Shutdown()
+		})
 }
 
 func (s *CollectorServer) handleRequest(
@@ -68,6 +62,6 @@ func (s *CollectorServer) handleRequest(
 		return "", errors.New("failed to parse request body")
 	}
 
-	err = s.Handler(body.Results)
+	err = s.handler(body.Results)
 	return "", err
 }

@@ -15,9 +15,8 @@ import (
 //
 ////////////////////////////////////////////////////////////////////////
 
-// 启动指定的服务
+// start the specified service
 func StartService(role dtfdef.ServiceRole, opts ...ServiceOption) error {
-
 	cfg := dtfdef.ServiceConfig{}
 	for _, opt := range opts {
 		opt(&cfg)
@@ -26,12 +25,12 @@ func StartService(role dtfdef.ServiceRole, opts ...ServiceOption) error {
 	return servicectrl.StartService(role, &cfg)
 }
 
-// 通知停止服务
+// notify to stop the service
 func NotifyStop() error {
 	return servicectrl.NotifyStop()
 }
 
-// 等待服务停止
+// wait for the service to stop
 func Join() error {
 	return servicectrl.Join()
 }
@@ -42,7 +41,7 @@ func Join() error {
 //
 ////////////////////////////////////////////////////////////////////////
 
-// 注册任务类型插件
+// register a task type plugin
 func RegisterTaskType(register *taskplugin.TaskPluginRegistration) error {
 	return taskloader.RegisterTaskType(register)
 }
@@ -53,27 +52,27 @@ func RegisterTaskType(register *taskplugin.TaskPluginRegistration) error {
 //
 ////////////////////////////////////////////////////////////////////////
 
-// 创建任务
+// create a task
 func CreateTask(taskType uint32, param *taskmodel.TaskParam) (taskmodel.TaskIdType, error) {
 	return taskmgmt.CreateTask(taskType, param)
 }
 
-// 暂停任务
+// pause a running task
 func PauseTask(taskId taskmodel.TaskIdType) error {
 	return taskmgmt.PauseTask(taskId)
 }
 
-// 恢复暂停中的任务
+// resume a paused task
 func ResumeTask(taskId taskmodel.TaskIdType) error {
 	return taskmgmt.ResumeTask(taskId)
 }
 
-// 停止正在运行中的任务
+// cancel a running task
 func CancelTask(taskId taskmodel.TaskIdType) error {
 	return taskmgmt.CancelTask(taskId)
 }
 
-// 查询任务的运行状态
+// retrieve the task status
 func GetTaskStatus(taskId taskmodel.TaskIdType, status *taskmodel.TaskStatusData) error {
 	return taskmgmt.GetTaskStatus(taskId, status)
 }

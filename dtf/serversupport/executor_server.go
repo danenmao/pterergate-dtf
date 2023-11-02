@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
-	"github.com/danenmao/pterergate-dtf/internal/exitctrl"
 	"github.com/danenmao/pterergate-dtf/internal/serverhelper"
 )
 
@@ -16,8 +15,15 @@ type ExecutorRequestBody struct {
 }
 
 type ExecutorServer struct {
-	Handler taskmodel.ExecutorRequestHandler
-	server  *serverhelper.SimpleServer
+	*ServerBase
+	handler taskmodel.ExecutorRequestHandler
+}
+
+func NewExecutorServer(handler taskmodel.ExecutorRequestHandler) *ExecutorServer {
+	return &ExecutorServer{
+		ServerBase: NewServerBase(),
+		handler:    handler,
+	}
 }
 
 // for executor
@@ -25,29 +31,22 @@ type ExecutorServer struct {
 func (s *ExecutorServer) GetRegister() taskmodel.RegisterExecutorRequestHandler {
 	return func(handler taskmodel.ExecutorRequestHandler) error {
 		// save the handler
-		s.Handler = handler
+		s.handler = handler
 		return nil
 	}
 }
 
 // start the executor server to receive requests
-func (s *ExecutorServer) StartServer(uri string, serverPort uint16) error {
-	s.server = serverhelper.NewSimpleServer(
-		serverPort,
-		map[string]serverhelper.RequestHandler{uri: func(
+func (s *ExecutorServer) Serve(serverPort uint16) error {
+	return s.serve(
+		serverPort, ExecutorServerURI,
+		func(
 			requestHeader serverhelper.RequestHeader,
 			requestBody string,
 		) (response string, err error) {
 			return s.handleRequest(requestHeader, requestBody)
-		}},
+		},
 	)
-
-	exitctrl.AddExitRoutine(func() {
-		s.Shutdown()
-	})
-
-	s.server.StartServer()
-	return nil
 }
 
 func (s *ExecutorServer) Shutdown() error {
@@ -64,6 +63,6 @@ func (s *ExecutorServer) handleRequest(
 		return "", errors.New("failed to parse request body")
 	}
 
-	err = s.Handler(body.Subtasks)
+	err = s.handler(body.Subtasks)
 	return "", err
 }
