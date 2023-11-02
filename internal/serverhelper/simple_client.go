@@ -39,24 +39,24 @@ func NewSimpleInvoker() *SimpleInvoker {
 	return s
 }
 
-func (s *SimpleInvoker) Post(url string, userName string, requestBody string) error {
+func (s *SimpleInvoker) Post(url string, userName string, requestBody string) (string, error) {
 	// generate the request json
 	commonReq := s.genCommonRequest(requestBody)
 	commonReqData, err := json.Marshal(commonReq)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// sign the request body
 	sign, err := s.sign(userName, commonReq)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// new a request
 	httpReq, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(commonReqData)))
 	if err != nil {
-		return nil
+		return "", nil
 	}
 
 	// set http headers
@@ -69,32 +69,32 @@ func (s *SimpleInvoker) Post(url string, userName string, requestBody string) er
 	rsp, err := s.client.Do(httpReq)
 	if err != nil {
 		glog.Warning("Failed to send a request to the server: ", err)
-		return err
+		return "", err
 	}
 
 	// parse the response
 	if rsp.StatusCode != 200 {
-		return fmt.Errorf("error HTTP status %d", rsp.StatusCode)
+		return "", fmt.Errorf("error HTTP status %d", rsp.StatusCode)
 	}
 
 	defer rsp.Body.Close()
 	respBody, err := io.ReadAll(rsp.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// parse the common response
 	commonResp := CommonResponse{}
 	err = json.Unmarshal(respBody, &commonResp)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if commonResp.Header.Code != errordef.Error_Msg_Success {
-		return errors.New(commonResp.Header.Message)
+		return commonResp.Body, errors.New(commonResp.Header.Message)
 	}
 
-	return nil
+	return commonResp.Body, nil
 }
 
 func (s *SimpleInvoker) genCommonRequest(requestBody string) *CommonRequest {

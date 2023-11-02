@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
+	"github.com/danenmao/pterergate-dtf/internal/exitctrl"
 	"github.com/danenmao/pterergate-dtf/internal/serverhelper"
 )
 
@@ -45,8 +46,16 @@ func (s *CollectorServer) StartServer(uri string, serverPort uint16) error {
 		}},
 	)
 
+	exitctrl.AddExitRoutine(func() {
+		s.Shutdown()
+	})
+
 	s.server.StartServer()
 	return nil
+}
+
+func (s *CollectorServer) Shutdown() error {
+	return s.server.Shutdown()
 }
 
 func (s *CollectorServer) handleRequest(

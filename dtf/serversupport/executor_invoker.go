@@ -36,5 +36,6 @@ func (e *ExecutorInvoker) invoker(subtasks []taskmodel.SubtaskBody) error {
 		return errordef.ErrOperationFailed
 	}
 
-	return e.client.Post(e.url, e.UserName, string(data))
+	_, err = e.client.Post(e.url, e.UserName, string(data))
+	return err
 }

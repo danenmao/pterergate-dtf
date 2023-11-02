@@ -81,7 +81,7 @@ func Test_Shutdown_Success(t *testing.T) {
 	svr.ShutdownWithDuration(100 * time.Millisecond)
 
 	invoker := NewSimpleInvoker()
-	err := invoker.Post("http://localhost:8090/test", "test", "test")
+	_, err := invoker.Post("http://localhost:8090/test", "test", "test")
 
 	Convey("The server shutdown successfully", t, func() {
 		Convey("should not be nil", func() {

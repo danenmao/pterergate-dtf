@@ -17,16 +17,16 @@ var gs_PreStop = 10 * time.Second
 var SignalCtx context.Context = nil
 var gs_ExitChan chan os.Signal = nil
 
-type ExitSignalController struct {
-	NotifyToExitFlag bool // 通知退出的标记, 收到退出信号时设置此标记
-	JustExitFlag     bool // 立即退出的标记
-	CancelFn         context.CancelFunc
+type ExitController struct {
+	NotifyFlag   bool               // the flag to notify to exit
+	JustExitFlag bool               // exit flag
+	CancelFn     context.CancelFunc // context cancel function
 }
 
-var gs_Controller = ExitSignalController{
-	NotifyToExitFlag: false,
-	JustExitFlag:     false,
-	CancelFn:         nil,
+var gs_Controller = ExitController{
+	NotifyFlag:   false,
+	JustExitFlag: false,
+	CancelFn:     nil,
 }
 
 // register to process the exit signal
@@ -38,7 +38,7 @@ func Register() error {
 func RegisterWithDuration(duration time.Duration) error {
 	// reset the state
 	gs_PreStop = duration
-	gs_Controller.NotifyToExitFlag = false
+	gs_Controller.NotifyFlag = false
 	gs_Controller.JustExitFlag = false
 	SignalCtx, gs_Controller.CancelFn = context.WithCancel(context.Background())
 
@@ -57,15 +57,15 @@ func RegisterWithDuration(duration time.Duration) error {
 	return nil
 }
 
-// notify the routines  to exit
+// notify the routines to exit
 func NotifyToExit() {
 	gs_ExitChan <- os.Interrupt
-	gs_Controller.NotifyToExitFlag = true
+	gs_Controller.NotifyFlag = true
 }
 
 // check if the caller need to exit
 func IfNeedToExit() bool {
-	return gs_Controller.NotifyToExitFlag
+	return gs_Controller.NotifyFlag
 }
 
 // wait for the exit signal
@@ -82,6 +82,28 @@ func WaitForSignal(interval time.Duration) bool {
 			}
 
 			time.Sleep(10 * time.Millisecond)
+		}
+	}
+}
+
+type ExitRoutine func()
+
+func AddExitRoutine(r ExitRoutine) {
+	go func() {
+		for {
+			if WaitForSignal(500 * time.Millisecond) {
+				r()
+				return
+			}
+		}
+	}()
+}
+
+// main wait loop
+func Loop() {
+	for {
+		if WaitForSignal(500 * time.Millisecond) {
+			return
 		}
 	}
 }
@@ -119,7 +141,7 @@ func listenToSignal() {
 // perform the clean operation
 func clean() {
 	// set the notify flag
-	gs_Controller.NotifyToExitFlag = true
+	gs_Controller.NotifyFlag = true
 	gs_Controller.CancelFn()
 
 	// prestop

@@ -2,34 +2,10 @@ package serversupport
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/danenmao/pterergate-dtf/dtf/errordef"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
-	"github.com/danenmao/pterergate-dtf/internal/serverhelper"
 )
-
-type InvokerBase struct {
-	ServerHost string
-	ServerPort uint16
-	URI        string
-	UserName   string
-	url        string
-	client     *serverhelper.SimpleInvoker
-}
-
-func NewInvokerBase(serverHost string, serverPort uint16, user string) *InvokerBase {
-	i := &InvokerBase{
-		ServerHost: serverHost,
-		ServerPort: serverPort,
-		URI:        CollectorServerURI,
-		UserName:   user,
-		client:     serverhelper.NewSimpleInvoker(),
-	}
-
-	i.url = fmt.Sprintf("http://%s:%d%s", i.ServerHost, i.ServerPort, i.URI)
-	return i
-}
 
 type CollectorInvoker struct {
 	InvokerBase
@@ -59,5 +35,6 @@ func (c *CollectorInvoker) invoker(results []taskmodel.SubtaskResult) error {
 		return errordef.ErrOperationFailed
 	}
 
-	return c.client.Post(c.url, c.UserName, string(data))
+	_, err = c.client.Post(c.url, c.UserName, string(data))
+	return err
 }

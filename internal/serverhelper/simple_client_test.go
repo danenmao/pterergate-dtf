@@ -38,7 +38,7 @@ func Test_Post_Success(t *testing.T) {
 	}()
 
 	invoker := NewSimpleInvoker()
-	err := invoker.Post("http://localhost:8090/test", "test", "test")
+	_, err := invoker.Post("http://localhost:8090/test", "test", "test")
 	svr.Shutdown()
 
 	Convey("post a request successfully", t, func() {
@@ -63,7 +63,7 @@ func Test_Post_ResponseError(t *testing.T) {
 	}()
 
 	invoker := NewSimpleInvoker()
-	err := invoker.Post("http://localhost:8090/test", "test", "test")
+	_, err := invoker.Post("http://localhost:8090/test", "test", "test")
 	svr.Shutdown()
 
 	Convey("a request return a error", t, func() {
@@ -76,7 +76,7 @@ func Test_Post_ResponseError(t *testing.T) {
 
 func Test_Post_InvalidUrl(t *testing.T) {
 	invoker := NewSimpleInvoker()
-	err := invoker.Post("http://localhost:8090/test", "test", "test")
+	_, err := invoker.Post("http://localhost:8090/test", "test", "test")
 
 	Convey("failed to post a request to an invalid url", t, func() {
 		Convey("should not be nil", func() {
@@ -105,7 +105,7 @@ func Test_Post_InvalidCommonResponse(t *testing.T) {
 	}()
 
 	invoker := NewSimpleInvoker()
-	err := invoker.Post("http://localhost:8090/test", "test", "test")
+	_, err := invoker.Post("http://localhost:8090/test", "test", "test")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 	defer cancel()
