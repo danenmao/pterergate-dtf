@@ -100,12 +100,16 @@ func AddExitRoutine(r ExitRoutine) {
 }
 
 // main wait loop
-func Loop() {
+func Join() {
+	// wait for the exit signal
 	for {
 		if WaitForSignal(500 * time.Millisecond) {
-			return
+			break
 		}
 	}
+
+	// prestop
+	Prestop()
 }
 
 // prestop function

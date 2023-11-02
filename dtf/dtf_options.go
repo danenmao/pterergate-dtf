@@ -1,6 +1,8 @@
 package dtf
 
 import (
+	"time"
+
 	"github.com/danenmao/pterergate-dtf/dtf/dtfdef"
 	"github.com/danenmao/pterergate-dtf/dtf/extconfig"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
@@ -8,6 +10,12 @@ import (
 
 // 用于设置服务配置
 type ServiceOption func(config *dtfdef.ServiceConfig)
+
+func WithPrestop(d time.Duration) ServiceOption {
+	return func(config *dtfdef.ServiceConfig) {
+		config.PrestopDuration = d
+	}
+}
 
 func WithMySQL(mysql *extconfig.MySQLAddress) ServiceOption {
 	return func(config *dtfdef.ServiceConfig) {

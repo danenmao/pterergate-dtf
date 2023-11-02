@@ -1,6 +1,8 @@
 package dtfdef
 
 import (
+	"time"
+
 	"github.com/danenmao/pterergate-dtf/dtf/extconfig"
 	"github.com/danenmao/pterergate-dtf/dtf/taskmodel"
 )
@@ -18,6 +20,7 @@ const (
 
 // 服务配置
 type ServiceConfig struct {
+	PrestopDuration          time.Duration
 	MySQLServer              extconfig.MySQLAddress
 	RedisServer              extconfig.RedisAddress
 	MongoServer              extconfig.MongoAddress

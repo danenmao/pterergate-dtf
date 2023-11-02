@@ -8,33 +8,33 @@ import (
 	"github.com/danenmao/pterergate-dtf/internal/exitctrl"
 )
 
-// 启动指定的服务
+// start the specified service
 func StartService(role dtfdef.ServiceRole, cfg *dtfdef.ServiceConfig) error {
 
 	// search service role start fn
-	startFn, found := gs_ServiceRoleAction[role]
+	starter, found := gs_ServiceRoleStarter[role]
 	if !found {
 		glog.Warning("unknown service role: ", role)
 		return errordef.ErrInvalidParameter
 	}
 
-	// to process exit signal
-	exitctrl.Register()
+	// to process the exit signal
+	exitctrl.RegisterWithDuration(cfg.PrestopDuration)
 
 	// invoke the start fn
-	startFn(cfg)
+	starter(cfg)
 
 	return nil
 }
 
-// 通知停止服务
+// notify to stop all routines
 func NotifyStop() error {
 	exitctrl.NotifyToExit()
 	return nil
 }
 
-// 等待服务停止
+// wait for all routines to exit
 func Join() error {
-	exitctrl.Prestop()
+	exitctrl.Join()
 	return nil
 }
