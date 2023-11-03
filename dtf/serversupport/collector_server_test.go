@@ -2,6 +2,7 @@ package serversupport
 
 import (
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -19,6 +20,7 @@ func Test_CollectorGetRegister_Success(t *testing.T) {
 	go func() {
 		svr.Serve(8090)
 	}()
+	time.Sleep(10 * time.Millisecond)
 
 	invoker := NewCollectorInvoker("localhost", 8090, "test-invoker")
 	err := invoker.GetInvoker()([]taskmodel.SubtaskResult{})
