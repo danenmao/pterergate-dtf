@@ -8,28 +8,11 @@ import (
 	"github.com/golang/glog"
 )
 
-const sleepInterval = 50
-const defaultExpire = time.Millisecond * 1000 * 20
+const sleepInterval = 20
+const defaultExpire = time.Second * 20
 
 func Lock(lockName string, timeoutMS uint) error {
-	totalCount := timeoutMS / sleepInterval
-	var counter uint = 0
-
-	for {
-		// 尝试获取锁
-		err := tryToLock(lockName, defaultExpire)
-		if err == nil {
-			return nil
-		}
-
-		counter++
-		if counter > totalCount {
-			return errors.New("timeout to get lock")
-		}
-
-		// 等待一段时间再尝试
-		time.Sleep(time.Millisecond * sleepInterval)
-	}
+	return LockWithExpire(lockName, timeoutMS, defaultExpire)
 }
 
 func LockWithExpire(lockName string, timeoutMS uint, expire time.Duration) error {
@@ -37,7 +20,7 @@ func LockWithExpire(lockName string, timeoutMS uint, expire time.Duration) error
 	var counter uint = 0
 
 	for {
-		// 尝试获取锁
+		// try to get the lock
 		err := tryToLock(lockName, expire)
 		if err == nil {
 			return nil
@@ -48,7 +31,7 @@ func LockWithExpire(lockName string, timeoutMS uint, expire time.Duration) error
 			return errors.New("timeout to get lock")
 		}
 
-		// 等待一段时间再尝试
+		// wait and then try again
 		time.Sleep(time.Millisecond * sleepInterval)
 	}
 }
@@ -57,12 +40,11 @@ func Unlock(lockName string) error {
 	cmd := DefaultRedis().Del(context.Background(), lockName)
 	err := cmd.Err()
 	if err != nil {
-		glog.Warning("failed to del lock: ", lockName)
+		glog.Warning("failed to del the lock: ", lockName)
 		return err
 	}
 
-	glog.Info("succeeded to release lock: ", lockName)
-
+	glog.Info("succeeded to release the lock: ", lockName)
 	return nil
 }
 
@@ -70,7 +52,7 @@ func RenewLock(lockName string, expire time.Duration) error {
 	cmd := DefaultRedis().SetNX(context.Background(), lockName, 1, expire)
 	err := cmd.Err()
 	if err != nil {
-		glog.Warning("failed to set lock: ", lockName, err)
+		glog.Warning("failed to set the lock: ", lockName, err)
 		return err
 	}
 
@@ -79,7 +61,7 @@ func RenewLock(lockName string, expire time.Duration) error {
 		glog.Warning("lock to be renewed has no owner: ", lockName)
 	}
 
-	glog.Info("succeeded to renew lock: ", lockName)
+	glog.Info("succeeded to renew the lock: ", lockName)
 	return nil
 }
 
@@ -87,7 +69,7 @@ func tryToLock(lockName string, expire time.Duration) error {
 	cmd := DefaultRedis().SetNX(context.Background(), lockName, 1, expire)
 	err := cmd.Err()
 	if err != nil {
-		glog.Warning("failed to set lock: ", lockName, err)
+		glog.Warning("failed to set the lock: ", lockName, err)
 		return err
 	}
 
@@ -97,6 +79,6 @@ func tryToLock(lockName string, expire time.Duration) error {
 		return errors.New("lock owned by other")
 	}
 
-	glog.Info("got lock: ", lockName)
+	glog.Info("got the lock: ", lockName)
 	return nil
 }

@@ -9,11 +9,11 @@ import (
 	"github.com/golang/glog"
 )
 
-// 试图获取元素的所有权
-func TryToOwnElements(keyName string, elemList *[]uint64, ownedElemList *[]uint64) error {
+// try to get the ownership of elements
+func TryToOwnElements(keyName string, srcElements *[]uint64, ownedElements *[]uint64) error {
 	// remove elements
-	pipeline := DefaultRedis().Pipeline()
-	for _, elem := range *elemList {
+	pipeline := DefaultRedis().TxPipeline()
+	for _, elem := range *srcElements {
 		pipeline.ZRem(context.Background(), keyName, elem)
 	}
 
@@ -24,11 +24,11 @@ func TryToOwnElements(keyName string, elemList *[]uint64, ownedElemList *[]uint6
 		return err
 	}
 
-	// 检查删除结果，删除成功则拥有该任务的处理所有权
+	// check if get the ownership of elements
 	for idx, cmd := range cmdList {
-		elem := (*elemList)[idx]
+		elem := (*srcElements)[idx]
 
-		// 检查ZRem id的结果
+		// check the result of ZRem
 		intCmd, ok := cmd.(*redis.IntCmd)
 		if !ok {
 			glog.Warning("failed to convert cmd: ", elem, cmd)
@@ -46,20 +46,20 @@ func TryToOwnElements(keyName string, elemList *[]uint64, ownedElemList *[]uint6
 			continue
 		}
 
-		// 为拥有所有权的任务
-		*ownedElemList = append(*ownedElemList, elem)
-		glog.Info("owned completed elem: ", elem)
+		// get the ownership of an element
+		*ownedElements = append(*ownedElements, elem)
+		glog.Info("owned an element: ", elem)
 	}
 
 	return nil
 }
 
-func GetTimeoutElements(keyName string, count uint, elemList *[]uint64) error {
-	if elemList == nil {
-		panic("invalid elem list pointer")
+func GetTimeoutElements(keyName string, count uint, retElements *[]uint64) error {
+	if retElements == nil {
+		panic("invalid element list pointer")
 	}
 
-	// 从zset中取超时的子任务
+	// get timeout elements
 	now := time.Now().Unix()
 	nowStr := strconv.FormatUint(uint64(now), 10)
 	opt := redis.ZRangeBy{
@@ -70,37 +70,39 @@ func GetTimeoutElements(keyName string, count uint, elemList *[]uint64) error {
 	cmd := DefaultRedis().ZRangeByScore(context.Background(), keyName, &opt)
 	err := cmd.Err()
 	if err != nil {
-		glog.Warning("failed to get timeout elem from redis: ", err)
+		glog.Warning("failed to get timeout element from redis: ", err)
 		return err
 	}
 
 	strList := cmd.Val()
 	if len(strList) > 0 {
-		glog.Info("got timeout elem: ", strList)
+		glog.Info("got a timeout element: ", strList)
 	}
 
-	// 转换查询到的子任务ID
+	// covert timeout elements
 	var wrongFormatList = []interface{}{}
 	for _, str := range strList {
 		id, err := strconv.ParseUint(str, 10, 64)
 		if err != nil {
-			// 如果转换失败，说明数据格式错误，移除元素
-			glog.Warning("failed to convert timeout elem id: ", str)
+			// invalid digital format，remove it
+			glog.Warning("failed to convert a timeout element id: ", str)
 			wrongFormatList = append(wrongFormatList, str)
 			continue
 		}
 
-		*elemList = append(*elemList, id)
+		*retElements = append(*retElements, id)
 	}
 
-	// 删除转换失败的任务数据
-	DefaultRedis().ZRem(context.Background(), keyName, wrongFormatList...)
+	// remove the elements that failed to covert
+	if len(wrongFormatList) > 0 {
+		DefaultRedis().ZRem(context.Background(), keyName, wrongFormatList...)
+	}
 
-	// 如果列表为空，表示没有超时的任务
-	if len(*elemList) == 0 {
+	// no timeout elements
+	if len(*retElements) == 0 {
 		return nil
 	}
 
-	glog.Info("got timeout elems: ", *elemList)
+	glog.Info("got timeout elements: ", *retElements)
 	return nil
 }
