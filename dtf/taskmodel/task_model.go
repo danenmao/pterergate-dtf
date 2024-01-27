@@ -2,16 +2,16 @@ package taskmodel
 
 import "time"
 
-// TaskConf
+// PluginConf
 // 记录任务插件的配置信息
-type TaskConf struct {
+type PluginConf struct {
 	IterationMode   TaskInterationMode // 任务支持的迭代模式
 	TaskTypeTimeout time.Duration      // 此任务类型的最大执行时间限制
 }
 
-// TaskBody
+// PluginBody
 // 表示任务的执行体
-type TaskBody struct {
+type PluginBody struct {
 	Generator         ITaskGenerator
 	Executor          ITaskExecutor
 	SchedulerCallback ITaskSchedulerCallback

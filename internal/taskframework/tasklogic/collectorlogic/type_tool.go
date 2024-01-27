@@ -19,8 +19,8 @@ func GetTaskCollectorCallback(taskType uint32, collector *taskmodel.ITaskCollect
 		return err
 	}
 
-	var context taskmodel.TaskBody
-	err = plugin.GetTaskBody(&context)
+	var context taskmodel.PluginBody
+	err = plugin.GetPluginBody(&context)
 	if err != nil {
 		glog.Warning("failed to get task context: ", err.Error())
 		return err

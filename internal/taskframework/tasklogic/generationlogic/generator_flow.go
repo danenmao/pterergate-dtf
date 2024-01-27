@@ -104,8 +104,8 @@ func GetTaskGenerator(taskType uint32, generator *taskmodel.ITaskGenerator) erro
 		return err
 	}
 
-	var body taskmodel.TaskBody
-	err = plugin.GetTaskBody(&body)
+	var body taskmodel.PluginBody
+	err = plugin.GetPluginBody(&body)
 	if err != nil {
 		glog.Warning("failed to get task context: ", err.Error())
 		return err

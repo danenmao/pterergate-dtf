@@ -58,28 +58,28 @@ Read the [Get Started](https://github.com/danenmao/pterergate-dtf/wiki/Get-Start
     ``` Go
     // implement taskplugin.ITaskPlugin
     type SamplePlugin struct{
-        TaskBody taskmodel.TaskBody
-        TaskConf taskmodel.TaskConf
+        PluginBody taskmodel.PluginBody
+        PluginConf taskmodel.PluginConf
     }
 
-    func (p * SamplePlugin) GetTaskConf(taskConf *taskmodel.TaskConf) error{
-        *taskConf = p.TaskConf
+    func (p * SamplePlugin) GetPluginConf(conf *taskmodel.PluginConf) error{
+        *conf = p.PluginConf
         return nil
     }
 
-    func  (p * SamplePlugin) GetTaskBody(taskBody *taskmodel.TaskBody) error{
-        *taskBody = p.TaskBody
+    func  (p * SamplePlugin) GetPluginBody(body *taskmodel.PluginBody) error{
+        *body = p.PluginBody
         return nil
     }
     
     var plugin = SamplePlugin{
-        TaskBody: taskmodel.TaskBody{
+        PluginBody: taskmodel.PluginBody{
             Generator: &SampleGenerator{},
             Executor: &SampleExecutor{},
             SchedulerCallback: &SampleSchedulerCallback{},
             CollectorCallback: &SampleCollectorCallback{},
         },
-        TaskConf: taskmodel.TaskConf{
+        PluginConf: taskmodel.PluginConf{
             IterationMode: taskmodel.IterationMode_No,
             TaskTypeTimeout: time.Hour,
         },

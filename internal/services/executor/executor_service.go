@@ -134,14 +134,14 @@ func GetTaskExecutor(taskType uint32, executor *taskmodel.ITaskExecutor) error {
 		return err
 	}
 
-	var taskBody taskmodel.TaskBody
-	err = plugin.GetTaskBody(&taskBody)
+	var pluginBody taskmodel.PluginBody
+	err = plugin.GetPluginBody(&pluginBody)
 	if err != nil {
 		glog.Warning("failed to get task context: ", err.Error())
 		return err
 	}
 
-	*executor = taskBody.Executor
+	*executor = pluginBody.Executor
 	glog.Info("succeeded to get task scheduler: ", taskType)
 	return nil
 }

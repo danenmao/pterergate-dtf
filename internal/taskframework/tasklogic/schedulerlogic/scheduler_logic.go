@@ -96,14 +96,14 @@ func GetTaskSchedulerCallback(taskType uint32, callback *taskmodel.ITaskSchedule
 		return err
 	}
 
-	var taskBody taskmodel.TaskBody
-	err = plugin.GetTaskBody(&taskBody)
+	var pluginBody taskmodel.PluginBody
+	err = plugin.GetPluginBody(&pluginBody)
 	if err != nil {
 		glog.Warning("failed to get task context: ", err.Error())
 		return err
 	}
 
-	*callback = taskBody.SchedulerCallback
+	*callback = pluginBody.SchedulerCallback
 	glog.Info("succeeded to get task scheduler callback: ", taskType)
 	return nil
 }
