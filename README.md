@@ -86,7 +86,7 @@ Read the [Get Started](https://github.com/danenmao/pterergate-dtf/wiki/Get-Start
     }
     ```
 
-3. Register the task type.
+3. Register a task type.
 
     ``` Go
     const SampleTaskType = 1
@@ -102,7 +102,7 @@ Read the [Get Started](https://github.com/danenmao/pterergate-dtf/wiki/Get-Start
     err := dtf.RegisterTaskType(&register)
     ```
 
-4. Invoke the dtf services.
+4. Start the required dtf services.
 
     ``` Go
     // start the task manager service
@@ -121,8 +121,7 @@ Read the [Get Started](https://github.com/danenmao/pterergate-dtf/wiki/Get-Start
     ```
 
     ```Go
-    // start the task generator
-    // start the task manager service
+    // start the task generator service
     err := dtf.StartService(
         dtfdef.ServiceRole_Generator, 
         dtf.WithMySQL(&extconfig.MySQLAddress{...}),
@@ -173,7 +172,7 @@ Read the [Get Started](https://github.com/danenmao/pterergate-dtf/wiki/Get-Start
     colletorSvr.StartServer()
     ```
 
-5. Create a task to perform some operation.
+5. Create a task to perform your business operations.
 
     ``` Go
     taskParam := taskmodel.TaskParam{
@@ -186,7 +185,7 @@ Read the [Get Started](https://github.com/danenmao/pterergate-dtf/wiki/Get-Start
     )
     ```
 
-6. Wait for the service to exit.
+6. Wait for the running services to exit.
 
     ``` Go
     dtf.Join()

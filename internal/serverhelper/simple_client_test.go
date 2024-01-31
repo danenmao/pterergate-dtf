@@ -87,7 +87,7 @@ func Test_Post_InvalidUrl(t *testing.T) {
 
 func Test_Post_InvalidCommonResponse(t *testing.T) {
 	gin.SetMode(gin.DebugMode)
-	router := gin.Default()
+	router := gin.New()
 	router.POST(
 		"/test", func(c *gin.Context) {
 			c.JSON(http.StatusOK, "test response")
